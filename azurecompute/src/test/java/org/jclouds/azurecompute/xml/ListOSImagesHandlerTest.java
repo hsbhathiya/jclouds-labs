@@ -50,6 +50,7 @@ public class ListOSImagesHandlerTest extends BaseHandlerTest {
                   "Ubuntu Server 12.04 LTS amd64 20120528 Cloud Image", //description
                   "Canonical", // category
                   OSImage.Type.LINUX, // os
+                  "Canonical", //publisherName
                   null, // mediaLink
                   30, // logicalSizeInGB
                   Arrays.asList("http://www.ubuntu.com/project/about-ubuntu/licensing") // eula
@@ -62,6 +63,7 @@ public class ListOSImagesHandlerTest extends BaseHandlerTest {
                   "Windows Server 2008 R2 is a multi-purpose server.", //description
                   "Microsoft", // category
                   OSImage.Type.WINDOWS, // os
+                  "Microsoft", //publisherName
                   URI.create("http://blobs/disks/mydeployment/MSFT__Win2K8R2SP1-120612-1520-121206-01-en-us-30GB.vhd"),
                   // mediaLink
                   30, // logicalSizeInGB
@@ -75,6 +77,7 @@ public class ListOSImagesHandlerTest extends BaseHandlerTest {
                   "SQL Server 2012 Evaluation Edition (64-bit).", //description
                   "Microsoft", // category
                   OSImage.Type.WINDOWS, // os
+                  "Microsoft", //publisherName
                   null, // mediaLink
                   30, // logicalSizeInGB
                   Arrays.asList("http://go.microsoft.com/fwlink/?LinkID=251820",
@@ -88,6 +91,7 @@ public class ListOSImagesHandlerTest extends BaseHandlerTest {
                   "Windows Server 2012 incorporates Microsoft's experience building.", //description
                   "Microsoft", // category
                   OSImage.Type.WINDOWS, // os
+                  "Microsoft", //publisherName
                   null, // mediaLink
                   30, // logicalSizeInGB
                   Collections.<String>emptyList() // eula
@@ -100,6 +104,7 @@ public class ListOSImagesHandlerTest extends BaseHandlerTest {
                   "Windows Server 2008 R2 is a multi-purpose server.", //description
                   "Microsoft", // category
                   OSImage.Type.WINDOWS, // os
+                  "Microsoft", //publisherName
                   null, // mediaLink
                   30, // logicalSizeInGB
                   Collections.<String>emptyList() // eula
@@ -112,9 +117,10 @@ public class ListOSImagesHandlerTest extends BaseHandlerTest {
                   "This distribution of Linux is based on CentOS.", //description
                   "OpenLogic", // category
                   OSImage.Type.LINUX, // os
+                  "openLogic", //publisherName
                   URI.create("http://blobs/disks/mydeployment/OpenLogic__OpenLogic-CentOS-62-20120531-en-us-30GB.vhd"),
                   // mediaLink
-                  30, // logicalSizeInGB
+                  30, //logicalSizeInGB
                   Arrays.asList("http://www.openlogic.com/azure/service-agreement/") // eula
             ),
             OSImage.create( //
@@ -125,6 +131,7 @@ public class ListOSImagesHandlerTest extends BaseHandlerTest {
                   "openSUSE is a free and Linux-based operating system!", //description
                   "SUSE", // category
                   OSImage.Type.LINUX, // os
+                  "SUSE", //publisherName
                   null, // mediaLink
                   30, // logicalSizeInGB
                   Arrays.asList("http://opensuse.org/") // eula
@@ -137,6 +144,7 @@ public class ListOSImagesHandlerTest extends BaseHandlerTest {
                   "SUSE Linux Enterprise Server is a highly reliable value.", //description
                   "SUSE", // category
                   OSImage.Type.LINUX, // os
+                  "SUSE", //publisherName
                   null, // mediaLink
                   30, // logicalSizeInGB
                   Arrays.asList("http://www.novell.com/licensing/eula/") // eula
@@ -149,6 +157,7 @@ public class ListOSImagesHandlerTest extends BaseHandlerTest {
                   null, //description
                   "RightScale with Linux", // category
                   OSImage.Type.LINUX, // os
+                  "RightScale with Linux",
                   null, // mediaLink
                   10, // logicalSizeInGB
                   Collections.<String>emptyList() // No EULA, as RightScale stuffed ';' into the field.

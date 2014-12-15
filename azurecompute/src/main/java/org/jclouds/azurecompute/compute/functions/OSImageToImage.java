@@ -20,11 +20,34 @@ import org.jclouds.azurecompute.domain.OSImage;
 import org.jclouds.compute.domain.Image;
 
 import com.google.common.base.Function;
+import org.jclouds.compute.domain.ImageBuilder;
+import org.jclouds.compute.domain.OperatingSystem;
+import org.jclouds.compute.domain.OsFamily;
 
 public class OSImageToImage implements Function<OSImage, Image> {
 
    @Override
-   public Image apply(OSImage input) {
-      return null;
+   public Image apply(OSImage image) {
+
+      // @TODO add location support
+      ImageBuilder builder = new ImageBuilder()
+            .id(image.label())
+            .name(image.name())
+            .description(image.description())
+            .status(Image.Status.AVAILABLE)
+            .uri(image.mediaLink())
+            .providerId(image.publisherName());
+
+      OperatingSystem.Builder osBuilder = setOperatingSystem(image);
+
+      return builder.operatingSystem(osBuilder.build()).build();
+   }
+
+   private OperatingSystem.Builder setOperatingSystem(OSImage image) {
+      OsFamily family;
+      if (image.os() == OSImage.Type.WINDOWS) {
+         return OperatingSystem.builder().family(OsFamily.WINDOWS).is64Bit(true).description(image.name());
+      }
+      return OperatingSystem.builder().family(OsFamily.LINUX).is64Bit(true).description(image.name());
    }
 }

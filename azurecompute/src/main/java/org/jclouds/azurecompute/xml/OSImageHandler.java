@@ -40,15 +40,17 @@ final class OSImageHandler extends ParseSax.HandlerForGeneratedRequestWithResult
    private String category;
    private String description;
    private OSImage.Type os;
+   private String publisherName;
    private URI mediaLink;
    private Integer logicalSizeInGB;
    private final List<String> eulas = Lists.newArrayList();
 
    private final StringBuilder currentText = new StringBuilder();
 
-   @Override public OSImage getResult() {
+   @Override
+   public OSImage getResult() {
       OSImage result = OSImage
-            .create(name, ImmutableList.copyOf(locations), affinityGroup, label, description, category, os, mediaLink,
+            .create(name, ImmutableList.copyOf(locations), affinityGroup, label, description, category, os, publisherName, mediaLink,
                   logicalSizeInGB, ImmutableList.copyOf(eulas));
       resetState(); // handler is called in a loop.
       return result;
@@ -57,6 +59,7 @@ final class OSImageHandler extends ParseSax.HandlerForGeneratedRequestWithResult
    private void resetState() {
       name = affinityGroup = label = description = category = null;
       os = null;
+      publisherName = null;
       mediaLink = null;
       logicalSizeInGB = null;
       eulas.clear();
@@ -87,6 +90,8 @@ final class OSImageHandler extends ParseSax.HandlerForGeneratedRequestWithResult
          }
       } else if (qName.equals("AffinityGroup")) {
          affinityGroup = currentOrNull(currentText);
+      } else if (qName.equals("PublisherName")){
+         publisherName = currentOrNull(currentText);
       } else if (qName.equals("MediaLink")) {
          String link = currentOrNull(currentText);
          if (link != null) {
