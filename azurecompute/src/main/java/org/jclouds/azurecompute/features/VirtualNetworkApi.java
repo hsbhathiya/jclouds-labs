@@ -17,63 +17,58 @@
 package org.jclouds.azurecompute.features;
 
 import static org.jclouds.Fallbacks.NullOnNotFoundOr404;
+import java.util.List;
 
 import javax.inject.Named;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.jclouds.azurecompute.binders.DeploymentParamsToXML;
-import org.jclouds.azurecompute.domain.Deployment;
-import org.jclouds.azurecompute.domain.DeploymentParams;
+import org.jclouds.azurecompute.binders.NetworkConfigurationToXML;
+import org.jclouds.azurecompute.domain.NetworkConfiguration;
+import org.jclouds.azurecompute.domain.NetworkConfiguration.VirtualNetworkSite;
 import org.jclouds.azurecompute.functions.ParseRequestIdHeader;
-import org.jclouds.azurecompute.xml.DeploymentHandler;
+import org.jclouds.azurecompute.xml.ListVirtualNetworkSitesHandler;
+import org.jclouds.azurecompute.xml.NetworkConfigurationHandler;
 import org.jclouds.rest.annotations.BinderParam;
 import org.jclouds.rest.annotations.Fallback;
 import org.jclouds.rest.annotations.Headers;
 import org.jclouds.rest.annotations.ResponseParser;
 import org.jclouds.rest.annotations.XMLResponseParser;
 
-@Path("/services/hostedservices/{serviceName}/deployments")
+@Path("/services/networking")
 @Headers(keys = "x-ms-version", values = "{jclouds.api-version}")
 @Consumes(MediaType.APPLICATION_XML)
-public interface DeploymentApi {
+public interface VirtualNetworkApi {
 
    /**
-    * The Get Deployment operation returns the specified deployment from Windows Azure.
+    * The Get Network Configuration operation retrieves the network configuration file.
     *
-    * @param name
-    *           the unique DNS Prefix value in the Windows Azure Management Portal
+    * @return The response body is a netcfg.cfg file.
+
     */
-   @Named("GetDeployment")
+   @Named("GetVirtualNetworkConfiguration")
+   @Path("/media")
    @GET
-   @Path("/{name}")
-   @XMLResponseParser(DeploymentHandler.class)
+   @XMLResponseParser(NetworkConfigurationHandler.class)
    @Fallback(NullOnNotFoundOr404.class)
-   Deployment get(@PathParam("name") String name);
+   NetworkConfiguration get();
 
-   @Named("CreateVirtualMachineDeployment")
-   @POST
-   @Produces(MediaType.APPLICATION_XML)
-   @ResponseParser(ParseRequestIdHeader.class)
-   String create(@BinderParam(DeploymentParamsToXML.class) DeploymentParams params);
-
-   /**
-    * The Delete Deployment operation deletes the specified deployment from Windows Azure.
-    *
-    * @param name
-    *           the unique DNS Prefix value in the Windows Azure Management Portal
-    */
-   @Named("DeleteDeployment")
-   @DELETE
-   @Path("/{name}")
+   @Named("ListVirtualNetworkSites")
+   @Path("/virtualnetwork")
+   @GET
+   @XMLResponseParser(ListVirtualNetworkSitesHandler.class)
    @Fallback(NullOnNotFoundOr404.class)
+   List<VirtualNetworkSite> list();
+
+   @Named("SetVirtualNetworkConfiguration")
+   @Path("/media")
+   @PUT
+   @Produces(MediaType.TEXT_PLAIN)
    @ResponseParser(ParseRequestIdHeader.class)
-   String delete(@PathParam("name") String name);
-   
+   String set(@BinderParam(NetworkConfigurationToXML.class) NetworkConfiguration networkConfiguration);
+
 }

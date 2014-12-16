@@ -16,24 +16,8 @@
  */
 package org.jclouds.azurecompute.config;
 
-/**
- * Configuration properties and constants used in Azure Service Management
- * connections.
- */
-public class AzureComputeProperties {
-	/**
-	 * Every call to the Service Management API must include the subscription ID
-	 * for your subscription. The subscription ID is appended to the base URI,
-	 * as follows:
-	 *
-	 * <pre>
-	 * https://management.core.windows.net/${subscriptionId}
-	 * </pre>
-	 *
-	 * @see <a href="http://msdn.microsoft.com/en-us/library/ee460786">docs</a>
-	 */
-	public static final String SUBSCRIPTION_ID = "jclouds.azurecompute.subscription-id";
+public class AzureComputeConstants {
 
-	public static final String OPERATION_TIMEOUT = "jclouds.azurecompute.timeout";
+   public static final String TCP_FORMAT = "tcp_%s-%s";
 
 }
