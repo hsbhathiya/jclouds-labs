@@ -31,13 +31,15 @@ final class AttachmentHandler extends ParseSax.HandlerForGeneratedRequestWithRes
 
    private final StringBuilder currentText = new StringBuilder();
 
-   @Override public Attachment getResult() {
+   @Override
+   public Attachment getResult() {
       Attachment result = Attachment.create(hostedService, deployment, virtualMachine);
       hostedService = deployment = virtualMachine = null; // handler could be called in a loop.
       return result;
    }
 
-   @Override public void endElement(String ignoredUri, String ignoredName, String qName) {
+   @Override
+   public void endElement(String ignoredUri, String ignoredName, String qName) {
       if (qName.equals("HostedServiceName")) {
          hostedService = currentOrNull(currentText);
       } else if (qName.equals("DeploymentName")) {

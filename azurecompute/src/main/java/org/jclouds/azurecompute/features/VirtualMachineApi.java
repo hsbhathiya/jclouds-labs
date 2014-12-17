@@ -20,15 +20,23 @@ import javax.inject.Named;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.GET;
 import javax.ws.rs.core.MediaType;
 
+import org.jclouds.Fallbacks;
+import org.jclouds.azurecompute.domain.Role;
 import org.jclouds.azurecompute.functions.ParseRequestIdHeader;
+import org.jclouds.azurecompute.xml.RoleHandler;
+
 import org.jclouds.rest.annotations.Headers;
 import org.jclouds.rest.annotations.Payload;
 import org.jclouds.rest.annotations.PayloadParam;
 import org.jclouds.rest.annotations.ResponseParser;
+import org.jclouds.rest.annotations.Fallback;
+import org.jclouds.rest.annotations.XMLResponseParser;
+
 
 /**
  * The Service Management API includes operations for managing the virtual
@@ -85,4 +93,14 @@ public interface VirtualMachineApi {
    @ResponseParser(ParseRequestIdHeader.class)
    @Payload(value = "<StartRoleOperation xmlns=\"http://schemas.microsoft.com/windowsazure\"><OperationType>StartRoleOperation</OperationType></StartRoleOperation>")
    String start(@PathParam("name") String name);
+
+   /**
+    * http://msdn.microsoft.com/en-us/library/jj157189
+    */
+   @Named("GetRole")
+   @GET
+   @Path("/{name}")
+   @XMLResponseParser(RoleHandler.class)
+   @Fallback(Fallbacks.NullOnNotFoundOr404.class)
+   Role get(@PathParam("name") String name);
 }
