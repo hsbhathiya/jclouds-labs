@@ -16,36 +16,41 @@
  */
 package org.jclouds.azurecompute.xml;
 
-import static org.jclouds.util.SaxUtils.currentOrNull;
-
-import org.jclouds.azurecompute.domain.Disk.Attachment;
+import org.jclouds.azurecompute.domain.RoleInstance.InstanceEndpoint;
 import org.jclouds.http.functions.ParseSax;
+
+import static org.jclouds.util.SaxUtils.currentOrNull;
 
 /**
  * @see <a href="http://msdn.microsoft.com/en-us/library/jj157176" >api</a>
  */
-final class AttachmentHandler extends ParseSax.HandlerForGeneratedRequestWithResult<Attachment> {
-   private String hostedService;
-   private String deployment;
-   private String virtualMachine;
+final class InstanceEndpointHandler extends ParseSax.HandlerForGeneratedRequestWithResult<InstanceEndpoint> {
+
+   private String name;
+   private String vip;
+   private String publicPort;
+   private String localPort;
+   private String protocol;
 
    private final StringBuilder currentText = new StringBuilder();
 
-   @Override
-   public Attachment getResult() {
-      Attachment result = Attachment.create(hostedService, deployment, virtualMachine);
-      hostedService = deployment = virtualMachine = null; // handler could be called in a loop.
+   @Override public InstanceEndpoint getResult() {
+      InstanceEndpoint result = InstanceEndpoint.create(name, vip, publicPort, localPort, protocol);
+      name = vip = publicPort = localPort = protocol = null; // handler could be called in a loop.
       return result;
    }
 
-   @Override
-   public void endElement(String ignoredUri, String ignoredName, String qName) {
-      if (qName.equals("HostedServiceName")) {
-         hostedService = currentOrNull(currentText);
-      } else if (qName.equals("DeploymentName")) {
-         deployment = currentOrNull(currentText);
-      } else if (qName.equals("RoleName")) {
-         virtualMachine = currentOrNull(currentText);
+   @Override public void endElement(String ignoredUri, String ignoredName, String qName) {
+      if (qName.equals("Name")) {
+         name = currentOrNull(currentText);
+      } else if (qName.equals("Vip")) {
+         vip = currentOrNull(currentText);
+      } else if (qName.equals("PublicPort")) {
+         publicPort = currentOrNull(currentText);
+      } else if (qName.equals("LocalPort")) {
+         localPort = currentOrNull(currentText);
+      } else if (qName.equals("Protocol")) {
+         protocol = currentOrNull(currentText);
       }
       currentText.setLength(0);
    }

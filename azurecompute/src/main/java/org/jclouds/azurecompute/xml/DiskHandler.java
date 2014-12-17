@@ -59,13 +59,15 @@ final class DiskHandler extends ParseSax.HandlerForGeneratedRequestWithResult<Di
       attachedTo = null;
    }
 
-   @Override public void startElement(String uri, String localName, String qName, Attributes attributes) {
+   @Override
+   public void startElement(String uri, String localName, String qName, Attributes attributes) {
       if (qName.equals("AttachedTo")) {
          inAttachment = true;
       }
    }
 
-   @Override public void endElement(String ignoredUri, String ignoredName, String qName) {
+   @Override
+   public void endElement(String ignoredUri, String ignoredName, String qName) {
       if (qName.equals("AttachedTo")) {
          attachedTo = attachmentHandler.getResult();
          inAttachment = false;

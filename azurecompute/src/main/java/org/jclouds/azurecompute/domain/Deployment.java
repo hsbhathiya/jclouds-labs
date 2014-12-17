@@ -20,6 +20,9 @@ import org.jclouds.javax.annotation.Nullable;
 
 import com.google.auto.value.AutoValue;
 
+import java.net.URI;
+import java.util.List;
+
 @AutoValue
 public abstract class Deployment {
 
@@ -37,17 +40,30 @@ public abstract class Deployment {
       CREATING_VM, STARTING_VM, CREATING_ROLE, STARTING_ROLE, READY_ROLE, BUSY_ROLE, STOPPING_ROLE, STOPPING_VM,
       DELETING_VM, STOPPED_VM, RESTARTING_ROLE, CYCLING_ROLE, FAILED_STARTING_ROLE, FAILED_STARTING_VM, UNRESPONSIVE_ROLE,
       STOPPED_DEALLOCATED, PREPARING,
-      /** Unknown to Azure. */
+      /**
+       * Unknown to Azure.
+       */
       UNKNOWN,
-      /** Not parsable into one of the above. */
+      /**
+       * Not parsable into one of the above.
+       */
       UNRECOGNIZED,
    }
 
-   /** The user-supplied name for this deployment. */
+   /**
+    * The user-supplied name for this deployment.
+    */
    public abstract String name();
 
-   /** The environment to which the cloud service is deployed. */
+   /**
+    * The environment to which the cloud service is deployed.
+    */
    public abstract Slot slot();
+
+   /**
+    * Specifies a unique identifier generated internally by Azure for this deployment
+    */
+   public abstract String privateID();
 
    public abstract Status status();
 
@@ -58,56 +74,16 @@ public abstract class Deployment {
     */
    public abstract String label();
 
-   /** Specifies the name for the virtual machine. The name must be unique within Windows Azure. */
-   public abstract String virtualMachineName();
+   @Nullable public abstract URI url();
 
-   /** The name of the specific role instance (if any). */
-   @Nullable public abstract String instanceName();
+   @Nullable public abstract String configuration();
 
-   /** The current status of this instance. */
-   public abstract InstanceStatus instanceStatus();
+   @Nullable public abstract List<RoleInstance> roleInstances();
 
-   /**
-    * The instance state is returned as an English human-readable string that,
-    * when present, provides a snapshot of the state of the virtual machine at
-    * the time the operation was called.
-    *
-    * For example, when the instance is first being initialized a
-    * "Preparing Windows for first use." could be returned.
-    */
-   @Nullable public abstract String instanceStateDetails();
+   @Nullable public abstract List<Role> roles();
 
-   /**
-    * Error code of the latest role or VM start
-    *
-    * For VMRoles the error codes are:
-    *
-    * WaitTimeout - The virtual machine did not communicate back to Azure
-    * infrastructure within 25 minutes. Typically this indicates that the
-    * virtual machine did not start or that the guest agent is not installed.
-    *
-    * VhdTooLarge - The VHD image selected was too large for the virtual
-    * machine hosting the role.
-    *
-    * AzureInternalError – An internal error has occurred that has caused to
-    * virtual machine to fail to start. Contact support for additional
-    * assistance.
-    *
-    * For web and worker roles this field returns an error code that can be provided to Windows Azure support to assist
-    * in resolution of errors. Typically this field will be empty.
-    */
-   @Nullable public abstract String instanceErrorCode();
-
-   public abstract RoleSize instanceSize();
-
-   public abstract String privateIpAddress();
-
-   public abstract String publicIpAddress();
-
-   public static Deployment create(String name, Slot slot, Status status, String label, String virtualMachineName,
-         String instanceName, InstanceStatus instanceStatus, String instanceStateDetails, String instanceErrorCode,
-         RoleSize instanceSize, String privateIpAddress, String publicIpAddress) {
-      return new AutoValue_Deployment(name, slot, status, label, virtualMachineName, instanceName, instanceStatus,
-            instanceStateDetails, instanceErrorCode, instanceSize, privateIpAddress, publicIpAddress);
+   public static Deployment create(String name, Slot slot, String privateId, Status status, String label, URI url,
+         String configuration, List<RoleInstance> roleInstances, List<Role> roles) {
+      return new AutoValue_Deployment(name, slot, privateId, status, label, url, configuration, roleInstances, roles);
    }
 }

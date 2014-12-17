@@ -16,36 +16,33 @@
  */
 package org.jclouds.azurecompute.xml;
 
-import static org.jclouds.util.SaxUtils.currentOrNull;
-
-import org.jclouds.azurecompute.domain.Disk.Attachment;
+import org.jclouds.azurecompute.domain.RoleInstance;
 import org.jclouds.http.functions.ParseSax;
+
+import static org.jclouds.util.SaxUtils.currentOrNull;
 
 /**
  * @see <a href="http://msdn.microsoft.com/en-us/library/jj157176" >api</a>
  */
-final class AttachmentHandler extends ParseSax.HandlerForGeneratedRequestWithResult<Attachment> {
-   private String hostedService;
-   private String deployment;
-   private String virtualMachine;
+final class PublicIPHandler extends ParseSax.HandlerForGeneratedRequestWithResult<RoleInstance.PublicIP> {
 
+   private String name;
+   private Integer idleTimeoutInMinutes;
    private final StringBuilder currentText = new StringBuilder();
 
-   @Override
-   public Attachment getResult() {
-      Attachment result = Attachment.create(hostedService, deployment, virtualMachine);
-      hostedService = deployment = virtualMachine = null; // handler could be called in a loop.
+   @Override public RoleInstance.PublicIP getResult() {
+      RoleInstance.PublicIP result = RoleInstance.PublicIP.create(name, idleTimeoutInMinutes);
       return result;
    }
 
-   @Override
-   public void endElement(String ignoredUri, String ignoredName, String qName) {
-      if (qName.equals("HostedServiceName")) {
-         hostedService = currentOrNull(currentText);
-      } else if (qName.equals("DeploymentName")) {
-         deployment = currentOrNull(currentText);
-      } else if (qName.equals("RoleName")) {
-         virtualMachine = currentOrNull(currentText);
+   @Override public void endElement(String ignoredUri, String ignoredName, String qName) {
+      if (qName.equals("Name")) {
+         name = currentOrNull(currentText);
+      } else if (qName.equals("IdleTimeoutInMinutes")) {
+         String idleTimeOutText = currentOrNull(currentText);
+         if (idleTimeOutText != null) {
+            idleTimeoutInMinutes = Integer.parseInt(idleTimeOutText);
+         }
       }
       currentText.setLength(0);
    }

@@ -22,15 +22,21 @@ import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.io.BaseEncoding.base64;
 import static org.jclouds.util.SaxUtils.currentOrNull;
 
+import com.google.common.collect.ImmutableList;
 import org.jclouds.azurecompute.domain.Deployment;
 import org.jclouds.azurecompute.domain.Deployment.InstanceStatus;
 import org.jclouds.azurecompute.domain.Deployment.Slot;
 import org.jclouds.azurecompute.domain.Deployment.Status;
+import org.jclouds.azurecompute.domain.Role;
 import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.RoleInstance;
 import org.jclouds.http.functions.ParseSax;
 import org.xml.sax.Attributes;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.xml.sax.SAXException;
+
+import java.net.URI;
 
 /**
  * @see <a href="http://msdn.microsoft.com/en-us/library/ee460804" >Response body description</a>.
@@ -40,29 +46,43 @@ public final class DeploymentHandler extends ParseSax.HandlerForGeneratedRequest
    private Slot slot;
    private Status status;
    private String label;
-   private String virtualMachineName;
-   private String instanceName;
-   private InstanceStatus instanceStatus;
-   private String instanceStateDetails;
-   private String instanceErrorCode;
-   private RoleSize instanceSize;
-   private String privateIpAddress;
-   private String publicIpAddress;
+   private String privateId;
+   private URI url;
+   private String configuration;
 
-   private int depth;
+   private final RoleHandler roleHandler = new RoleHandler();
+   private final RoleInstanceHandler roleInstanceHandler = new RoleInstanceHandler();
    private final StringBuilder currentText = new StringBuilder();
 
+   private final ImmutableList.Builder<RoleInstance> roleInstances = ImmutableList.builder();
+   private final ImmutableList.Builder<Role> roles = ImmutableList.builder();
+
+   private boolean inRole;
+   private boolean inInstance;
+
    @Override public Deployment getResult() { // Fields don't need to be reset as this isn't used in a loop.
-      return Deployment.create(name, slot, status, label, virtualMachineName, instanceName, instanceStatus, //
-            instanceStateDetails, instanceErrorCode, instanceSize, privateIpAddress, publicIpAddress);
+      return Deployment
+            .create(name, slot, privateId, status, label, url, configuration, roleInstances.build(), roles.build());
    }
 
-   @Override public void startElement(String url, String name, String qName, Attributes attributes) {
-      depth++;
+   @Override public void startElement(String url, String name, String qName, Attributes attributes)
+         throws SAXException {
+      if (qName.equals("Role")) {
+         inRole = true;
+      }
+      if (inRole) {
+         roleHandler.startElement(url, name, qName, attributes);
+      }
+      if (qName.equals("RoleInstance")) {
+         inInstance = true;
+      }
+      if (inInstance) {
+         roleInstanceHandler.startElement(url, name, qName, attributes);
+      }
    }
 
    @Override public void endElement(String ignoredUri, String ignoredName, String qName) {
-      if (qName.equals("Name") && depth == 2) {
+      if (qName.equals("Name") && !inInstance) {
          name = currentOrNull(currentText);
       } else if (qName.equals("DeploymentSlot")) {
          String slotText = currentOrNull(currentText);
@@ -79,35 +99,37 @@ public final class DeploymentHandler extends ParseSax.HandlerForGeneratedRequest
          if (labelText != null) {
             label = new String(base64().decode(labelText), UTF_8);
          }
-      } else if (qName.equals("RoleName")) {
-         virtualMachineName = currentOrNull(currentText);
-      } else if (qName.equals("InstanceName")) {
-         instanceName = currentOrNull(currentText);
-      } else if (qName.equals("InstanceStatus")) {
-         String instanceStatusText = currentOrNull(currentText);
-         if (instanceStatusText != null) {
-            instanceStatus = parseInstanceStatus(instanceStatusText);
+      } else if (qName.equals("PrivateID")) {
+         privateId = currentOrNull(currentText);
+      } else if (qName.equals("Url")) {
+         String urlText = currentOrNull(currentText);
+         if (urlText != null) {
+            url = URI.create(urlText);
          }
-      } else if (qName.equals("InstanceStateDetails")) {
-         instanceStateDetails = currentOrNull(currentText);
-      } else if (qName.equals("InstanceErrorCode")) {
-         instanceErrorCode = currentOrNull(currentText);
-      } else if (qName.equals("InstanceSize")) {
-         String instanceSizeText = currentOrNull(currentText);
-         if (instanceSizeText != null) {
-            instanceSize = parseRoleSize(instanceSizeText);
-         }
-      } else if (qName.equals("IpAddress")) {
-         privateIpAddress = currentOrNull(currentText);
-      } else if (qName.equals("Vip")) {
-         publicIpAddress = currentOrNull(currentText);
+      } else if (qName.equals("Configuration")) {
+         configuration = currentOrNull(currentText);
+      } else if (qName.equals("Role")) {
+         roles.add(roleHandler.getResult());
+         inRole = false;
+      } else if (inRole) {
+         roleHandler.endElement(ignoredUri, ignoredName, qName);
+      } else if (qName.equals("RoleInstance")) {
+         roleInstances.add(roleInstanceHandler.getResult());
+         inInstance = false;
+      } else if (inInstance) {
+         roleInstanceHandler.endElement(ignoredUri, ignoredName, qName);
       }
       currentText.setLength(0);
-      depth--;
    }
 
    @Override public void characters(char ch[], int start, int length) {
-      currentText.append(ch, start, length);
+      if (inRole) {
+         roleHandler.characters(ch, start, length);
+      } else if (inInstance) {
+         roleInstanceHandler.characters(ch, start, length);
+      } else {
+         currentText.append(ch, start, length);
+      }
    }
 
    private static Status parseStatus(String status) {
