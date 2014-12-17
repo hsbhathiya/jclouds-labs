@@ -20,12 +20,20 @@ import static org.jclouds.azurecompute.xml.DeploymentHandler.parseInstanceStatus
 import static org.testng.Assert.assertEquals;
 
 import java.io.InputStream;
+import java.net.URI;
+import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+import org.jclouds.azurecompute.domain.DataVirtualHardDisk;
 import org.jclouds.azurecompute.domain.Deployment;
 import org.jclouds.azurecompute.domain.Deployment.InstanceStatus;
 import org.jclouds.azurecompute.domain.Deployment.Slot;
 import org.jclouds.azurecompute.domain.Deployment.Status;
+import org.jclouds.azurecompute.domain.Role;
 import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.OSVirtualHardDisk;
+import org.jclouds.azurecompute.domain.RoleInstance;
+import org.jclouds.azurecompute.domain.OSImage;
 import org.jclouds.http.functions.BaseHandlerTest;
 import org.testng.annotations.Test;
 
@@ -63,7 +71,6 @@ public class DeploymentHandlerTest extends BaseHandlerTest {
    public void test() {
       InputStream is = getClass().getResourceAsStream("/deployment.xml");
       Deployment result = factory.create(new DeploymentHandler()).parse(is);
-
       assertEquals(result, expected());
    }
 
@@ -71,16 +78,102 @@ public class DeploymentHandlerTest extends BaseHandlerTest {
       return Deployment.create( //
             "deployment_name", // name
             Slot.PRODUCTION, // slot
+            "05aa8ec5d8ee4215894431c7db401b31", //privateId
             Status.RUNNING, // status
             "neotysss", // label
-            "role_name_from_role_list", // virtualMachineName
-            "instance_name", // instanceName
-            InstanceStatus.READY_ROLE, // instanceStatus
-            null, // instanceStateDetails
-            null, // instanceErrorCode
-            RoleSize.MEDIUM, // instanceSize
-            "10.59.244.162", // privateIpAddress
-            "168.63.27.148" // publicIpAddress
+            URI.create("http://neotysss.cloudapp.net"), // Url
+            "PFNlcnZpY2VDb25maWd1cmF0aW9uIHhtbG5zOnhza", // Configuration
+            instanceList(), //RoleInstances
+            roleList() // Roles
+      );
+   }
+
+   private static List<Role> roleList() {
+      return ImmutableList.of(
+            Role.create(
+                  "testVM",
+                  "PersistentVMRole",
+                  "bc322bdc-f685-4002-8efb-4c6089bb2588__Image__openSUSE-12-3-for-Windows-Azure",
+                  URI.create(
+                        "https://bahshstorage.blob.core.windows.net/communityimages/community-12-c59cc53c-80c9-48fb-ba81-9ed6fe46eeb9-1.vhd"),
+                  RoleSize.EXTRA_SMALL,
+                  null,
+                  DataVHD(),
+                  OSVHD(),
+                  false
+            )
+      );
+   }
+
+   private static List<DataVirtualHardDisk> DataVHD() {
+      return ImmutableList.of(
+            DataVirtualHardDisk.create(
+                  "ReadOnly",
+                  "MyTestImage_1",
+                  "testimage1-testimage1-0-20120817095145",
+                  10,
+                  30,
+                  URI.create("http://blobs/disks/neotysss/MSFT__Win2K8R2SP1-ABCD-en-us-30GB.vhd"),
+                  URI.create("http://blobs/disks/neotysss/MSFT__Win2K8R2SP1-ABCD-en-us-30GB.vhd"),
+                  "Standard"
+            ),
+            DataVirtualHardDisk.create(
+                  "ReadWrite",
+                  "MyTestImage_2",
+                  "testimage2-testimage2-0-20120817095145",
+                  10,
+                  30,
+                  URI.create("http://blobs/disks/neotysss/MSFT__Win2K8R2SP1-ABCD-en-us-30GB.vhd"),
+                  URI.create("http://blobs/disks/neotysss/MSFT__Win2K8R2SP1-ABCD-en-us-30GB.vhd"),
+                  "Standard"
+            )
+      );
+   }
+
+   private static OSVirtualHardDisk OSVHD() {
+      return OSVirtualHardDisk.create(
+            "ReadOnly",
+            "MyTestImage_1",
+            "testosimage1-testosimage1-0-20120817095145",
+            URI.create("http://blobs/disks/neotysss/MSFT__Win2K8R2SP1-ABCD-en-us-30GB.vhd"),
+            "Ubuntu Server 12.04 LTS",
+            OSImage.Type.LINUX,
+            30,
+            URI.create("http://blobs/disks/neotysss/MSFT__Win2K8R2SP1-ABCD-en-us-30GB.vhd"),
+            "Standard"
+      );
+   }
+
+   public static List<RoleInstance> instanceList() {
+      return ImmutableList.of(
+            RoleInstance.create(
+                  "test1-role-name-1", // RoleName
+                  "test1-instance-name-1", // InstanceName
+                  RoleInstance.InstanceStatus.READY_ROLE, // InstanceStatus
+                  "WaitTimeOut", // InstanceErrorCode
+                  "Basic_A0", // InstanceSize
+                  null,
+                  "10.10.10.10", // IPAddress
+                  Endpoint(), // InstanceEndpoints
+                  RoleInstance.PowerState.Started, // PowerState
+                  "test1-hostname", // attachedTo
+                  PublicIP()  // PublicIPs
+            )
+      );
+
+   }
+
+   private static List<RoleInstance.InstanceEndpoint> Endpoint() {
+      return ImmutableList.of(
+            RoleInstance.InstanceEndpoint.create("SSH", "168.63.27.148", "22", "22", "tcp"),
+            RoleInstance.InstanceEndpoint.create("SSH", "168.63.27.149", "24", "24", "tcp")
+      );
+   }
+
+   private static List<RoleInstance.PublicIP> PublicIP() {
+      return ImmutableList.of(
+            RoleInstance.PublicIP.create("testIP1", 30),
+            RoleInstance.PublicIP.create("testIP2", 60)
       );
    }
 }

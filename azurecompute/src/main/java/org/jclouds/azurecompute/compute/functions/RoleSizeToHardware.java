@@ -23,9 +23,9 @@ import com.google.common.base.Function;
 
 public class RoleSizeToHardware implements Function<RoleSize, Hardware> {
 
-	@Override
-	public Hardware apply(RoleSize input) {
-		return null;
-	}
+   @Override
+   public Hardware apply(RoleSize input) {
+      return null;
+   }
 
 }
