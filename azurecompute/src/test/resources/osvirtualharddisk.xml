@@ -1,0 +1,11 @@
+<OSVirtualHardDisk xmlns="http://schemas.microsoft.com/windowsazure">
+    <HostCaching>ReadWrite</HostCaching>
+    <DiskLabel>MyTestImage_1</DiskLabel>
+    <DiskName>testosimage1-testosimage1-0-20120817095145</DiskName>
+    <MediaLink>http://blobs/disks/neotysss/MSFT__Win2K8R2SP1-ABCD-en-us-30GB.vhd</MediaLink>
+    <SourceImageName>Ubuntu Server 12.04 LTS</SourceImageName>
+    <OS>linux</OS>
+    <ResizedSizeInGB>30</ResizedSizeInGB>
+    <RemoteSourceImageLink>http://blobs/disks/neotysss/MSFT__Win2K8R2SP1-ABCD-en-us-30GB.vhd</RemoteSourceImageLink>
+    <IOType>Standard</IOType>
+</OSVirtualHardDisk>
