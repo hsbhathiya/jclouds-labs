@@ -52,8 +52,8 @@ public final class AzureComputeServiceAdapter implements ComputeServiceAdapter<D
    }
 
    @Override
-   public NodeAndInitialCredentials<Deployment> createNodeWithGroupEncodedIntoName(
-         String group, String name, Template template) {
+   public NodeAndInitialCredentials<Deployment> createNodeWithGroupEncodedIntoName (
+         String group, String name, Template template){
 
       checkNotNull(template.getImage().getUri(), "image URI is null");
       checkNotNull(template.getHardware().getUri(), "hardware must have a uri");
@@ -64,18 +64,14 @@ public final class AzureComputeServiceAdapter implements ComputeServiceAdapter<D
       Deployment deployment = Deployment.create(
             name, // name
             Deployment.Slot.STAGING, // Slot
+            "private-id",
             Deployment.Status.DEPLOYING, // Status
             null, // label
-            template.getHardware().getId(), // VMName
+            template.getHardware().getUri(), // VMName
             template.getImage().getName(), // InstanceName
-            Deployment.InstanceStatus.UNRECOGNIZED, // InstanceStatus
-            null,
-            null,
-            RoleSize.valueOf(template.getHardware().getUserMetadata().get("RoleSize")),
-            template.getHardware().getUserMetadata().get("privateIP"),
-            template.getHardware().getUserMetadata().get("publicIP")
-
-      );
+            null, // InstanceStatus
+            null
+    );
       return null;
    }
 

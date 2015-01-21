@@ -19,13 +19,14 @@ package org.jclouds.azurecompute.compute.config;
 import org.jclouds.azurecompute.compute.AzureComputeServiceAdapter;
 import org.jclouds.azurecompute.compute.functions.DeploymentToNodeMetadata;
 import org.jclouds.azurecompute.compute.functions.OSImageToImage;
-import org.jclouds.azurecompute.compute.functions.RoleSizeToHardware;
+import org.jclouds.azurecompute.compute.functions.RoleSizeToHardwareBuilder;
 import org.jclouds.azurecompute.domain.Deployment;
 import org.jclouds.azurecompute.domain.OSImage;
 import org.jclouds.azurecompute.domain.RoleSize;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.config.ComputeServiceAdapterContextModule;
 import org.jclouds.compute.domain.Hardware;
+import org.jclouds.compute.domain.HardwareBuilder;
 import org.jclouds.compute.domain.NodeMetadata;
 
 import com.google.common.base.Function;
@@ -41,8 +42,8 @@ public class AzureComputeServiceContextModule
       }).to(AzureComputeServiceAdapter.class);
       bind(new TypeLiteral<Function<OSImage, org.jclouds.compute.domain.Image>>() {
       }).to(OSImageToImage.class);
-      bind(new TypeLiteral<Function<RoleSize, Hardware>>() {
-      }).to(RoleSizeToHardware.class);
+      bind(new TypeLiteral<Function<RoleSize, HardwareBuilder>>() {
+      }).to(RoleSizeToHardwareBuilder.class);
       bind(new TypeLiteral<Function<Deployment, NodeMetadata>>() {
       }).to(DeploymentToNodeMetadata.class);
    }
