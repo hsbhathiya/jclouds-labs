@@ -28,7 +28,7 @@ import org.jclouds.azurecompute.domain.Deployment.InstanceStatus;
 import org.jclouds.azurecompute.domain.Deployment.Slot;
 import org.jclouds.azurecompute.domain.Deployment.Status;
 import org.jclouds.azurecompute.domain.Role;
-import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.RoleSizeEnum;
 import org.jclouds.azurecompute.domain.RoleInstance;
 import org.jclouds.http.functions.ParseSax;
 import org.xml.sax.Attributes;
@@ -157,11 +157,11 @@ public final class DeploymentHandler extends ParseSax.HandlerForGeneratedRequest
       }
    }
 
-   private static RoleSize parseRoleSize(String roleSize) {
+   private static RoleSizeEnum parseRoleSize(String roleSize) {
       try {
-         return RoleSize.valueOf(UPPER_CAMEL.to(UPPER_UNDERSCORE, roleSize));
+         return RoleSizeEnum.valueOf(UPPER_CAMEL.to(UPPER_UNDERSCORE, roleSize));
       } catch (IllegalArgumentException e) {
-         return RoleSize.UNRECOGNIZED;
+         return RoleSizeEnum.UNRECOGNIZED;
       }
    }
 }

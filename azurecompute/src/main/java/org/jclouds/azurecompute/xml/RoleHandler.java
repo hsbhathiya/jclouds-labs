@@ -21,7 +21,7 @@ import com.google.common.collect.ImmutableList;
 import org.jclouds.azurecompute.domain.DataVirtualHardDisk;
 import org.jclouds.azurecompute.domain.OSVirtualHardDisk;
 import org.jclouds.azurecompute.domain.Role;
-import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.RoleSizeEnum;
 import org.jclouds.http.functions.ParseSax;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -40,7 +40,7 @@ public final class RoleHandler extends ParseSax.HandlerForGeneratedRequestWithRe
    private String roleType;
    private String VMImage;
    private URI mediaLocation;
-   private RoleSize roleSize;
+   private RoleSizeEnum roleSize;
    private String availabilitySetName;
    private OSVirtualHardDisk OSVirtualHardDisk;
    private Boolean provisionGuestAgent;
@@ -136,11 +136,11 @@ public final class RoleHandler extends ParseSax.HandlerForGeneratedRequestWithRe
       }
    }
 
-   private static RoleSize parseRoleSize(String roleSize) {
+   private static RoleSizeEnum parseRoleSize(String roleSize) {
       try {
-         return RoleSize.valueOf(UPPER_CAMEL.to(UPPER_UNDERSCORE, roleSize));
+         return RoleSizeEnum.valueOf(UPPER_CAMEL.to(UPPER_UNDERSCORE, roleSize));
       } catch (IllegalArgumentException e) {
-         return RoleSize.UNRECOGNIZED;
+         return RoleSizeEnum.UNRECOGNIZED;
       }
    }
 }

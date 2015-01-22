@@ -28,13 +28,15 @@ import java.util.List;
 
 public class RoleToHardware implements Function<Role, Hardware> {
 
+   private static String HYPERVISOR = "Azure Hypervisor";
+
    @Override
    public Hardware apply(Role input) {
       return new RoleSizeToHardwareBuilder().apply(input.roleSize())
             .id(input.roleName())
             .providerId(input.mediaLocation().toString())
             .name(input.roleName())
-            .hypervisor("Azure Hypervisor")
+            .hypervisor(HYPERVISOR)
             .uri(input.mediaLocation())
             .volumes(collectVolumes(input))
             .supportsImage(Predicates.<Image>alwaysTrue())
@@ -59,8 +61,10 @@ public class RoleToHardware implements Function<Role, Hardware> {
       List<DataVirtualHardDisk> dataVirtualHardDisks = input.dataVirtualHardDisks();
 
       for (DataVirtualHardDisk disk : dataVirtualHardDisks) {
-         Volume dataVolume = new VolumeBuilder().bootDevice(Boolean.TRUE).id(disk.diskName())
-               .type(Volume.Type.LOCAL).durable(Boolean.TRUE).device(disk.mediaLink().toString()).build();
+         Volume dataVolume = new VolumeBuilder().bootDevice(Boolean.FALSE).id(disk.diskName())
+               .type(Volume.Type.LOCAL).durable(Boolean.TRUE).device(disk.mediaLink().toString()).size
+                     ((float) disk.logicalDiskSizeInGB()).build();
+
          volumes.add(dataVolume);
       }
       return volumes;

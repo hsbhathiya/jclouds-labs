@@ -16,64 +16,64 @@
  */
 package org.jclouds.azurecompute.compute.functions;
 
-import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.RoleSizeEnum;
 
 import com.google.common.base.Function;
 import org.jclouds.compute.domain.HardwareBuilder;
 import org.jclouds.compute.domain.Processor;
 
-public class RoleSizeToHardwareBuilder implements Function<RoleSize, HardwareBuilder> {
+public class RoleSizeToHardwareBuilder implements Function<RoleSizeEnum, HardwareBuilder> {
 
    private static final int MB_TO_GB = 1024;
 
    @Override
-   public HardwareBuilder apply(RoleSize input) {
-      return hardware(input.name());
+   public HardwareBuilder apply(RoleSizeEnum input) {
+      return hardware(input);
    }
 
-   private HardwareBuilder hardware(String roleSize) {
+   private HardwareBuilder hardware(RoleSizeEnum roleSize) {
 
-      if (roleSize.equals("Basic_A0")) {
+      if (roleSize.equals(RoleSizeEnum.Basic_A0)) {
          return setHardware(1, 1.6, 768);
-      } else if (roleSize.equals("Basic_A1")) {
+      } else if (roleSize.equals(RoleSizeEnum.Basic_A1)) {
          int ram = (int) (MB_TO_GB * 1.75);
          return setHardware(1, 1.6, ram);
-      } else if (roleSize.equals("Basic_A2")) {
+      } else if (roleSize.equals(RoleSizeEnum.Basic_A2)) {
          int ram = (int) (MB_TO_GB * 3.5);
          return setHardware(2, 1.6, ram);
-      } else if (roleSize.equals("Basic_A3")) {
+      } else if (roleSize.equals(RoleSizeEnum.Basic_A3)) {
          int ram = (int) (MB_TO_GB * 7);
          return setHardware(4, 1.6, ram);
-      } else if (roleSize.equals("Basic_A4")) {
+      } else if (roleSize.equals(RoleSizeEnum.Basic_A4)) {
          int ram = (int) (MB_TO_GB * 14);
          return setHardware(8, 1.6, ram);
-      }else if (roleSize.equals("extra small")) {
+      }else if (roleSize.equals(RoleSizeEnum.EXTRA_SMALL)) {
          return setHardware(1, 1.6, 768);
-      }else if (roleSize.equals("small")) {
+      }else if (roleSize.equals(RoleSizeEnum.SMALL)) {
          int ram = (int) (MB_TO_GB * 1.75);
          return setHardware(1, 1.6, ram);
-      }else if (roleSize.equals("medium")) {
+      }else if (roleSize.equals(RoleSizeEnum.MEDIUM)) {
          int ram = (int) (MB_TO_GB * 3.5);
          return setHardware(2, 1.6, ram);
-      }else if (roleSize.equals("large")) {
+      }else if (roleSize.equals(RoleSizeEnum.LARGE)) {
          int ram = (int) (MB_TO_GB * 7);
          return setHardware(4, 1.6, ram);
-      }else if (roleSize.equals("extra large")) {
+      }else if (roleSize.equals(RoleSizeEnum.EXTRA_LARGE)) {
          int ram = (int) (MB_TO_GB * 14);
          return setHardware(8, 1.6, ram);
-      }else if (roleSize.equals("A5")) {
+      }else if (roleSize.equals(RoleSizeEnum.A5)) {
          int ram = (int) (MB_TO_GB * 14);
          return setHardware(2, 1.6, ram);
-      }else if (roleSize.equals("A6")) {
+      }else if (roleSize.equals(RoleSizeEnum.A6)) {
          int ram = (int) (MB_TO_GB * 28);
          return setHardware(4, 1.6, ram);
-      }else if (roleSize.equals("A7")) {
+      }else if (roleSize.equals(RoleSizeEnum.A7)) {
          int ram = (int) (MB_TO_GB * 56);
          return setHardware(8, 1.6, ram);
-      }else if (roleSize.equals("A8")) {
+      }else if (roleSize.equals(RoleSizeEnum.A8)) {
          int ram = (int) (MB_TO_GB * 56);
          return setHardware(8, 1.6, ram);
-      }else if (roleSize.equals("A9")) {
+      }else if (roleSize.equals(RoleSizeEnum.A9)) {
          int ram = (int) (MB_TO_GB * 112);
          return setHardware(16, 1.6, ram);
       }

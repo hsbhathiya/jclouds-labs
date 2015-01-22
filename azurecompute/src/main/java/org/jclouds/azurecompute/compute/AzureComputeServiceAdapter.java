@@ -27,7 +27,7 @@ import org.jclouds.azurecompute.AzureComputeApi;
 import org.jclouds.azurecompute.domain.Deployment;
 import org.jclouds.azurecompute.domain.Location;
 import org.jclouds.azurecompute.domain.OSImage;
-import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.RoleSizeEnum;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.domain.Template;
 import org.jclouds.compute.options.TemplateOptions;
@@ -40,7 +40,7 @@ import java.util.List;
  * jclouds {@link org.jclouds.compute.ComputeService}
  */
 @Singleton
-public final class AzureComputeServiceAdapter implements ComputeServiceAdapter<Deployment, RoleSize, OSImage, String> {
+public final class AzureComputeServiceAdapter implements ComputeServiceAdapter<Deployment, RoleSizeEnum, OSImage, String> {
 
    private static final String SERVICE_NAME = "";
    private static final String DEPLOYMENT_NAME = "";
@@ -76,9 +76,9 @@ public final class AzureComputeServiceAdapter implements ComputeServiceAdapter<D
    }
 
    @Override
-   public Iterable<RoleSize> listHardwareProfiles() {
-      List<RoleSize> roleSizes = Lists.newArrayList();
-      for (RoleSize roleSize : RoleSize.values()) {
+   public Iterable<RoleSizeEnum> listHardwareProfiles() {
+      List<RoleSizeEnum> roleSizes = Lists.newArrayList();
+      for (RoleSizeEnum roleSize : RoleSizeEnum.values()) {
          roleSizes.add(roleSize);
       }
       return roleSizes;

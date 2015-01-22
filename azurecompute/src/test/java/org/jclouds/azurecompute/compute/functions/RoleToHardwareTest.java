@@ -14,34 +14,68 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.azurecompute.xml;
+package org.jclouds.azurecompute.compute.functions;
 
 import com.google.common.collect.ImmutableList;
-
-import org.jclouds.azurecompute.domain.DataVirtualHardDisk;
-import org.jclouds.azurecompute.domain.OSVirtualHardDisk;
-import org.jclouds.azurecompute.domain.Role;
-import org.jclouds.azurecompute.domain.RoleSizeEnum;
-import org.jclouds.azurecompute.domain.OSImage;
-import org.jclouds.http.functions.BaseHandlerTest;
+import org.jclouds.azurecompute.domain.*;
+import org.jclouds.compute.domain.*;
 import org.testng.annotations.Test;
 
-import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.*;
 
-@Test(groups = "unit", testName = "RoleHandlerTest")
-public class RoleHandlerTest extends BaseHandlerTest {
+@Test(groups = "unit", testName = "RoleToHardwareTest")
+public class RoleToHardwareTest {
+   public void testImageTransform() {
+      RoleToHardware roleToHardware = new RoleToHardware();
+      Role role = createRole();
+      Hardware transformed = roleToHardware.apply(role);
 
-   public void test() {
-      InputStream is = getClass().getResourceAsStream("/role.xml");
-      Role result = factory.create(new RoleHandler()).parse(is);
-      assertEquals(result, expected());
+      assertEquals(RoleSizeEnum.EXTRA_SMALL, role.roleSize());
+      assertEquals(transformed.getId(), role.roleName());
+      assertEquals(transformed.getName(), role.roleName());
+      assertEquals(transformed.getId(), role.roleName());
+      assertEquals(transformed.getHypervisor(), "Azure Hypervisor" );
+
+      //Processor
+      Processor processor = transformed.getProcessors().get(0);
+      assertNotNull(processor);
+      assertEquals(processor.getCores() , 1.0);
+      assertEquals(processor.getSpeed() , 1.6);
+
+      //Volumes
+      List<? extends Volume> volumes = transformed.getVolumes();
+      assertEquals(volumes.size(), 3);
+
+      Volume volume1 = volumes.get(0);
+      OSVirtualHardDisk OSVHD  = role.OSVirtualHardDisk();
+      assertEquals(volume1.getId(), OSVHD.diskName());
+      assertTrue(volume1.isBootDevice());
+      assertTrue(volume1.isDurable());
+      assertEquals(volume1.getType(), Volume.Type.LOCAL);
+
+      Volume volume2 = volumes.get(1);
+      DataVirtualHardDisk  dataVirtualHardDisk = role.dataVirtualHardDisks().get(0);
+      assertEquals(volume2.getId(), dataVirtualHardDisk.diskName());
+      assertFalse(volume2.isBootDevice());
+      assertTrue(volume2.isDurable());
+      assertEquals(volume2.getType(), Volume.Type.LOCAL);
+      assertEquals(volume2.getDevice(), dataVirtualHardDisk.mediaLink().toString());
+      assertEquals(volume2.getSize(), (float)dataVirtualHardDisk.logicalDiskSizeInGB());
+
+      Volume volume3 = volumes.get(2);
+      DataVirtualHardDisk  dataVirtualHardDisk2 = role.dataVirtualHardDisks().get(1);
+      assertEquals(volume3.getId(), dataVirtualHardDisk2.diskName());
+      assertFalse(volume3.isBootDevice());
+      assertTrue(volume3.isDurable());
+      assertEquals(volume3.getType(), Volume.Type.LOCAL);
+      assertEquals(volume3.getDevice(), dataVirtualHardDisk2.mediaLink().toString());
+      assertEquals(volume3.getSize(), (float)dataVirtualHardDisk2.logicalDiskSizeInGB());
    }
 
-   public static Role expected() {
+   private static Role createRole() {
       return Role.create(
             "testVM",
             "PersistentVMRole",
@@ -93,5 +127,6 @@ public class RoleHandlerTest extends BaseHandlerTest {
             URI.create("http://blobs/disks/neotysss/MSFT__Win2K8R2SP1-ABCD-en-us-30GB.vhd"),
             "Standard"
       );
+
    }
 }

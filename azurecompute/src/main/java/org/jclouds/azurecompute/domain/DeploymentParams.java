@@ -62,7 +62,7 @@ public abstract class DeploymentParams {
    public abstract String name();
 
    /** The size of the virtual machine to allocate. The default value is Small. */
-   public abstract RoleSize size();
+   public abstract RoleSizeEnum size();
 
    /**
     * Specifies the name of a user to be created in the sudoers group of the
@@ -99,7 +99,7 @@ public abstract class DeploymentParams {
 
    public static final class Builder {
       private String name;
-      private RoleSize size = RoleSize.SMALL;
+      private RoleSizeEnum size = RoleSizeEnum.SMALL;
       private String username;
       private String password;
       private String sourceImageName;
@@ -112,7 +112,7 @@ public abstract class DeploymentParams {
          return this;
       }
 
-      public Builder size(RoleSize size) {
+      public Builder size(RoleSizeEnum size) {
          this.size = size;
          return this;
       }
@@ -169,7 +169,7 @@ public abstract class DeploymentParams {
       }
    }
 
-   private static DeploymentParams create(String name, RoleSize size, String username, String password, String sourceImageName,
+   private static DeploymentParams create(String name, RoleSizeEnum size, String username, String password, String sourceImageName,
          URI mediaLink, OSImage.Type os, List<ExternalEndpoint> externalEndpoints) {
       return new AutoValue_DeploymentParams(name, size, username, password, sourceImageName, mediaLink, os, externalEndpoints);
    }
