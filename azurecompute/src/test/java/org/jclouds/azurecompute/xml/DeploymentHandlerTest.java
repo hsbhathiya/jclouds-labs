@@ -24,16 +24,11 @@ import java.net.URI;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import org.jclouds.azurecompute.domain.DataVirtualHardDisk;
-import org.jclouds.azurecompute.domain.Deployment;
+import org.jclouds.azurecompute.domain.*;
 import org.jclouds.azurecompute.domain.Deployment.InstanceStatus;
 import org.jclouds.azurecompute.domain.Deployment.Slot;
 import org.jclouds.azurecompute.domain.Deployment.Status;
-import org.jclouds.azurecompute.domain.Role;
-import org.jclouds.azurecompute.domain.RoleSize;
-import org.jclouds.azurecompute.domain.OSVirtualHardDisk;
-import org.jclouds.azurecompute.domain.RoleInstance;
-import org.jclouds.azurecompute.domain.OSImage;
+import org.jclouds.azurecompute.domain.RoleSizeName;
 import org.jclouds.http.functions.BaseHandlerTest;
 import org.testng.annotations.Test;
 
@@ -96,7 +91,7 @@ public class DeploymentHandlerTest extends BaseHandlerTest {
                   "bc322bdc-f685-4002-8efb-4c6089bb2588__Image__openSUSE-12-3-for-Windows-Azure",
                   URI.create(
                         "https://bahshstorage.blob.core.windows.net/communityimages/community-12-c59cc53c-80c9-48fb-ba81-9ed6fe46eeb9-1.vhd"),
-                  RoleSize.EXTRA_SMALL,
+                  RoleSizeName.EXTRA_SMALL,
                   null,
                   DataVHD(),
                   OSVHD(),

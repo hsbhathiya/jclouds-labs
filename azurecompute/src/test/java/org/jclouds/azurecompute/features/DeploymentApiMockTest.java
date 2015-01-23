@@ -23,7 +23,7 @@ import static org.testng.Assert.assertNull;
 
 import org.jclouds.azurecompute.domain.DeploymentParams;
 import org.jclouds.azurecompute.domain.OSImage;
-import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.RoleSizeName;
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiMockTest;
 import org.jclouds.azurecompute.xml.DeploymentHandlerTest;
 import org.jclouds.azurecompute.xml.ListOSImagesHandlerTest;
@@ -46,7 +46,7 @@ public class DeploymentApiMockTest extends BaseAzureComputeApiMockTest {
 
          DeploymentParams params = DeploymentParams.builder()
                .name("mydeployment")
-               .size(RoleSize.MEDIUM)
+               .size(RoleSizeName.MEDIUM)
                .sourceImageName(OSImage.name()).mediaLink(OSImage.mediaLink()).os(OSImage.os())
                .username("username").password("testpwd")
                .externalEndpoint(inboundTcpToLocalPort(80, 8080))
@@ -71,7 +71,7 @@ public class DeploymentApiMockTest extends BaseAzureComputeApiMockTest {
 
          DeploymentParams params = DeploymentParams.builder()
                .name("mydeployment")
-               .size(RoleSize.MEDIUM)
+               .size(RoleSizeName.MEDIUM)
                .sourceImageName(OSImage.name()).mediaLink(OSImage.mediaLink()).os(OSImage.os())
                .username("username").password("testpwd")
                .externalEndpoint(inboundTcpToLocalPort(80, 8080))

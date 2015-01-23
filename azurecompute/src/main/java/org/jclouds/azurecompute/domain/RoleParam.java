@@ -54,7 +54,7 @@ public abstract class RoleParam {
     * Specifies the size of the Virtual Machine. The default size is Small.
     */
 
-   @Nullable public abstract RoleSize roleSize();
+   @Nullable public abstract RoleSizeName roleSize();
 
    /**
     * Specifies the name of a collection of Virtual Machines.
@@ -100,7 +100,7 @@ public abstract class RoleParam {
       private String roleType = ROLE_TYPE;
       private String VMImageName;
       private URI mediaLocation;
-      private RoleSize roleSize;
+      private RoleSizeName roleSize;
       private String availabilitySetName;
       private OSVirtualHardDiskParam OSVirtualHardDiskParam;
       private List<DataVirtualHardDiskParam> dataVirtualHardDiskParams = Lists.newArrayList();
@@ -125,7 +125,7 @@ public abstract class RoleParam {
          return this;
       }
 
-      public Builder roleSize(RoleSize roleSize) {
+      public Builder roleSize(RoleSizeName roleSize) {
          this.roleSize = roleSize;
          return this;
       }
@@ -165,7 +165,7 @@ public abstract class RoleParam {
    }
 
    public static RoleParam create(String roleName, String roleType, String VMImageName, URI mediaLocation,
-         RoleSize roleSize,
+         RoleSizeName roleSize,
          String availabilitySetName, List<DataVirtualHardDiskParam> dataVirtualHardDiskParams,
          OSVirtualHardDiskParam OSVirtualHardDiskParam, Boolean provisionGuestAgent) {
       return new AutoValue_RoleParam(roleName, roleType, VMImageName, mediaLocation, roleSize,

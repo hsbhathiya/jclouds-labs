@@ -51,7 +51,7 @@ public abstract class Role {
     * Specifies the size of the Virtual Machine. The default size is Small.
     */
 
-   @Nullable public abstract RoleSize roleSize();
+   @Nullable public abstract RoleSizeName roleSize();
 
    /**
     * Specifies the name of a collection of Virtual Machines.
@@ -81,7 +81,7 @@ public abstract class Role {
     */
    @Nullable public abstract Boolean provisionGuestAgent();
 
-   public static Role create(String roleName, String roleType, String VMImageName, URI mediaLocation, RoleSize roleSize,
+   public static Role create(String roleName, String roleType, String VMImageName, URI mediaLocation, RoleSizeName roleSize,
          String availabilitySetName, List<DataVirtualHardDisk> dataVirtualHardDisks,
          OSVirtualHardDisk OSVirtualHardDisk, Boolean provisionGuestAgent) {
       return new AutoValue_Role(roleName, roleType, VMImageName, mediaLocation, roleSize,

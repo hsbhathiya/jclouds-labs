@@ -16,6 +16,71 @@
  */
 package org.jclouds.azurecompute.domain;
 
-public enum RoleSize {
-   EXTRA_SMALL, SMALL, MEDIUM, LARGE, EXTRA_LARGE, UNRECOGNIZED;
+import com.google.auto.value.AutoValue;
+
+
+/**
+ * Specifies information about a role size that is available in your subscription
+ * @see <a href="https://msdn.microsoft.com/en-us/library/azure/dn469422.aspx" ></a>.
+ */
+@AutoValue
+public abstract class RoleSize {
+
+   /**
+    * Specifies the name of the role size
+    */
+   public abstract RoleSizeName name();
+
+   /**
+    * Specifies the description of the role size
+    */
+   public abstract String label();
+
+   /**
+    * Specifies the number of cores that are available in the role size
+    */
+   public abstract Integer cores();
+
+   /**
+    * Specifies the amount of memory that is available in the role size
+    */
+   public abstract Integer memoryInMB();
+
+   /**
+    * Indicates whether the role size supports web roles or worker roles
+    * Possible values are:
+    *    true
+    *    false
+    */
+   public abstract Boolean supportedByWebWorkerRoles();
+
+   /**
+    * Indicates whether the role size supports Virtual Machines.
+    * Possible values are:
+    *    true
+    *    false
+    */
+   public abstract Boolean supportedByVirtualMachines();
+
+   /**
+    * Specifies the maximum number of data disks that can be attached to the role.
+    */
+   public abstract Integer maxDataDiskCount();
+
+   /**
+    * Specifies the size of the resource disk for a web role or worker role
+    */
+   public abstract Integer webWorkerResourceDiskSizeInMb();
+
+   /**
+    * Specifies the size of the resource disk for a Virtual Machine
+    */
+   public abstract Integer virtualMachineResourceDiskSizeInMb();
+
+   public static RoleSize create(RoleSizeName name, String label, Integer cores, Integer memoryInMB,
+         Boolean supportedByWebWorkerRoles, Boolean supportedByVirtualMachines, Integer maxDataDiskCount,
+         Integer webWorkerResourceDiskSizeInMb, Integer virtualMachineResourceDiskSizeInMb) {
+      return new AutoValue_RoleSize(name, label, cores, memoryInMB, supportedByWebWorkerRoles,
+            supportedByVirtualMachines, maxDataDiskCount, webWorkerResourceDiskSizeInMb, virtualMachineResourceDiskSizeInMb);
+   }
 }
