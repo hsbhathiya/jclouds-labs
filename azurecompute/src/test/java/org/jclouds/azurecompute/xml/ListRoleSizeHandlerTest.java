@@ -17,18 +17,18 @@
 package org.jclouds.azurecompute.xml;
 
 import com.google.common.collect.ImmutableList;
-import org.jclouds.azurecompute.domain.*;
+import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.RoleSizeName;
 import org.jclouds.http.functions.BaseHandlerTest;
 import org.testng.annotations.Test;
 
 import java.io.InputStream;
-import java.net.URI;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 
 @Test(groups = "unit", testName = "RoleSizeHandlerTest")
-public class RoleSizeHandlerTest extends BaseHandlerTest {
+public class ListRoleSizeHandlerTest extends BaseHandlerTest {
 
    public void test() {
       InputStream is = getClass().getResourceAsStream("/rolesize.xml");

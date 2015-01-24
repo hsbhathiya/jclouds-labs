@@ -27,6 +27,7 @@ import org.jclouds.azurecompute.features.LocationApi;
 import org.jclouds.azurecompute.features.OSImageApi;
 import org.jclouds.azurecompute.features.OperationApi;
 import org.jclouds.azurecompute.features.VirtualMachineApi;
+import org.jclouds.azurecompute.features.RoleSizesApi;
 import org.jclouds.rest.annotations.Delegate;
 
 /**
@@ -100,4 +101,14 @@ public interface AzureComputeApi extends Closeable {
     */
    @Delegate
    DiskApi getDiskApi();
+
+   /**
+    * The Service Management API includes operations for listing the available Role Sizes
+    * for a subscription.
+    *
+    * @see <a href="https://msdn.microsoft.com/en-us/library/azure/dn469422.aspx">docs</a>
+    */
+
+   @Delegate
+   RoleSizesApi getRoleSizesApi();
 }

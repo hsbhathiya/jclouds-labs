@@ -24,10 +24,15 @@ import java.net.URI;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import org.jclouds.azurecompute.domain.*;
+import org.jclouds.azurecompute.domain.DataVirtualHardDisk;
+import org.jclouds.azurecompute.domain.OSVirtualHardDisk;
+import org.jclouds.azurecompute.domain.Deployment;
 import org.jclouds.azurecompute.domain.Deployment.InstanceStatus;
 import org.jclouds.azurecompute.domain.Deployment.Slot;
 import org.jclouds.azurecompute.domain.Deployment.Status;
+import org.jclouds.azurecompute.domain.Role;
+import org.jclouds.azurecompute.domain.RoleInstance;
+import org.jclouds.azurecompute.domain.OSImage;
 import org.jclouds.azurecompute.domain.RoleSizeName;
 import org.jclouds.http.functions.BaseHandlerTest;
 import org.testng.annotations.Test;

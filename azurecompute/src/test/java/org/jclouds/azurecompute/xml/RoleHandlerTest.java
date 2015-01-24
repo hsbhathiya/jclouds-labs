@@ -18,8 +18,11 @@ package org.jclouds.azurecompute.xml;
 
 import com.google.common.collect.ImmutableList;
 
-import org.jclouds.azurecompute.domain.*;
+import org.jclouds.azurecompute.domain.DataVirtualHardDisk;
+import org.jclouds.azurecompute.domain.OSVirtualHardDisk;
+import org.jclouds.azurecompute.domain.Role;
 import org.jclouds.azurecompute.domain.RoleSizeName;
+import org.jclouds.azurecompute.domain.OSImage;
 import org.jclouds.http.functions.BaseHandlerTest;
 import org.testng.annotations.Test;
 

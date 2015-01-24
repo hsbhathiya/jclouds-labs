@@ -20,8 +20,6 @@ import org.jclouds.azurecompute.domain.RoleSize;
 import org.jclouds.azurecompute.domain.RoleSizeName;
 import org.jclouds.http.functions.ParseSax;
 
-import static com.google.common.base.CaseFormat.UPPER_CAMEL;
-import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
 import static org.jclouds.util.SaxUtils.currentOrNull;
 
 /**
@@ -108,7 +106,7 @@ public final class RoleSizeHandler extends ParseSax.HandlerForGeneratedRequestWi
          if ("extra small".equals(roleSize) || "small".equals(roleSize) || "medium".equals(roleSize) || "large"
                .equals(roleSize) || "extra large".equals(roleSize)) {
             return RoleSizeName.valueOf(roleSize.toUpperCase().replace(" ", "_"));
-         }else{
+         } else {
             return RoleSizeName.valueOf(roleSize);
          }
       } catch (IllegalArgumentException e) {

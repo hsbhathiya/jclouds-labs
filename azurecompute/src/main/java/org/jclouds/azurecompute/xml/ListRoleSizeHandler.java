@@ -18,8 +18,6 @@ package org.jclouds.azurecompute.xml;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
-import com.google.common.collect.ImmutableMap;
-import org.jclouds.azurecompute.domain.Disk;
 import org.jclouds.azurecompute.domain.RoleSize;
 import org.jclouds.http.functions.ParseSax;
 import org.xml.sax.Attributes;
