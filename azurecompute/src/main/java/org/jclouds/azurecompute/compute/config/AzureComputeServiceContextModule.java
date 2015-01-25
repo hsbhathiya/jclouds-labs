@@ -19,7 +19,7 @@ package org.jclouds.azurecompute.compute.config;
 import org.jclouds.azurecompute.compute.AzureComputeServiceAdapter;
 import org.jclouds.azurecompute.compute.functions.DeploymentToNodeMetadata;
 import org.jclouds.azurecompute.compute.functions.OSImageToImage;
-import org.jclouds.azurecompute.compute.functions.RoleSizeToHardware;
+import org.jclouds.azurecompute.compute.functions.RoleToHardware;
 import org.jclouds.azurecompute.domain.Deployment;
 import org.jclouds.azurecompute.domain.OSImage;
 import org.jclouds.azurecompute.domain.RoleSizeName;
@@ -42,7 +42,7 @@ public class AzureComputeServiceContextModule
       bind(new TypeLiteral<Function<OSImage, org.jclouds.compute.domain.Image>>() {
       }).to(OSImageToImage.class);
       bind(new TypeLiteral<Function<RoleSizeName, Hardware>>() {
-      }).to(RoleSizeToHardware.class);
+      }).to(RoleToHardware.class);
       bind(new TypeLiteral<Function<Deployment, NodeMetadata>>() {
       }).to(DeploymentToNodeMetadata.class);
    }
