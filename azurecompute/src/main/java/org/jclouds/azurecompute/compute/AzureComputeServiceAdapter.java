@@ -16,89 +16,135 @@
  */
 package org.jclouds.azurecompute.compute;
 
-import javax.inject.Singleton;
+import static com.google.common.base.Preconditions.checkNotNull;
 
+import javax.inject.Singleton;
+import javax.inject.Inject;
+
+import com.google.common.collect.Lists;
 import org.jclouds.azurecompute.AzureComputeApi;
-import org.jclouds.azurecompute.domain.Deployment;
-import org.jclouds.azurecompute.domain.OSImage;
-import org.jclouds.azurecompute.domain.RoleSizeName;
+
+import org.jclouds.azurecompute.domain.*;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.domain.Template;
+import org.jclouds.compute.options.TemplateOptions;
 
-/**
- * defines the connection between the {@link AzureComputeApi} implementation and the
- * jclouds {@link org.jclouds.compute.ComputeService}
- */
+import java.util.Iterator;
+import java.util.List;
+
 @Singleton
-public class AzureComputeServiceAdapter implements ComputeServiceAdapter<Deployment, RoleSizeName, OSImage, String> {
+public final class AzureComputeServiceAdapter implements ComputeServiceAdapter<Role, RoleSize, OSImage, String> {
+
+   private static final String SERVICE_NAME = "";
+   private static final String DEPLOYMENT_NAME = "";
+
+   private final AzureComputeApi api;
+
+   @Inject AzureComputeServiceAdapter(AzureComputeApi api) {
+      this.api = api;
+   }
 
    @Override
-   public NodeAndInitialCredentials<Deployment> createNodeWithGroupEncodedIntoName(
+   public NodeAndInitialCredentials<Role> createNodeWithGroupEncodedIntoName(
          String group, String name, Template template) {
-      // TODO Auto-generated method stub
+
+      checkNotNull(template.getImage().getUri(), "image URI is null");
+      checkNotNull(template.getHardware().getUri(), "hardware must have a uri");
+
+      TemplateOptions options = template.getOptions();
+
+      Deployment deployment = Deployment.create(
+            name, // name
+            Deployment.Slot.STAGING, // Slot
+            "private-id",
+            Deployment.Status.DEPLOYING, // Status
+            null, // label
+            template.getHardware().getUri(), // VMName
+            template.getImage().getName(), // InstanceName
+            null, // InstanceStatus
+            null
+      );
       return null;
    }
 
    @Override
-   public Iterable<RoleSizeName> listHardwareProfiles() {
-      // TODO Auto-generated method stub
-      return null;
+   public Iterable<RoleSize> listHardwareProfiles() {
+      return api.getRoleSizesApi().list();
    }
 
    @Override
    public Iterable<OSImage> listImages() {
-      // TODO Auto-generated method stub
-      return null;
+      return api.getOSImageApi().list();
    }
 
    @Override
    public OSImage getImage(String id) {
-      // TODO Auto-generated method stub
+      Iterable<OSImage> images = listImages();
+      Iterator<OSImage> iterator = images.iterator();
+      while (iterator.hasNext()) {
+         OSImage osImage = iterator.next();
+         if (id.equals(osImage.name())) {
+            return osImage;
+         }
+      }
       return null;
    }
 
    @Override
    public Iterable<String> listLocations() {
-      // TODO Auto-generated method stub
-      return null;
+      List<Location> locations = api.getLocationApi().list();
+      List<String> locationsName = Lists.newArrayList();
+      for (int i = 0; i < locations.size(); i++) {
+         locationsName.add(locations.get(i).name());
+      }
+      return locationsName;
    }
 
    @Override
-   public Deployment getNode(String id) {
-      // TODO Auto-generated method stub
-      return null;
+   public Role getNode(String id) {
+      return api.getVirtualMachineApiForDeploymentInService(DEPLOYMENT_NAME, SERVICE_NAME).get(id);
    }
 
    @Override
    public void destroyNode(String id) {
-      // TODO Auto-generated method stub
-
+      api.getVirtualMachineApiForDeploymentInService(DEPLOYMENT_NAME, SERVICE_NAME).shutdown(id);
    }
 
    @Override
    public void rebootNode(String id) {
-      // TODO Auto-generated method stub
+      api.getVirtualMachineApiForDeploymentInService(DEPLOYMENT_NAME, SERVICE_NAME).restart(id);
    }
 
    @Override
    public void resumeNode(String id) {
-      // TODO Auto-generated method stub
+      api.getVirtualMachineApiForDeploymentInService(DEPLOYMENT_NAME, SERVICE_NAME).start(id);
    }
 
    @Override
    public void suspendNode(String id) {
-      // TODO Auto-generated method stub
-
+      api.getVirtualMachineApiForDeploymentInService(DEPLOYMENT_NAME, SERVICE_NAME).shutdown(id);
    }
 
    @Override
-   public Iterable<Deployment> listNodes() {
-      // TODO Auto-generated method stub
-      return null;
+   public Iterable<Role> listNodes() {
+      List<CloudService> cloudServices = api.getCloudServiceApi().list();
+      for(CloudService service: cloudServices){
+          service.
+      }
+      throw new UnsupportedOperationException("listNodes is not implemented");
+      /*
+      * Implement Get Cloud Service Properties
+      * http://msdn.microsoft.com/en-us/library/azure/ee460806.aspx
+      */
    }
 
-   @Override public Iterable<Deployment> listNodesByIds(Iterable<String> ids) {
-      // TODO Auto-generated method stub
-      return null;
+   @Override
+   public Iterable<Role> listNodesByIds(Iterable<String> ids) {
+      List<Deployment> deployments = Lists.newArrayList();
+      for (String id : ids) {
+         Deployment deployment = api.getDeploymentApiForService(SERVICE_NAME).get(id);
+         deployments.add(deployment);
+      }
+      return deployments;
    }
 }
