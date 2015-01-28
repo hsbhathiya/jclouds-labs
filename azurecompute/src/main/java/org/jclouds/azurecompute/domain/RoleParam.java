@@ -40,6 +40,10 @@ public abstract class RoleParam {
    */
    public abstract String roleType();
 
+   @Nullable public abstract WindowsConfigurationSetParams windowsConfigurationSet();
+
+   @Nullable public abstract LinuxConfigurationSetParams linuxConfigurationSet();
+
    @Nullable public abstract String VMImageName();
 
    /**
@@ -98,6 +102,8 @@ public abstract class RoleParam {
 
       private String roleName;
       private String roleType = ROLE_TYPE;
+      private WindowsConfigurationSetParams windowsConfigurationSet;
+      private LinuxConfigurationSetParams linuxConfigurationSet;
       private String VMImageName;
       private URI mediaLocation;
       private RoleSizeName roleSize;
@@ -107,6 +113,16 @@ public abstract class RoleParam {
 
       public Builder roleName(String roleName) {
          this.roleName = roleName;
+         return this;
+      }
+
+      public Builder windowsConfigurationSet(WindowsConfigurationSetParams windowsConfigurationSet) {
+         this.windowsConfigurationSet = windowsConfigurationSet;
+         return this;
+      }
+
+      public Builder linuxConfigurationSet(LinuxConfigurationSetParams linuxConfigurationSet) {
+         this.linuxConfigurationSet = linuxConfigurationSet;
          return this;
       }
 
@@ -153,6 +169,8 @@ public abstract class RoleParam {
       public Builder fromRoleParams(RoleParam in) {
          return roleName(in.roleName())
                .roleType(in.roleType())
+               .windowsConfigurationSet(in.windowsConfigurationSet())
+               .linuxConfigurationSet(in.linuxConfigurationSet())
                .VMImageName(in.VMImageName())
                .roleSize(in.roleSize())
                .OSVirtualHardDiskParam(in.OSVirtualHardDiskParam())
@@ -161,14 +179,13 @@ public abstract class RoleParam {
                .availabilitySetName(in.availabilitySetName());
 
       }
-
    }
 
-   public static RoleParam create(String roleName, String roleType, String VMImageName, URI mediaLocation,
-         RoleSizeName roleSize,
-         String availabilitySetName, List<DataVirtualHardDiskParam> dataVirtualHardDiskParams,
+   public static RoleParam create(String roleName, String roleType,
+         WindowsConfigurationSetParams windowsConfigurationSet, LinuxConfigurationSetParams linuxConfigurationSet,
+         String VMImageName, URI mediaLocation, RoleSizeName roleSize,String availabilitySetName, List<DataVirtualHardDiskParam> dataVirtualHardDiskParams,
          OSVirtualHardDiskParam OSVirtualHardDiskParam, Boolean provisionGuestAgent) {
-      return new AutoValue_RoleParam(roleName, roleType, VMImageName, mediaLocation, roleSize,
+      return new AutoValue_RoleParam(roleName, roleType, windowsConfigurationSet, linuxConfigurationSet,VMImageName, mediaLocation, roleSize,
             availabilitySetName, dataVirtualHardDiskParams, OSVirtualHardDiskParam, provisionGuestAgent);
    }
 }
