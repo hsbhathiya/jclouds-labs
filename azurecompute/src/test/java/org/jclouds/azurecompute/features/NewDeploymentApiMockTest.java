@@ -16,24 +16,25 @@
  */
 package org.jclouds.azurecompute.features;
 
-import static org.jclouds.azurecompute.domain.DeploymentParams.ExternalEndpoint.inboundTcpToLocalPort;
-import static org.jclouds.azurecompute.domain.DeploymentParams.ExternalEndpoint.inboundUdpToLocalPort;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
-
-import org.jclouds.azurecompute.domain.DeploymentParams;
-import org.jclouds.azurecompute.domain.OSImage;
-import org.jclouds.azurecompute.domain.RoleSizeName;
+import com.google.common.collect.ImmutableList;
+import com.squareup.okhttp.mockwebserver.MockResponse;
+import com.squareup.okhttp.mockwebserver.MockWebServer;
+import org.jclouds.azurecompute.domain.*;
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiMockTest;
 import org.jclouds.azurecompute.xml.DeploymentHandlerTest;
 import org.jclouds.azurecompute.xml.ListOSImagesHandlerTest;
 import org.testng.annotations.Test;
 
-import com.squareup.okhttp.mockwebserver.MockResponse;
-import com.squareup.okhttp.mockwebserver.MockWebServer;
+import java.net.URI;
+import java.util.List;
 
-@Test(groups = "unit", testName = "DeploymentApiMockTest")
-public class DeploymentApiMockTest extends BaseAzureComputeApiMockTest {
+import static org.jclouds.azurecompute.domain.NewDeploymentParams.ExternalEndpoint.inboundTcpToLocalPort;
+import static org.jclouds.azurecompute.domain.NewDeploymentParams.ExternalEndpoint.inboundUdpToLocalPort;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+
+@Test(groups = "unit", testName = "NewDeploymentApiMockTest")
+public class NewDeploymentApiMockTest extends BaseAzureComputeApiMockTest {
 
    public void createLinux() throws Exception {
       MockWebServer server = mockAzureManagementServer();
@@ -44,15 +45,12 @@ public class DeploymentApiMockTest extends BaseAzureComputeApiMockTest {
 
          OSImage OSImage = ListOSImagesHandlerTest.expected().get(5); // CentOS
 
-         DeploymentParams params = DeploymentParams.builder()
+         NewDeploymentParams params = NewDeploymentParams.builder()
                .name("mydeployment")
-               .size(RoleSizeName.MEDIUM)
-               .sourceImageName(OSImage.name()).mediaLink(OSImage.mediaLink()).os(OSImage.os())
-               .username("username").password("testpwd")
                .externalEndpoint(inboundTcpToLocalPort(80, 8080))
                .externalEndpoint(inboundUdpToLocalPort(53, 53)).build();
 
-       //  assertEquals(api.create(params), "request-1");
+         assertEquals(api.create(params), "request-1");
 
          assertSent(server, "POST", "/services/hostedservices/myservice/deployments", "/deploymentparams.xml");
       } finally {
@@ -69,15 +67,13 @@ public class DeploymentApiMockTest extends BaseAzureComputeApiMockTest {
 
          OSImage OSImage = ListOSImagesHandlerTest.expected().get(1); // Windows
 
-         DeploymentParams params = DeploymentParams.builder()
+         NewDeploymentParams params = NewDeploymentParams.builder()
                .name("mydeployment")
-               .size(RoleSizeName.MEDIUM)
-               .sourceImageName(OSImage.name()).mediaLink(OSImage.mediaLink()).os(OSImage.os())
-               .username("username").password("testpwd")
+               .roleParam(expected())
                .externalEndpoint(inboundTcpToLocalPort(80, 8080))
                .externalEndpoint(inboundUdpToLocalPort(53, 53)).build();
 
-        // assertEquals(api.create(params), "request-1");
+         assertEquals(api.create(params), "request-1");
 
          assertSent(server, "POST", "/services/hostedservices/myservice/deployments", "/deploymentparams-windows.xml");
       } finally {
@@ -143,5 +139,50 @@ public class DeploymentApiMockTest extends BaseAzureComputeApiMockTest {
       } finally {
          server.shutdown();
       }
+   }
+
+   public static RoleParam expected() {
+      return RoleParam.builder().roleName("testVM").roleType("PersistentVMRole").availabilitySetName("testSet").mediaLocation( URI.create(
+            "https://bahshstorage.blob.core.windows.net/communityimages/community-12-c59cc53c-80c9-48fb-ba81-9ed6fe46eeb9-1.vhd")).build();
+   }
+
+   private static List<DataVirtualHardDiskParam> DataVHD() {
+      return  null;
+      /*return ImmutableList.of(
+            DataVirtualHardDisk.create(
+                  "ReadOnly",
+                  "MyTestImage_1",
+                  "testimage1-testimage1-0-20120817095145",
+                  10,
+                  30,
+                  URI.create("http://blobs/disks/neotysss/MSFT__Win2K8R2SP1-ABCD-en-us-30GB.vhd"),
+                  URI.create("http://blobs/disks/neotysss/MSFT__Win2K8R2SP1-ABCD-en-us-30GB.vhd"),
+                  "Standard"
+            ),
+            DataVirtualHardDisk.create(
+                  "ReadWrite",
+                  "MyTestImage_2",
+                  "testimage2-testimage2-0-20120817095145",
+                  10,
+                  30,
+                  URI.create("http://blobs/disks/neotysss/MSFT__Win2K8R2SP1-ABCD-en-us-30GB.vhd"),
+                  URI.create("http://blobs/disks/neotysss/MSFT__Win2K8R2SP1-ABCD-en-us-30GB.vhd"),
+                  "Standard"
+            )
+      );*/
+   }
+
+   private static OSVirtualHardDisk OSVHD() {
+      return OSVirtualHardDisk.create(
+            "ReadOnly",
+            "MyTestImage_1",
+            "testosimage1-testosimage1-0-20120817095145",
+            URI.create("http://blobs/disks/neotysss/MSFT__Win2K8R2SP1-ABCD-en-us-30GB.vhd"),
+            "Ubuntu Server 12.04 LTS",
+            OSImage.Type.LINUX,
+            30,
+            URI.create("http://blobs/disks/neotysss/MSFT__Win2K8R2SP1-ABCD-en-us-30GB.vhd"),
+            "Standard"
+      );
    }
 }

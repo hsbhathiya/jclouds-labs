@@ -29,8 +29,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.jclouds.azurecompute.binders.DeploymentParamsToXML;
+import org.jclouds.azurecompute.binders.NewDeploymentParamsToXML;
 import org.jclouds.azurecompute.domain.Deployment;
 import org.jclouds.azurecompute.domain.DeploymentParams;
+import org.jclouds.azurecompute.domain.NewDeploymentParams;
 import org.jclouds.azurecompute.functions.ParseRequestIdHeader;
 import org.jclouds.azurecompute.xml.DeploymentHandler;
 import org.jclouds.rest.annotations.BinderParam;
@@ -61,7 +63,7 @@ public interface DeploymentApi {
    @POST
    @Produces(MediaType.APPLICATION_XML)
    @ResponseParser(ParseRequestIdHeader.class)
-   String create(@BinderParam(DeploymentParamsToXML.class) DeploymentParams params);
+   String create(@BinderParam(NewDeploymentParamsToXML.class) NewDeploymentParams params);
 
    /**
     * The Delete Deployment operation deletes the specified deployment from Windows Azure.

@@ -26,6 +26,8 @@ import org.jclouds.azurecompute.AzureComputeApi;
 
 import org.jclouds.azurecompute.domain.*;
 import org.jclouds.compute.ComputeServiceAdapter;
+import org.jclouds.compute.domain.Image;
+import org.jclouds.compute.domain.OsFamily;
 import org.jclouds.compute.domain.Template;
 import org.jclouds.compute.options.TemplateOptions;
 
@@ -52,18 +54,20 @@ public final class AzureComputeServiceAdapter implements ComputeServiceAdapter<R
       checkNotNull(template.getHardware().getUri(), "hardware must have a uri");
 
       TemplateOptions options = template.getOptions();
+      Image image = template.getImage();
+      OsFamily osFamily = image.getOperatingSystem().getFamily();
 
-      Deployment deployment = Deployment.create(
-            name, // name
-            Deployment.Slot.STAGING, // Slot
-            "private-id",
-            Deployment.Status.DEPLOYING, // Status
-            null, // label
-            template.getHardware().getUri(), // VMName
-            template.getImage().getName(), // InstanceName
-            null, // InstanceStatus
-            null
-      );
+      OSImage.Type  os;
+      if(osFamily == OsFamily.WINDOWS){
+         os = OSImage.Type.WINDOWS;
+      }else{
+         os = OSImage.Type.LINUX;
+      }
+
+
+      DeploymentParams deploymentParams = DeploymentParams.builder().name(DEPLOYMENT_NAME)
+            .mediaLink(image.getUri()).os(os).build();
+
       return null;
    }
 
@@ -102,7 +106,7 @@ public final class AzureComputeServiceAdapter implements ComputeServiceAdapter<R
 
    @Override
    public Role getNode(String id) {
-      return api.getVirtualMachineApiForDeploymentInService(DEPLOYMENT_NAME, SERVICE_NAME).get(id);
+      return null;//api.getVirtualMachineApiForDeploymentInService(DEPLOYMENT_NAME, SERVICE_NAME).get(id);
    }
 
    @Override
@@ -128,8 +132,7 @@ public final class AzureComputeServiceAdapter implements ComputeServiceAdapter<R
    @Override
    public Iterable<Role> listNodes() {
       List<CloudService> cloudServices = api.getCloudServiceApi().list();
-      for(CloudService service: cloudServices){
-          service.
+      for (CloudService service : cloudServices) {
       }
       throw new UnsupportedOperationException("listNodes is not implemented");
       /*
@@ -145,6 +148,6 @@ public final class AzureComputeServiceAdapter implements ComputeServiceAdapter<R
          Deployment deployment = api.getDeploymentApiForService(SERVICE_NAME).get(id);
          deployments.add(deployment);
       }
-      return deployments;
+      return  null; //deployments;
    }
 }

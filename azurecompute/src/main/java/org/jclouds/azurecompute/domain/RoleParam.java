@@ -17,6 +17,7 @@
 package org.jclouds.azurecompute.domain;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.jclouds.javax.annotation.Nullable;
 
@@ -179,13 +180,21 @@ public abstract class RoleParam {
                .availabilitySetName(in.availabilitySetName());
 
       }
+
+      public RoleParam build() {
+         return RoleParam
+               .create(roleName, roleType, windowsConfigurationSet, linuxConfigurationSet, VMImageName, mediaLocation,
+                     roleSize, availabilitySetName, dataVirtualHardDiskParams, OSVirtualHardDiskParam, Boolean.FALSE);
+      }
    }
 
    public static RoleParam create(String roleName, String roleType,
          WindowsConfigurationSetParams windowsConfigurationSet, LinuxConfigurationSetParams linuxConfigurationSet,
-         String VMImageName, URI mediaLocation, RoleSizeName roleSize,String availabilitySetName, List<DataVirtualHardDiskParam> dataVirtualHardDiskParams,
+         String VMImageName, URI mediaLocation, RoleSizeName roleSize, String availabilitySetName,
+         List<DataVirtualHardDiskParam> dataVirtualHardDiskParams,
          OSVirtualHardDiskParam OSVirtualHardDiskParam, Boolean provisionGuestAgent) {
-      return new AutoValue_RoleParam(roleName, roleType, windowsConfigurationSet, linuxConfigurationSet,VMImageName, mediaLocation, roleSize,
+      return new AutoValue_RoleParam(roleName, roleType, windowsConfigurationSet, linuxConfigurationSet, VMImageName,
+            mediaLocation, roleSize,
             availabilitySetName, dataVirtualHardDiskParams, OSVirtualHardDiskParam, provisionGuestAgent);
    }
 }
