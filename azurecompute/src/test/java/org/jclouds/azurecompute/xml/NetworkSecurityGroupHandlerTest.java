@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 
-@Test(groups = "unit", testName = "HostedServiceHandlerTest")
+@Test(groups = "unit", testName = "NetworkSecurityGroupHandlerTest")
 public class NetworkSecurityGroupHandlerTest extends BaseHandlerTest {
 
    public void test() {

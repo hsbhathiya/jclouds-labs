@@ -28,7 +28,7 @@ import org.jclouds.date.internal.SimpleDateFormatDateService;
 import org.jclouds.http.functions.BaseHandlerTest;
 import org.testng.annotations.Test;
 
-@Test(groups = "unit", testName = "HostedServiceHandlerTest")
+@Test(groups = "unit", testName = "CloudServiceHandlerTest")
 public class CloudServiceHandlerTest extends BaseHandlerTest {
    private static final DateService DATE_SERVICE = new SimpleDateFormatDateService();
 

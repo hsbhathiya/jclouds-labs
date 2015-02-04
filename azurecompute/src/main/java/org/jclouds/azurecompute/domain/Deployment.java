@@ -22,6 +22,9 @@ import org.jclouds.javax.annotation.Nullable;
 
 import com.google.auto.value.AutoValue;
 
+/**
+ * @see <a href="https://msdn.microsoft.com/en-us/library/azure/ee460804.aspx" >api</a>
+ */
 @AutoValue
 public abstract class Deployment {
 
