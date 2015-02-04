@@ -16,26 +16,21 @@
  */
 package org.jclouds.azurecompute.domain;
 
-import java.util.List;
+import org.jclouds.javax.annotation.Nullable;
 
 import com.google.auto.value.AutoValue;
 
-/** A data center location that is valid for your subscription. */
 @AutoValue
-public abstract class Location {
+public abstract class Availability {
 
-   Location() {} // For AutoValue only!
+   Availability() {} // For AutoValue only!
 
-   /** The name of the data center location. Ex. {@code West Europe}. */
-   public abstract String name();
+   public abstract Boolean result();
 
-   /** The localized name of the data center location. */
-   public abstract String displayName();
+   @Nullable public abstract String reason();
 
-   /** Indicates the services available at this location. Ex. {@code Compute}. */
-   public abstract List<String> availableServices();
-
-   public static Location create(String name, String displayName, List<String> availableServices) {
-      return new AutoValue_Location(name, displayName, availableServices);
+   public static Availability create(Boolean result, String reason) {
+      return new AutoValue_Availability(result, reason);
    }
+
 }

@@ -32,10 +32,13 @@ import com.google.auto.value.AutoValue;
  */
 @AutoValue
 public abstract class CloudService {
+
    public enum Status {
       CREATING, CREATED, DELETING, DELETED, CHANGING, RESOLVING_DNS,
       UNRECOGNIZED;
    }
+
+   CloudService() {} // For AutoValue only!
 
    /**
     * The name of the cloud service. This name is the DNS prefix name and can be used to access the
