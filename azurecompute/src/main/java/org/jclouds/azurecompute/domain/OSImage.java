@@ -30,9 +30,12 @@ import com.google.auto.value.AutoValue;
  */
 @AutoValue
 public abstract class OSImage {
+
    public enum Type {
       LINUX, WINDOWS;
    }
+
+   OSImage() {} // For AutoValue only!
 
    public abstract String name();
 

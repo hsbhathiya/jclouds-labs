@@ -16,30 +16,29 @@
  */
 package org.jclouds.azurecompute.domain;
 
-import java.net.URI;
-
 import com.google.auto.value.AutoValue;
 
-/** To create a new operating system image. */
+// TODO: check which can be null.
 @AutoValue
-public abstract class OSImageParams {
+public abstract class StorageServiceParams {
 
-   OSImageParams() {} // For AutoValue only!
+   public enum Type {
+      Standard_LRS, Standard_ZRS, Standard_GRS, Standard_RAGRS, Premium_LRS;
+   }
 
-   /** Specifies a name that is used to identify the image when you create a Virtual Machine. */
+   StorageServiceParams() {} // For AutoValue only!
+
+   /** The user-supplied name for this deployment. */
    public abstract String name();
 
-   /** Specifies the friendly name of the image. */
    public abstract String label();
 
-   /** Specifies the location of the vhd file for the image. */
-   public abstract URI mediaLink();
+   public abstract String location();
 
-   /** {@link OSImage#os() Os type} of the image. */
-   public abstract OSImage.Type os();
+   public abstract Type accountType();
 
    public Builder toBuilder() {
-      return builder().fromImageParams(this);
+      return builder().fromStorageServiceParams(this);
    }
 
    public static Builder builder() {
@@ -49,8 +48,8 @@ public abstract class OSImageParams {
    public static final class Builder {
       private String name;
       private String label;
-      private URI mediaLink;
-      private OSImage.Type os;
+      private String location;
+      private Type accountType;
 
       public Builder name(String name) {
          this.name = name;
@@ -62,29 +61,29 @@ public abstract class OSImageParams {
          return this;
       }
 
-      public Builder mediaLink(URI mediaLink) {
-         this.mediaLink = mediaLink;
+      public Builder location(String location) {
+         this.location = location;
          return this;
       }
 
-      public Builder os(OSImage.Type os) {
-         this.os = os;
+      public Builder accountType(Type accountType) {
+         this.accountType = accountType;
          return this;
       }
 
-      public OSImageParams build() {
-         return OSImageParams.create(name, label, mediaLink, os);
+      public StorageServiceParams build() {
+         return StorageServiceParams.create(name, label, location, accountType);
       }
 
-      public Builder fromImageParams(OSImageParams in) {
+      public Builder fromStorageServiceParams(StorageServiceParams in) {
          return name(in.name())
                .label(in.label())
-               .mediaLink(in.mediaLink())
-               .os(in.os());
+               .location(in.location())
+               .accountType(in.accountType());
       }
    }
 
-   private static OSImageParams create(String name, String label, URI mediaLink, OSImage.Type os) {
-      return new AutoValue_OSImageParams(name, label, mediaLink, os);
+   private static StorageServiceParams create(String name, String label, String location, Type accountType) {
+      return new AutoValue_StorageServiceParams(name, label, location, accountType);
    }
 }
