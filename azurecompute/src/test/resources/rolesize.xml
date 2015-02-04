@@ -1,0 +1,24 @@
+<RoleSizes>
+    <RoleSize>
+        <Name>Basic_A2</Name>
+        <Label>Basic A2</Label>
+        <Cores>2</Cores>
+        <MemoryInMb>3584</MemoryInMb>
+        <SupportedByWebWorkerRoles>False</SupportedByWebWorkerRoles>
+        <SupportedByVirtualMachines>True</SupportedByVirtualMachines>
+        <MaxDataDiskCount>4</MaxDataDiskCount>
+        <WebWorkerResourceDiskSizeInMb>0</WebWorkerResourceDiskSizeInMb>
+        <VirtualMachineResourceDiskSizeInMb>130048</VirtualMachineResourceDiskSizeInMb>
+    </RoleSize>
+    <RoleSize>
+        <Name>extra large</Name>
+        <Label>A4/extra large</Label>
+        <Cores>8</Cores>
+        <MemoryInMb>14336</MemoryInMb>
+        <SupportedByWebWorkerRoles>True</SupportedByWebWorkerRoles>
+        <SupportedByVirtualMachines>True</SupportedByVirtualMachines>
+        <MaxDataDiskCount>16</MaxDataDiskCount>
+        <WebWorkerResourceDiskSizeInMb>2087936</WebWorkerResourceDiskSizeInMb>
+        <VirtualMachineResourceDiskSizeInMb>619520</VirtualMachineResourceDiskSizeInMb>
+    </RoleSize>
+</RoleSizes>

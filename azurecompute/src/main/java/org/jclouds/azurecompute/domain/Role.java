@@ -71,10 +71,10 @@ public abstract class Role {
          }
 
          public static InputEndpoint create(String name, String protocol, int localPort, int port,
-                                            String vip, boolean enableDirectServerReturn, String loadBalancerName,
-                                            LoadBalancerProbe loadBalancerProbe, Integer idleTimeoutInMinutes) {
+               String vip, boolean enableDirectServerReturn, String loadBalancerName,
+               LoadBalancerProbe loadBalancerProbe, Integer idleTimeoutInMinutes) {
             return new AutoValue_Role_ConfigurationSet_InputEndpoint(localPort, name, port, protocol, vip,
-                    enableDirectServerReturn, loadBalancerName, loadBalancerProbe, idleTimeoutInMinutes);
+                  enableDirectServerReturn, loadBalancerName, loadBalancerProbe, idleTimeoutInMinutes);
          }
       }
 
@@ -120,9 +120,9 @@ public abstract class Role {
       }
 
       public static ConfigurationSet create(String configurationSetType, List<InputEndpoint> inputEndpoints,
-                                            List<SubnetName> subnetNames, String staticVirtualNetworkIPAddress, List<PublicIP> publicIPs) {
+            List<SubnetName> subnetNames, String staticVirtualNetworkIPAddress, List<PublicIP> publicIPs) {
          return new AutoValue_Role_ConfigurationSet(configurationSetType, inputEndpoints, subnetNames,
-                 staticVirtualNetworkIPAddress, publicIPs);
+               staticVirtualNetworkIPAddress, publicIPs);
       }
    }
 
@@ -162,34 +162,10 @@ public abstract class Role {
       }
 
       public static ResourceExtensionReference create(String referenceName, String publisher, String name, String
-              version, List<ResourceExtensionParameterValue> resourceExtensionParameterValues, String state) {
+            version, List<ResourceExtensionParameterValue> resourceExtensionParameterValues, String state) {
          return new AutoValue_Role_ResourceExtensionReference(referenceName, publisher, name, version,
-                 resourceExtensionParameterValues, state);
+               resourceExtensionParameterValues, state);
       }
-   }
-
-   @AutoValue
-   public abstract static class DataVirtualHardDisk {
-
-      public abstract String hostCaching();
-
-      public abstract String diskName();
-
-      public abstract int lun();
-
-      public abstract int logicalDiskSizeInGB();
-
-      public abstract String mediaLink();
-
-      public abstract String ioType();
-
-      DataVirtualHardDisk() { // For AutoValue only!
-      }
-
-      public static DataVirtualHardDisk create(String hostCaching, String diskName, int lun, int logicalDiskSizeInGB, String mediaLink, String ioType) {
-         return new AutoValue_Role_DataVirtualHardDisk(hostCaching, diskName, lun, logicalDiskSizeInGB, mediaLink, ioType);
-      }
-
    }
 
    @AutoValue
@@ -212,8 +188,10 @@ public abstract class Role {
       OSVirtualHardDisk() { // For AutoValue only!
       }
 
-      public static OSVirtualHardDisk create(String hostCaching, String diskName, Integer lun, Integer logicalDiskSizeInGB, URI mediaLink, String sourceImageName, OSImage.Type os) {
-         return new AutoValue_Role_OSVirtualHardDisk(hostCaching, diskName, lun, logicalDiskSizeInGB, mediaLink, sourceImageName, os);
+      public static OSVirtualHardDisk create(String hostCaching, String diskName, Integer lun,
+            Integer logicalDiskSizeInGB, URI mediaLink, String sourceImageName, OSImage.Type os) {
+         return new AutoValue_Role_OSVirtualHardDisk(hostCaching, diskName, lun, logicalDiskSizeInGB, mediaLink,
+               sourceImageName, os);
       }
    }
 
@@ -223,6 +201,10 @@ public abstract class Role {
    public abstract String roleName();
 
    @Nullable public abstract String osVersion();
+
+   @Nullable public abstract String vmImage();
+
+   @Nullable public abstract String mediaLocation();
 
    public abstract String roleType();
 
@@ -236,10 +218,10 @@ public abstract class Role {
 
    public abstract RoleSize.Type roleSize();
 
-   public static Role create(String roleName, String osVersion, String roleType, List<ConfigurationSet> configurationSets,
-                             List<ResourceExtensionReference> resourceExtensionReferences,
-                             List<DataVirtualHardDisk> dataVirtualHardDisks,
-                             OSVirtualHardDisk oSVirtualHardDisk, RoleSize.Type roleSize) {
-      return new AutoValue_Role(roleName, osVersion, roleType, configurationSets, resourceExtensionReferences, dataVirtualHardDisks, oSVirtualHardDisk, roleSize);
+   public static Role create(String roleName, String osVersion, String vmImage, String mediaLocation, String roleType,
+         List<ConfigurationSet> configurationSets, List<ResourceExtensionReference> resourceExtensionReferences,
+         List<DataVirtualHardDisk> dataVirtualHardDisks, OSVirtualHardDisk oSVirtualHardDisk, RoleSize.Type roleSize) {
+      return new AutoValue_Role(roleName, osVersion, vmImage, mediaLocation, roleType, configurationSets,
+            resourceExtensionReferences, dataVirtualHardDisks, oSVirtualHardDisk, roleSize);
    }
 }

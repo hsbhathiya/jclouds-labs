@@ -19,9 +19,9 @@ package org.jclouds.azurecompute.xml;
 import static org.jclouds.util.SaxUtils.currentOrNull;
 import java.util.List;
 
+import org.jclouds.azurecompute.domain.DataVirtualHardDisk;
 import org.jclouds.azurecompute.domain.Role;
 import org.jclouds.azurecompute.domain.Role.ConfigurationSet;
-import org.jclouds.azurecompute.domain.Role.DataVirtualHardDisk;
 import org.jclouds.azurecompute.domain.Role.OSVirtualHardDisk;
 import org.jclouds.azurecompute.domain.Role.ResourceExtensionReference;
 import org.jclouds.azurecompute.domain.RoleSize;
@@ -34,6 +34,8 @@ public class RoleHandler extends ParseSax.HandlerForGeneratedRequestWithResult<R
 
    private String roleName;
    private String osVersion;
+   private String vmImage;
+   private String mediaLocation;
    private String roleType;
    private List<ConfigurationSet> configurationSets = Lists.newArrayList();
    private List<ResourceExtensionReference> resourceExtensionReferences = Lists.newArrayList();
@@ -72,7 +74,7 @@ public class RoleHandler extends ParseSax.HandlerForGeneratedRequestWithResult<R
 
    @Override
    public Role getResult() {
-      Role result = Role.create(roleName, osVersion, roleType, configurationSets, resourceExtensionReferences,
+      Role result = Role.create(roleName, osVersion, mediaLocation, vmImage, roleType, configurationSets, resourceExtensionReferences,
               dataVirtualHardDisks, osVirtualHardDisk, roleSize);
       resetState(); // handler is called in a loop.
       return result;

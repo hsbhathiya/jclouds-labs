@@ -47,7 +47,7 @@ final class RoleSizeHandler extends ParseSax.HandlerForGeneratedRequestWithResul
       if (qName.equals("Name")) {
          String type = currentOrNull(currentText);
          if (type != null) {
-            name = RoleSize.Type.valueOf(currentOrNull(currentText).toUpperCase());
+            name = RoleSize.Type.fromString(type);
          }
       } else if (qName.equals("Label")) {
          label = currentOrNull(currentText);

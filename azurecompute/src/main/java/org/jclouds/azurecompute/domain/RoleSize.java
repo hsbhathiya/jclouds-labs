@@ -43,7 +43,7 @@ public abstract class RoleSize {
       STANDARD_D14 ("Standard_D14"),
       STANDARD_G1 ("Standard_G1"), STANDARD_G2 ("Standard_G2"), STANDARD_G3 ("Standard_G3"),
       STANDARD_G4 ("Standard_G4"), STANDARD_G5 ("Standard_G5"),
-      EXTRASMALL ("ExtraSmall"), SMALL ("Small"), MEDIUM ("Medium"), LARGE ("Large"), EXTRALARGE ("ExtraLarge"),
+      EXTRASMALL ("EXTRA SMALL"), SMALL ("SAMLL"), MEDIUM ("MEDIUM"), LARGE ("LARGE"), EXTRALARGE ("EXTRA LARGE"),
       UNRECOGNIZED ("UNRECOGNIZED");
 
       private String text;
