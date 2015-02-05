@@ -22,13 +22,17 @@ import static org.testng.Assert.assertEquals;
 import java.io.InputStream;
 import java.net.URI;
 
-import org.jclouds.azurecompute.domain.*;
+import org.jclouds.azurecompute.domain.Deployment;
+import org.jclouds.azurecompute.domain.DataVirtualHardDisk;
 import org.jclouds.azurecompute.domain.Deployment.InstanceStatus;
 import org.jclouds.azurecompute.domain.Deployment.Slot;
 import org.jclouds.azurecompute.domain.Deployment.Status;
+import org.jclouds.azurecompute.domain.OSImage;
+import org.jclouds.azurecompute.domain.Role;
 import org.jclouds.azurecompute.domain.Role.ConfigurationSet;
 import org.jclouds.azurecompute.domain.Role.ConfigurationSet.InputEndpoint;
 import org.jclouds.azurecompute.domain.Role.OSVirtualHardDisk;
+import org.jclouds.azurecompute.domain.RoleSize;
 import org.jclouds.http.functions.BaseHandlerTest;
 import org.testng.annotations.Test;
 

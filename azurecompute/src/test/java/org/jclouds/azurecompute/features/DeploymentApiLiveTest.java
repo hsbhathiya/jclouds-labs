@@ -20,7 +20,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jclouds.util.Predicates2.retry;
 import static org.testng.Assert.assertEquals;
 
-
 import java.util.List;
 
 import org.jclouds.azurecompute.domain.Deployment;
@@ -41,12 +40,11 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
 
    private Predicate<String> operationSucceeded;
 
-
    @BeforeClass(groups = { "integration", "live" })
    public void setup() {
       super.setup();
       // TODO: filter locations on those who have compute
-         operationSucceeded = retry(new Predicate<String>() {
+      operationSucceeded = retry(new Predicate<String>() {
          public boolean apply(String input) {
             return api.getOperationApi().get(input).status() == Operation.Status.SUCCEEDED;
          }
@@ -57,7 +55,7 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
       Deployment deployment = api().get(DEPLOYMENT);
       List<Role> roles = deployment.roles();
       Role role = roles.get(0);
-      assertEquals(deployment.toString(),"");
+      assertEquals(deployment.toString(), "");
    }
 
    private DeploymentApi api() {

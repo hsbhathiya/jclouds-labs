@@ -17,6 +17,8 @@
 package org.jclouds.azurecompute.xml;
 
 import static org.jclouds.util.SaxUtils.currentOrNull;
+
+import com.google.common.base.CaseFormat;
 import org.jclouds.azurecompute.domain.RoleSize;
 import org.jclouds.http.functions.ParseSax;
 
@@ -39,7 +41,8 @@ final class RoleSizeHandler extends ParseSax.HandlerForGeneratedRequestWithResul
    @Override
    public RoleSize getResult() {
       return RoleSize.create(name, label, cores, memoryInMb, supportedByWebWorkerRoles,
-              supportedByVirtualMachines, maxDataDiskCount, webWorkerResourceDiskSizeInMb, virtualMachineResourceDiskSizeInMb);
+            supportedByVirtualMachines, maxDataDiskCount, webWorkerResourceDiskSizeInMb,
+            virtualMachineResourceDiskSizeInMb);
    }
 
    @Override
@@ -47,7 +50,7 @@ final class RoleSizeHandler extends ParseSax.HandlerForGeneratedRequestWithResul
       if (qName.equals("Name")) {
          String type = currentOrNull(currentText);
          if (type != null) {
-            name = RoleSize.Type.fromString(type);
+            name = RoleSize.Type.fromString(type.toUpperCase().replace(" ", ""));
          }
       } else if (qName.equals("Label")) {
          label = currentOrNull(currentText);
@@ -94,5 +97,4 @@ final class RoleSizeHandler extends ParseSax.HandlerForGeneratedRequestWithResul
    @Override public void characters(char ch[], int start, int length) {
       currentText.append(ch, start, length);
    }
-
 }

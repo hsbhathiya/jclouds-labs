@@ -35,6 +35,7 @@ import org.xml.sax.Attributes;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import org.xml.sax.SAXException;
 
 /**
  * @see <a href="http://msdn.microsoft.com/en-us/library/ee460804" >Response body description</a>.
@@ -64,7 +65,8 @@ public final class DeploymentHandler extends ParseSax.HandlerForGeneratedRequest
             instanceStateDetails, instanceErrorCode, virtualIPs, roleInstanceList, roleList, virtualNetworkName);
    }
 
-   @Override public void startElement(String url, String name, String qName, Attributes attributes) {
+   @Override public void startElement(String url, String name, String qName, Attributes attributes)
+         throws SAXException {
       if (qName.equals("VirtualIPs")) {
          inListVirtualIPs = true;
       } else if (qName.equals("RoleInstanceList")) {

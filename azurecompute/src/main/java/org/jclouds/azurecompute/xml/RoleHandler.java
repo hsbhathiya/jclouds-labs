@@ -29,6 +29,7 @@ import org.jclouds.http.functions.ParseSax;
 import org.xml.sax.Attributes;
 
 import com.google.common.collect.Lists;
+import org.xml.sax.SAXException;
 
 public class RoleHandler extends ParseSax.HandlerForGeneratedRequestWithResult<Role> {
 
@@ -45,12 +46,15 @@ public class RoleHandler extends ParseSax.HandlerForGeneratedRequestWithResult<R
 
    private boolean inConfigurationSets;
    private boolean inOSVirtualHardDisk;
+   private boolean inDataVirtualHardDisk;
    private final ConfigurationSetHandler configurationSetHandler = new ConfigurationSetHandler();
    private final OSVirtualHardDiskHandler osVirtualDiskHandler = new OSVirtualHardDiskHandler();
+   private final DataVirtualHardDiskHandler dataVirtualHardDiskHandler = new DataVirtualHardDiskHandler();
 
    private StringBuilder currentText = new StringBuilder();
 
-   @Override public void startElement(String uri, String localName, String qName, Attributes attributes) {
+   @Override public void startElement(String uri, String localName, String qName, Attributes attributes)
+         throws SAXException {
       if (qName.equals("ConfigurationSets")) {
          inConfigurationSets = true;
       }
@@ -59,6 +63,12 @@ public class RoleHandler extends ParseSax.HandlerForGeneratedRequestWithResult<R
       }
       if (qName.equals("OSVirtualHardDisk")) {
          inOSVirtualHardDisk = true;
+      }
+      if (qName.equals("DataVirtualHardDisk")) {
+         inDataVirtualHardDisk = true;
+      }
+      if (inDataVirtualHardDisk) {
+         dataVirtualHardDiskHandler.startElement(uri, localName, qName, attributes);
       }
    }
 
@@ -96,10 +106,15 @@ public class RoleHandler extends ParseSax.HandlerForGeneratedRequestWithResult<R
       } else if (qName.equals("OSVirtualHardDisk")) {
             osVirtualHardDisk = osVirtualDiskHandler.getResult();
             inOSVirtualHardDisk = false;
-         } else if (inOSVirtualHardDisk) {
+      } else if (inOSVirtualHardDisk) {
          osVirtualDiskHandler.endElement(ignoredUri, ignoredName, qName);
       } else if (qName.equals("RoleSize")) {
          roleSize = RoleSize.Type.valueOf(currentOrNull(currentText).toUpperCase());
+      } else if (qName.equals("DataVirtualHardDisk")) {
+         dataVirtualHardDisks.add(dataVirtualHardDiskHandler.getResult());
+         inDataVirtualHardDisk = false;
+      } else if (inDataVirtualHardDisk) {
+         dataVirtualHardDiskHandler.endElement(ignoredUri, ignoredName, qName);
       }
       currentText.setLength(0);
    }
@@ -109,7 +124,9 @@ public class RoleHandler extends ParseSax.HandlerForGeneratedRequestWithResult<R
          configurationSetHandler.characters(ch, start, length);
       } else if (inOSVirtualHardDisk) {
          osVirtualDiskHandler.characters(ch, start, length);
-      } else {
+      } else if (inDataVirtualHardDisk) {
+         dataVirtualHardDiskHandler.characters(ch, start, length);
+      }else {
          currentText.append(ch, start, length);
       }
    }
