@@ -27,6 +27,7 @@ import org.jclouds.azurecompute.features.LocationApi;
 import org.jclouds.azurecompute.features.OSImageApi;
 import org.jclouds.azurecompute.features.OperationApi;
 import org.jclouds.azurecompute.features.VirtualMachineApi;
+import  org.jclouds.azurecompute.features.VMImageApi;
 import org.jclouds.rest.annotations.Delegate;
 
 /**
@@ -100,4 +101,12 @@ public interface AzureComputeApi extends Closeable {
     */
    @Delegate
    DiskApi getDiskApi();
+
+   /**
+    * The Service Management API includes operations for managing the VM Images in your subscription.
+    *
+    * @see <a href="https://msdn.microsoft.com/en-us/library/azure/dn499771.aspx">docs</a>
+    */
+   @Delegate
+   VMImageApi getVMImageApi();
 }
