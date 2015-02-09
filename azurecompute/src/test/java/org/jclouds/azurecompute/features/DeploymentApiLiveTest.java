@@ -73,6 +73,7 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
 
    private CloudService cloudService;
 
+   @Test
    public void testCreateCloudService() {
 
       String requestId = cloudServiceApi().createWithLabelInLocation(CLOUD_SERVICE, CLOUD_SERVICE, location);
@@ -89,13 +90,13 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
       Logger.getAnonymousLogger().info("cloudService available: " + cloudService);
    }
 
-   @Test(dependsOnMethods = " testCreateCloudService")
+   @Test(dependsOnMethods = "testCreateCloudService")
    public void testCreateVMDeployment() {
       Deployment response = api().get(DEPLOYMENT);
       checkDeployment(response);
    }
 
-   @Test(dependsOnMethods = " testCreateCloudService")
+   @Test(dependsOnMethods = "testCreateCloudService")
    public void testGet() {
       Deployment response = api().get(DEPLOYMENT);
       checkDeployment(response);
