@@ -140,7 +140,7 @@ public abstract class VMImage {
 
    @Nullable public abstract String imageFamily();
 
-   @Nullable public abstract RoleSize recomendedVMSize();
+   @Nullable public abstract RoleSize.Type recommendedVMSize();
 
    @Nullable public abstract Boolean isPremium();
 
@@ -157,11 +157,11 @@ public abstract class VMImage {
    public static VMImage create(String name, String label, String category, String description,
          OSDiskConfiguration osDiskConfiguration, List<DataVirtualHardDisk> dataDiskConfiguration, String serviceName,
          String deploymentName, String roleName, String location, String affinityGroup, Date createdTime,
-         Date modifiedTime, String language, String imageFamily, RoleSize recomendedVMSize, Boolean isPremium,
+         Date modifiedTime, String language, String imageFamily, RoleSize.Type recommendedVMSize, Boolean isPremium,
          String eula, URI iconUri, URI smallIconUri,
          URI privacyUri, Date publishedDate) {
       return new AutoValue_VMImage(name, label, category, description, osDiskConfiguration, dataDiskConfiguration,
             serviceName, deploymentName, roleName, location, affinityGroup, createdTime, modifiedTime, language,
-            imageFamily, recomendedVMSize, isPremium, eula, iconUri, smallIconUri, privacyUri, publishedDate);
+            imageFamily, recommendedVMSize, isPremium, eula, iconUri, smallIconUri, privacyUri, publishedDate);
    }
 }

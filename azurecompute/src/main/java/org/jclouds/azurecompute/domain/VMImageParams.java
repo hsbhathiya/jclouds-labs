@@ -17,14 +17,11 @@
 package org.jclouds.azurecompute.domain;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.sun.jndi.toolkit.url.Uri;
 import org.jclouds.javax.annotation.Nullable;
 
 import java.net.URI;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -118,7 +115,7 @@ public abstract class VMImageParams {
 
    @Nullable public abstract String imageFamily();
 
-   @Nullable public abstract RoleSize recomendedVMSize();
+   @Nullable public abstract RoleSize.Type recommendedVMSize();
 
    @Nullable public abstract String eula();
 
@@ -146,7 +143,7 @@ public abstract class VMImageParams {
       private List<DataVirtualHardDisk> dataDiskConfiguration = Lists.newArrayList();
       private String language;
       private String imageFamily;
-      private RoleSize recommendedVMSize;
+      private RoleSize.Type recommendedVMSize;
       private String eula;
       private URI iconUri;
       private URI smallIconUri;
@@ -183,7 +180,7 @@ public abstract class VMImageParams {
          return this;
       }
 
-      public Builder recommendedVMSize(RoleSize recommendedRoleSize) {
+      public Builder recommendedVMSize(RoleSize.Type recommendedRoleSize) {
          this.recommendedVMSize = recommendedRoleSize;
          return this;
       }
@@ -233,17 +230,16 @@ public abstract class VMImageParams {
       public Builder fromVMImageParams(VMImageParams in) {
          return name(in.name()).label(in.label()).description(in.description())
                .osDiskConfiguration(in.osDiskConfiguration()).dataDiskConfigurations(in.dataDiskConfiguration())
-               .language(in.language()).imageFamily(in.imageFamily()).recommendedVMSize(in.recomendedVMSize())
-               .eula(in.eula()).iconUri(in.iconUri()).smallIconUri(in.smallIconUri()).privacyUri(in.privacyUri())
-               ;
+               .language(in.language()).imageFamily(in.imageFamily()).recommendedVMSize(in.recommendedVMSize())
+               .eula(in.eula()).iconUri(in.iconUri()).smallIconUri(in.smallIconUri()).privacyUri(in.privacyUri());
       }
 
    }
 
    public static VMImageParams create(String name, String label, String description,
          OSDiskConfigurationParams osDiskConfiguration, List<DataVirtualHardDisk> dataDiskConfiguration,
-         String language, String imageFamily, RoleSize recommendedVMSize, String eula, URI iconUri, URI smallIconUri,
-         URI privacyUri, Boolean showGui) {
+         String language, String imageFamily, RoleSize.Type recommendedVMSize, String eula, URI iconUri,
+         URI smallIconUri, URI privacyUri, Boolean showGui) {
       return new AutoValue_VMImageParams(name, label, description, osDiskConfiguration, dataDiskConfiguration,
             language, imageFamily, recommendedVMSize, eula, iconUri, smallIconUri, privacyUri,
             showGui);

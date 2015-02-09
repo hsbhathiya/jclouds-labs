@@ -18,17 +18,12 @@ package org.jclouds.azurecompute.binders;
 
 import com.google.common.base.CaseFormat;
 import com.jamesmurty.utils.XMLBuilder;
-import org.jclouds.azurecompute.domain.DeploymentParams;
-import org.jclouds.azurecompute.domain.OSImage;
-import org.jclouds.azurecompute.domain.VMImage;
 import org.jclouds.azurecompute.domain.VMImageParams;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.rest.Binder;
 
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
-import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
 import static com.google.common.base.Throwables.propagate;
-import static org.jclouds.azurecompute.domain.OSImage.Type.LINUX;
 
 public final class VMImageParamsToXML implements Binder {
 
@@ -55,7 +50,7 @@ public final class VMImageParamsToXML implements Binder {
                .e("DataDiskConfigurations").up()
                .e("Language").t(params.language()).up()
                .e("ImageFamily").t(params.imageFamily()).up()
-               .e("RecommendedVMSize").t(params.recomendedVMSize().toString()).up()
+               .e("RecommendedVMSize").t(params.recommendedVMSize().toString()).up()
                .e("Eula").t(params.eula()).up()
                .e("IconUri").t(params.iconUri().toASCIIString()).up()
                .e("SmallIconUri").t(params.smallIconUri().toASCIIString()).up()

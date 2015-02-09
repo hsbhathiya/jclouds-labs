@@ -16,7 +16,6 @@
  */
 package org.jclouds.azurecompute.features;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jclouds.util.Predicates2.retry;
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
@@ -24,8 +23,12 @@ import static org.testng.Assert.assertTrue;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import org.jclouds.azurecompute.domain.*;
+
+import org.jclouds.azurecompute.domain.OSImage;
+import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.Operation;
+import org.jclouds.azurecompute.domain.VMImage;
+import org.jclouds.azurecompute.domain.VMImageParams;
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiLiveTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,8 +40,6 @@ import java.util.List;
 public class VMImageApiLiveTest extends BaseAzureComputeApiLiveTest {
 
    private Predicate<String> operationSucceeded;
-   private Predicate<CloudService> cloudServiceCreated;
-   private Predicate<CloudService> cloudServiceGone;
 
    @BeforeClass(groups = { "integration", "live" })
    public void setup() {
@@ -70,7 +71,8 @@ public class VMImageApiLiveTest extends BaseAzureComputeApiLiveTest {
                   "Standard");
       VMImageParams params = VMImageParams.builder().name("my_ubuntu_image").label("myImage")
             .description("My Image Description")
-            .recommendedVMSize(RoleSize.LARGE).osDiskConfiguration(osParams).imageFamily(image.imageFamily()).build();
+            .recommendedVMSize(RoleSize.Type.LARGE).osDiskConfiguration(osParams).imageFamily(image.imageFamily())
+            .build();
 
       String requestId = api().create(params);
 

@@ -21,7 +21,6 @@ import static org.testng.Assert.assertEquals;
 import com.google.common.collect.ImmutableList;
 import org.jclouds.azurecompute.domain.DataVirtualHardDisk;
 import org.jclouds.azurecompute.domain.OSImage;
-import org.jclouds.azurecompute.domain.RoleSize;
 import org.jclouds.azurecompute.domain.VMImage;
 import org.jclouds.date.DateService;
 import org.jclouds.date.internal.SimpleDateFormatDateService;
@@ -39,7 +38,7 @@ public class ListVMImagesHandlerTest extends BaseHandlerTest {
       InputStream is = getClass().getResourceAsStream("/vmimages.xml");
       List<VMImage> result = factory.create(new ListVMImagesHandler()).parse(is);
 
-      assertEquals(result,expected());
+      assertEquals(result, expected());
    }
 
    public static List<VMImage> expected() {
@@ -72,7 +71,7 @@ public class ListVMImagesHandlerTest extends BaseHandlerTest {
    }
 
    public static VMImage.OSDiskConfiguration OSDiskConfig() {
-    return   VMImage.OSDiskConfiguration.create("ClouderaGolden-202406-699696-os-2014-10-06",
+      return VMImage.OSDiskConfiguration.create("ClouderaGolden-202406-699696-os-2014-10-06",
             VMImage.OSDiskConfiguration.Caching.READ_WRITE,
             VMImage.OSDiskConfiguration.OSState.SPECIALIZED,
             OSImage.Type.LINUX,
@@ -80,6 +79,7 @@ public class ListVMImagesHandlerTest extends BaseHandlerTest {
             30,
             null);
    }
+
    public static List<DataVirtualHardDisk> dataDiskConfig() {
       return ImmutableList.of(
             DataVirtualHardDisk.create(

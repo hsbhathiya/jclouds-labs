@@ -16,7 +16,6 @@
  */
 package org.jclouds.azurecompute.xml;
 
-import com.google.common.base.CaseFormat;
 import com.google.common.collect.Lists;
 import org.jclouds.azurecompute.domain.DataVirtualHardDisk;
 import org.jclouds.azurecompute.domain.RoleSize;
@@ -31,8 +30,6 @@ import java.net.URI;
 import java.util.Date;
 import java.util.List;
 
-import static com.google.common.base.CaseFormat.UPPER_CAMEL;
-import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
 import static org.jclouds.util.SaxUtils.currentOrNull;
 
 /**
@@ -53,7 +50,7 @@ final class VMImageHandler extends ParseSax.HandlerForGeneratedRequestWithResult
    private Date modifiedTime;
    private String language;
    private String imageFamily;
-   private RoleSize recommendedVMSize;
+   private RoleSize.Type recommendedVMSize;
    private Boolean isPremium;
    private String eula;
    private URI iconUri;
@@ -194,11 +191,11 @@ final class VMImageHandler extends ParseSax.HandlerForGeneratedRequestWithResult
       }
    }
 
-   private static RoleSize parseRoleSize(String roleSize) {
+   private static RoleSize.Type parseRoleSize(String roleSize) {
       try {
-         return RoleSize.valueOf(roleSize.toUpperCase().replace(" ",""));
+         return RoleSize.Type.valueOf(roleSize.toUpperCase().replace(" ", ""));
       } catch (IllegalArgumentException e) {
-         return RoleSize.UNRECOGNIZED;
+         return RoleSize.Type.UNRECOGNIZED;
       }
    }
 }

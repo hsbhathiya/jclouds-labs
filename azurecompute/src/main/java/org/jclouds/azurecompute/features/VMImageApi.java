@@ -21,10 +21,21 @@ import org.jclouds.azurecompute.domain.VMImage;
 import org.jclouds.azurecompute.domain.VMImageParams;
 import org.jclouds.azurecompute.functions.ParseRequestIdHeader;
 import org.jclouds.azurecompute.xml.ListVMImagesHandler;
-import org.jclouds.rest.annotations.*;
+import org.jclouds.rest.annotations.Fallback;
+import org.jclouds.rest.annotations.Headers;
+import org.jclouds.rest.annotations.ResponseParser;
+import org.jclouds.rest.annotations.XMLResponseParser;
+import org.jclouds.rest.annotations.BinderParam;
 
 import javax.inject.Named;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import java.util.List;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_XML;
@@ -57,8 +68,8 @@ public interface VMImageApi {
    @Named("CreateVMImage")
    @POST
    @Produces(APPLICATION_XML)
-   @ResponseParser(ParseRequestIdHeader.class)
-   String create(@BinderParam(VMImageParamsToXML.class) VMImageParams params);
+   @ResponseParser(ParseRequestIdHeader.class) String create(
+         @BinderParam(VMImageParamsToXML.class) VMImageParams params);
 
    /**
     * The Create VM Image operation creates a VM Image in the image repository that is associated with the specified
@@ -68,8 +79,8 @@ public interface VMImageApi {
    @PUT
    @Path("/{imageName}")
    @Produces(APPLICATION_XML)
-   @ResponseParser(ParseRequestIdHeader.class)
-   String update(String imageName, @BinderParam(VMImageParamsToXML.class) VMImageParams params);
+   @ResponseParser(ParseRequestIdHeader.class) String update(String imageName,
+         @BinderParam(VMImageParamsToXML.class) VMImageParams params);
 
    /**
     * The Delete VM Image operation deletes the specified VM Image from the image repository that is associated with
@@ -80,7 +91,5 @@ public interface VMImageApi {
    @Path("/{imageName}")
    @Fallback(NullOnNotFoundOr404.class)
    @ResponseParser(ParseRequestIdHeader.class) String delete(@PathParam("imageName") String imageName);
-
-
 
 }

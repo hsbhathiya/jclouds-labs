@@ -16,20 +16,19 @@
  */
 package org.jclouds.azurecompute.features;
 
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
 import org.jclouds.azurecompute.domain.OSImage;
-import org.jclouds.azurecompute.domain.OSImageParams;
 import org.jclouds.azurecompute.domain.RoleSize;
 import org.jclouds.azurecompute.domain.VMImageParams;
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiMockTest;
-import org.jclouds.azurecompute.xml.ListOSImagesHandlerTest;
 import org.jclouds.azurecompute.xml.ListVMImagesHandlerTest;
 import org.testng.annotations.Test;
 
 import java.net.URI;
-
-import static org.testng.Assert.*;
 
 @Test(groups = "unit", testName = "VMImageApiMockTest")
 public class VMImageApiMockTest extends BaseAzureComputeApiMockTest {
@@ -83,7 +82,7 @@ public class VMImageApiMockTest extends BaseAzureComputeApiMockTest {
                .name("ClouderaGolden")
                .label("CDH 5.1 Evaluation")
                .description("Single click deployment")
-               .recommendedVMSize(RoleSize.LARGE)
+               .recommendedVMSize(RoleSize.Type.LARGE)
                .osDiskConfiguration(osParams)
                .imageFamily("Ubuntu")
                .language("en")
