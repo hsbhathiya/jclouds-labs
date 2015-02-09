@@ -36,7 +36,6 @@ import java.util.logging.Logger;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jclouds.util.Predicates2.retry;
 
-
 @Test(groups = "live", testName = "CloudServiceApiLiveTest")
 public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
 
@@ -104,7 +103,7 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
 
    @Test(dependsOnMethods = "testGet")
    public void testDelete() {
-      String requestId =api().delete(DEPLOYMENT);
+      String requestId = api().delete(DEPLOYMENT);
       assertTrue(operationSucceeded.apply(requestId), requestId);
       Logger.getAnonymousLogger().info("operation succeeded: " + requestId);
 
@@ -120,7 +119,7 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
 
       Deployment.Slot slot = deployment.slot();
       assertTrue((slot == Deployment.Slot.PRODUCTION) || (slot == Deployment.Slot.STAGING));
-      assertEquals(deployment.name(), DEPLOYMENT );
+      assertEquals(deployment.name(), DEPLOYMENT);
    }
 
    @Override @AfterClass(groups = "live")
