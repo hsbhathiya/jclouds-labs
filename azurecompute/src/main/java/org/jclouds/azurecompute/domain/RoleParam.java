@@ -131,8 +131,8 @@ public abstract class RoleParam {
          return this;
       }
 
-      public Builder VMImageName(String roleType) {
-         this.roleType = roleType;
+      public Builder VMImageName(String vmImageName) {
+         this.VMImageName = vmImageName;
          return this;
       }
 

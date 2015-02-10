@@ -18,9 +18,12 @@ package org.jclouds.azurecompute.binders;
 
 import com.google.common.base.CaseFormat;
 import com.jamesmurty.utils.XMLBuilder;
+import org.jclouds.azurecompute.domain.RoleSize;
 import org.jclouds.azurecompute.domain.VMImageParams;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.rest.Binder;
+
+import java.net.URI;
 
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.Throwables.propagate;
@@ -45,22 +48,47 @@ public final class VMImageParamsToXML implements Binder {
                .e("OS").t(osDiskConfig.os().toString()).up()
                .e("MediaLink").t(osDiskConfig.mediaLink().toASCIIString()).up()
                .up(); //OSDiskConfiguration
+         builder.up();
+         builder.e("DataDiskConfigurations").up();
+         add(builder, "Language", params.language());
+         add(builder, "ImageFamily", params.imageFamily());
 
-         builder.up()
-               .e("DataDiskConfigurations").up()
-               .e("Language").t(params.language()).up()
-               .e("ImageFamily").t(params.imageFamily()).up()
-               .e("RecommendedVMSize").t(params.recommendedVMSize().toString()).up()
-               .e("Eula").t(params.eula()).up()
-               .e("IconUri").t(params.iconUri().toASCIIString()).up()
-               .e("SmallIconUri").t(params.smallIconUri().toASCIIString()).up()
-               .e("PrivacyUri").t(params.privacyUri().toASCIIString()).up()
-               .e("showGui").t(params.showGui().toString()).up()
-               .up();
+         RoleSize.Type vmSize = params.recommendedVMSize();
+         if (vmSize != null) {
+            String vmSizeText = params.recommendedVMSize().getText();
+            builder.e("RecommendedVMSize").t(vmSizeText).up();
+         }
+
+         add(builder, "Eula", params.eula());
+         add(builder, "IconUri", params.iconUri());
+         add(builder, "SmallIconUri", params.smallIconUri());
+         add(builder, "PrivacyUri", params.privacyUri());
+
+         if (params.showGui() != null) {
+            String showGuiText = params.showGui().toString();
+            builder.e("ShowGui").t(showGuiText).up();
+         }
+         builder.up();
 
          return (R) request.toBuilder().payload(builder.asString()).build();
       } catch (Exception e) {
          throw propagate(e);
+      }
+   }
+
+   private XMLBuilder add(XMLBuilder xmlBuilder, String entity, String text) {
+      if (text != null) {
+         return xmlBuilder.e(entity).t(text).up();
+      } else {
+         return xmlBuilder.e(entity).up();
+      }
+   }
+
+   private XMLBuilder add(XMLBuilder xmlBuilder, String entity, URI text) {
+      if (text != null) {
+         return xmlBuilder.e(entity).t(text.toASCIIString()).up();
+      } else {
+         return xmlBuilder.e(entity).up();
       }
    }
 }

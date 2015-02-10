@@ -139,9 +139,9 @@ final class VMImageHandler extends ParseSax.HandlerForGeneratedRequestWithResult
       } else if (qName.equals("AffinityGroup")) {
          affinityGroup = currentOrNull(currentText);
       } else if (qName.equals("CreatedTime")) {
-         createdTime = dateService.iso8601SecondsDateParse(currentOrNull(currentText));
+         createdTime = dateService.iso8601DateOrSecondsDateParse(currentOrNull(currentText));
       } else if (qName.equals("ModifiedTime")) {
-         modifiedTime = dateService.iso8601SecondsDateParse(currentOrNull(currentText));
+         modifiedTime = dateService.iso8601DateOrSecondsDateParse(currentOrNull(currentText));
       } else if (qName.equals("Language")) {
          language = currentOrNull(currentText);
       } else if (qName.equals("ImageFamily")) {

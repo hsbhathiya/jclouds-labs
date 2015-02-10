@@ -19,6 +19,7 @@ package org.jclouds.azurecompute.domain;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import org.jclouds.javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -64,13 +65,13 @@ public abstract class NewDeploymentParams {
     */
    public abstract String name();
 
-   public abstract List<ExternalEndpoint> externalEndpoints();
+  @Nullable public abstract List<ExternalEndpoint> externalEndpoints();
 
    public abstract List<RoleParam> roleParams();
 
-   public abstract String virtualNetworkName();
+  @Nullable  public abstract String virtualNetworkName();
 
-   public abstract String reservedIpName();
+   @Nullable public abstract String reservedIpName();
 
    public Builder toBuilder() {
       return builder().fromDeploymentParams(this);

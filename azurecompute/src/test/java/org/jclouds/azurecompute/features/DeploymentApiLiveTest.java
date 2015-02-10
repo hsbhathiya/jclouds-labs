@@ -22,15 +22,14 @@ import static org.testng.Assert.assertTrue;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.jclouds.azurecompute.domain.CloudService;
+import org.jclouds.azurecompute.domain.*;
 import org.jclouds.azurecompute.domain.CloudService.Status;
-import org.jclouds.azurecompute.domain.Deployment;
-import org.jclouds.azurecompute.domain.Operation;
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiLiveTest;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.net.URI;
 import java.util.logging.Logger;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -44,8 +43,6 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
    public static final String DEPLOYMENT = (System.getProperty("user.name") + "-jclouds-deployment").toLowerCase();
 
    private Predicate<String> operationSucceeded;
-   private Predicate<CloudService> cloudServiceCreated;
-   private Predicate<CloudService> cloudServiceGone;
 
    private String location;
 
@@ -53,20 +50,10 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
    public void setup() {
       super.setup();
       // TODO: filter locations on those who have compute
-      location = Iterables.get(api.getLocationApi().list(), 0).name();
+      location = "West US";//Iterables.get(api.getLocationApi().list(), 0).name();
       operationSucceeded = retry(new Predicate<String>() {
          public boolean apply(String input) {
             return api.getOperationApi().get(input).status() == Operation.Status.SUCCEEDED;
-         }
-      }, 600, 5, 5, SECONDS);
-      cloudServiceCreated = retry(new Predicate<CloudService>() {
-         public boolean apply(CloudService input) {
-            return cloudServiceApi().get(input.name()).status() == Status.CREATED;
-         }
-      }, 600, 5, 5, SECONDS);
-      cloudServiceGone = retry(new Predicate<CloudService>() {
-         public boolean apply(CloudService input) {
-            return cloudServiceApi().get(input.name()) == null;
          }
       }, 600, 5, 5, SECONDS);
    }
@@ -76,7 +63,7 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
    @Test
    public void testCreateCloudService() {
 
-      String requestId = cloudServiceApi().createWithLabelInLocation(CLOUD_SERVICE, CLOUD_SERVICE, location);
+      String requestId = cloudServiceApi().createWithLabelInLocation(CLOUD_SERVICE, CLOUD_SERVICE, "North Central US");
       assertTrue(operationSucceeded.apply(requestId), requestId);
       Logger.getAnonymousLogger().info("operation succeeded: " + requestId);
 
@@ -85,18 +72,41 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
 
       assertEquals(cloudService.name(), CLOUD_SERVICE);
 
-      assertTrue(cloudServiceCreated.apply(cloudService), cloudService.toString());
       cloudService = cloudServiceApi().get(cloudService.name());
       Logger.getAnonymousLogger().info("cloudService available: " + cloudService);
    }
 
    @Test(dependsOnMethods = "testCreateCloudService")
    public void testCreateVMDeployment() {
-      Deployment response = api().get(DEPLOYMENT);
-      checkDeployment(response);
+
+      VMImage vmImage = api.getVMImageApi().list().get(5);
+      assertNotNull(vmImage);
+      assertNotNull(vmImage.name());
+
+      VMImage.OSDiskConfiguration osConfig = vmImage.osDiskConfiguration();
+      assertNotNull(osConfig);
+
+      OSVirtualHardDiskParam osParam = OSVirtualHardDiskParam.builder()
+            .diskName(osConfig.name())
+            .diskLabel(osConfig.name())
+            .hostCaching("ReadWrite")
+            .os(osConfig.os())
+            .mediaLink(osConfig.mediaLink()).build();
+
+      RoleParam roleParam = RoleParam.builder().roleName(DEPLOYMENT + "-instance1")
+            .VMImageName(vmImage.name())
+            .mediaLocation(URI.create("https://rest.blob.core.windows.net/image"))
+            .roleSize(RoleSize.Type.A7)
+            .build();
+
+      NewDeploymentParams deploymentParams = NewDeploymentParams.builder().name(DEPLOYMENT)
+            .roleParam(roleParam).build();
+
+      String requestId = api().createFromPublicImage(deploymentParams);
+      assertTrue(operationSucceeded.apply(requestId), requestId);
    }
 
-   @Test(dependsOnMethods = "testCreateCloudService")
+   @Test(dependsOnMethods = "testCreateVMDeployment")
    public void testGet() {
       Deployment response = api().get(DEPLOYMENT);
       checkDeployment(response);
@@ -108,7 +118,6 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
       assertTrue(operationSucceeded.apply(requestId), requestId);
       Logger.getAnonymousLogger().info("operation succeeded: " + requestId);
 
-      assertTrue(cloudServiceGone.apply(cloudService), cloudService.toString());
       Logger.getAnonymousLogger().info("cloudService deleted: " + cloudService);
    }
 
@@ -139,4 +148,5 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
    private DeploymentApi api() {
       return api.getDeploymentApiForService(CLOUD_SERVICE);
    }
+
 }
