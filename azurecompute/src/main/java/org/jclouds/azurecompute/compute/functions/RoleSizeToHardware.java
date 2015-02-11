@@ -16,16 +16,65 @@
  */
 package org.jclouds.azurecompute.compute.functions;
 
-import org.jclouds.azurecompute.domain.RoleSize;
-import org.jclouds.compute.domain.Hardware;
-
 import com.google.common.base.Function;
+import com.google.common.base.Predicates;
+import org.jclouds.azurecompute.domain.*;
+import org.jclouds.compute.domain.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class RoleSizeToHardware implements Function<RoleSize, Hardware> {
 
-	@Override
-	public Hardware apply(RoleSize input) {
-		return null;
-	}
+   private static String HYPERVISOR = "Azure Hypervisor";
 
+   @Override
+   public Hardware apply(RoleSize input) {
+
+      int cores = input.cores();
+      double speed = speed(input.name());
+      Processor processor = new Processor(cores, speed);
+
+      return new HardwareBuilder()
+            .id(input.name().toString())
+            .name(input.label())
+            .processor(processor)
+            .ram(input.memoryInMb())
+            .hypervisor(HYPERVISOR)
+            .volumes(collectVolumes(input))
+            .supportsImage(Predicates.<Image>alwaysTrue())
+            .build();
+   }
+
+   private List<Volume> collectVolumes(RoleSize input) {
+      List<Volume> volumes = new ArrayList<Volume>();
+
+      Volume osDisk = new VolumeBuilder()
+            .bootDevice(Boolean.TRUE)
+            .type(Volume.Type.LOCAL)
+            .durable(Boolean.TRUE)
+            .size((float) 127 * 1024)
+            .build();
+
+      volumes.add(osDisk);
+
+      float dataDiskSize = input.virtualMachineResourceDiskSizeInMb();
+      Volume dataDisk = new VolumeBuilder()
+            .bootDevice(Boolean.FALSE)
+            .type(Volume.Type.LOCAL)
+            .durable(Boolean.FALSE)
+            .size(dataDiskSize)
+            .build();
+
+      volumes.add(dataDisk);
+      return volumes;
+   }
+
+   private double speed(RoleSize.Type roleSize) {
+      if (roleSize.equals(RoleSize.Type.A8) || roleSize.equals(RoleSize.Type.A9)) {
+         return 2.6;
+      } else {
+         return 1.6;
+      }
+   }
 }
