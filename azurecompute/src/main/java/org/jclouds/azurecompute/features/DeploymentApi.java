@@ -33,8 +33,10 @@ import org.jclouds.azurecompute.binders.NewDeploymentParamsToXML;
 import org.jclouds.azurecompute.domain.Deployment;
 import org.jclouds.azurecompute.domain.DeploymentParams;
 import org.jclouds.azurecompute.domain.NewDeploymentParams;
+import org.jclouds.azurecompute.domain.Role;
 import org.jclouds.azurecompute.functions.ParseRequestIdHeader;
 import org.jclouds.azurecompute.xml.DeploymentHandler;
+import org.jclouds.azurecompute.xml.RoleHandler;
 import org.jclouds.rest.annotations.BinderParam;
 import org.jclouds.rest.annotations.Fallback;
 import org.jclouds.rest.annotations.Headers;
@@ -84,4 +86,15 @@ public interface DeploymentApi {
    @Fallback(NullOnNotFoundOr404.class)
    @ResponseParser(ParseRequestIdHeader.class)
    String delete(@PathParam("name") String name);
+
+   /**
+    * The Get Role operation returns the specified role from Windows Azure.
+    *
+    */
+   @Named("GetRole")
+   @GET
+   @Path("/{deploymentName}/roles/{roleName}")
+   @XMLResponseParser(RoleHandler.class)
+   @Fallback(NullOnNotFoundOr404.class)
+   Role getRole(@PathParam("deploymentName") String name, @PathParam("roleName") String roleName);
 }

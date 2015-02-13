@@ -26,7 +26,6 @@ import java.net.URI;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
 import static com.google.common.base.Throwables.propagate;
-import static org.jclouds.azurecompute.domain.OSImage.Type.LINUX;
 
 public final class NewDeploymentParamsToXML implements Binder {
 
@@ -50,35 +49,35 @@ public final class NewDeploymentParamsToXML implements Binder {
                if (roleParam.OSVirtualHardDiskParam().OS() == OSImage.Type.WINDOWS) {
                   WindowsConfigurationSetParams winParams = roleParam.windowsConfigurationSet();
                   XMLBuilder configBuilder = roleBuilder.e("ConfigurationSet"); // Windows
-                  configBuilder.e("ConfigurationSetType").t("WindowsProvisioningConfiguration").up()
-                        .e("ComputerName").t(winParams.computerName()).up()
-                        .e("AdminPassword").t(winParams.adminPassword()).up()
-                        .e("ResetPasswordOnFirstLogon").t("false").up()
-                        .e("EnableAutomaticUpdate").t("false").up()
-                        .e("DomainJoin");
-
-                  XMLBuilder credentials = configBuilder.e("Credentials");
-                  for (WindowsConfigurationSetParams.Credential credential : winParams.domainJoin().credentials()) {
-                     XMLBuilder credentailBuilder = configBuilder
-                           .e("Domain").up()
-                           .e("Username").t(credential.userName()).up()
-                           .e("Password").t(credential.password()).up()
-                           .up(); // Credentials
+                  configBuilder.e("ConfigurationSetType").t("WindowsProvisioningConfiguration").up();
+                  add(configBuilder, "ComputerName", winParams.computerName());
+                  add(configBuilder, "AdminPassword", winParams.adminPassword());
+                  WindowsConfigurationSetParams.DomainJoin domainJoin = winParams.domainJoin();
+                  if (domainJoin != null) {
+                     configBuilder.e("DomainJoin");
+                     XMLBuilder credentialsBuilder = configBuilder.e("Credentials");
+                     for (WindowsConfigurationSetParams.Credential credential : winParams.domainJoin().credentials()) {
+                        credentialsBuilder
+                              .e("Domain").up()
+                              .e("Username").t(credential.userName()).up()
+                              .e("Password").t(credential.password()).up()
+                              .up(); // Credentials
+                     }
+                     credentialsBuilder.up();
+                     add(configBuilder, "JoinDomain", domainJoin.joinDomain());
+                     configBuilder.e("JoinDomain").t(winParams.domainJoin().joinDomain()).up()
+                           .up(); // Domain Join
                   }
-                  credentials.up();
-                  configBuilder.e("JoinDomain").t(winParams.domainJoin().joinDomain()).up()
-                        .up(); // Domain Join
-
                   configBuilder.e("StoredCertificateSettings").up()
                         .up(); // Windows ConfigurationSet
                } else if (roleParam.OSVirtualHardDiskParam().OS() == OSImage.Type.LINUX) {
                   LinuxConfigurationSetParams linuxParams = roleParam.linuxConfigurationSet();
                   XMLBuilder configBuilder = builder.e("ConfigurationSet"); // Linux
-                  configBuilder.e("ConfigurationSetType").t("LinuxProvisioningConfiguration").up()
-                        .e("HostName").t(linuxParams.hostName()).up()
-                        .e("UserName").t(linuxParams.userName()).up()
-                        .e("UserPassword").t(linuxParams.userPassword()).up()
-                        .e("DisableSshPasswordAuthentication").t("false").up()
+                  configBuilder.e("ConfigurationSetType").t("LinuxProvisioningConfiguration").up();
+                  add(configBuilder, "HostName", linuxParams.hostName());
+                  add(configBuilder, "UserName", linuxParams.userName());
+                  add(configBuilder, "UserPassword", linuxParams.userPassword());
+                  configBuilder.e("DisableSshPasswordAuthentication").t("false").up()
                         .e("SSH").up()
                         .up(); // Linux ConfigurationSet
                } else {
@@ -106,27 +105,42 @@ public final class NewDeploymentParamsToXML implements Binder {
                for (DataVirtualHardDiskParam dataDisk : roleParam.dataVirtualHardDiskParams()) {
                   XMLBuilder dataDiskBuilder = dataDisks.e("DataVirtualHardDisks");
                   DataVirtualHardDiskParam dataDiskParam = roleParam.dataVirtualHardDiskParams().get(0);
-                  dataDiskBuilder.e("DataVirtualHardDisk")
-                        .e("HostCaching").t(dataDiskParam.hostCaching()).up()
+                  dataDiskBuilder.e("DataVirtualHardDisk");
+                  if (dataDiskParam.hostCaching() != null) {
+                     dataDiskBuilder.e("HostCaching").t(dataDiskParam.hostCaching()).up();
+                  }
+
+                  dataDiskBuilder
                         .e("DiskName").t(dataDiskParam.diskName()).up()
-                        .e("DiskLabel").t(dataDiskParam.diskLabel()).up()
-                        .e("LUN").t(dataDiskParam.LUN().toString()).up()
-                        .e("LogicalDiskSizeInGB").t(dataDiskParam.logicalDiskSizeInGB().toString()).up()
-                        .e("MediaLink").t(dataDiskParam.mediaLink().getPath()).up()
-                        .up(); //DataVirtualHardDisk
+                        .e("DiskLabel").t(dataDiskParam.diskLabel()).up();
+
+                  add(dataDiskBuilder, "Lun", dataDiskParam.LUN());
+                  add(dataDiskBuilder, "LogicalDiskSizeInGB", dataDiskParam.logicalDiskSizeInGB());
+                  dataDiskBuilder.up(); //DataVirtualHardDisk
+
                }
                dataDisks.up();
 
                OSVirtualHardDiskParam osDiskParam = roleParam.OSVirtualHardDiskParam();
                XMLBuilder osDiskBuilder = roleBuilder.e("OSVirtualHardDisk");
                osDiskBuilder
-                     .e("OSVirtualHardDisk")
-                     .e("HostCaching").t(osDiskParam.hostCaching()).up()
+                     .e("OSVirtualHardDisk");
+               if (osDiskParam.hostCaching() != null) {
+                  osDiskBuilder.e("HostCaching").t(osDiskParam.hostCaching()).up();
+               }
+
+               osDiskBuilder
                      .e("DiskName").t(osDiskParam.diskName()).up()
-                     .e("DiskLabel").t(osDiskParam.diskLabel()).up()
-                     .e("MediaLink").t(osDiskParam.mediaLink().getPath()).up()
-                     .e("SourceImageName").t(osDiskParam.sourceImageName().getPath()).up()
-                     .e("OS").t(osDiskParam.OS() == LINUX ? "Linux" : "Windows").up();
+                     .e("DiskLabel").t(osDiskParam.diskLabel()).up();
+               add(osDiskBuilder, "MediaLink", osDiskParam.mediaLink());
+               add(osDiskBuilder, "SourceImageName", osDiskParam.sourceImageName());
+
+               if (osDiskParam.OS() != null) {
+                  osDiskBuilder.e("OS").t(osDiskParam.OS().toString()).up();
+               }
+               add(osDiskBuilder, "ReSizedSizeInGB", osDiskParam.resizedSizeInGB());
+               add(osDiskBuilder, "RemoteSourceImageLink", osDiskParam.remoteSourceImageLink());
+
                roleBuilder.up() //OSVirtualHardDisk
                      .e("RoleSize").t(UPPER_UNDERSCORE.to(UPPER_CAMEL, roleParam.roleSize().getText())).up()
                      .up(); //Role
@@ -142,31 +156,48 @@ public final class NewDeploymentParamsToXML implements Binder {
                }
                RoleSize.Type roleSize = roleParam.roleSize();
                if (roleSize != null) {
-                  builder.e("RoleSize").t(roleSize.getText()).up();
+                  roleBuilder.e("RoleSize").t(roleSize.getText()).up();
                }
-             /*  builder.e("AvailabilitySetName").up();
-               builder.e("DataVirtualHardDisks").up();
-               builder.e("OSVirtualHardDisk")
-                     .e("HostCaching").t(osDiskParam.hostCaching()).up()
-                     .e("DiskName").t(osDiskParam.diskName()).up()
-                     .e("DiskLabel").t(osDiskParam.diskLabel()).up()
-                     .e("MediaLink").t(mediaLocation.toASCIIString()).up()
-                //     .e("SourceImageName").t(osDiskParam.sourceImageName().getPath()).up()
-                     .e("OS").t(osDiskParam.OS() == LINUX ? "Linux" : "Windows").up().up();
+               // add(builder, "AvailabilitySetName", params.availabilitySetName);
+               Boolean agent = roleParam.provisionGuestAgent();
+               if (agent != null) {
+                  roleBuilder.e("ProvisionGuestAgent").t(agent.toString()).up();
+               }
 
-               builder.e("ProvisionGuestAgent").t("False").up();*/
             }
             roleBuilder.up(); // role
          }
          roleListBuilder.up(); // RoleList
-         if (params.virtualNetworkName() != null) {
-            builder.e("VirtualNetworkName").t(params.virtualNetworkName()).up();
-         }
+         add(builder, "VirtualNetworkName", params.virtualNetworkName());
          builder.up();
          // TODO: Undeprecate this method as forcing users to wrap a String in guava's ByteSource is not great.
          return (R) request.toBuilder().payload(builder.asString()).build();
       } catch (Exception e) {
          throw propagate(e);
+      }
+   }
+
+   private XMLBuilder add(XMLBuilder xmlBuilder, String entity, String text) {
+      if (text != null) {
+         return xmlBuilder.e(entity).t(text).up();
+      } else {
+         return xmlBuilder.e(entity).up();
+      }
+   }
+
+   private XMLBuilder add(XMLBuilder xmlBuilder, String entity, URI text) {
+      if (text != null) {
+         return xmlBuilder.e(entity).t(text.toASCIIString()).up();
+      } else {
+         return xmlBuilder.e(entity).up();
+      }
+   }
+
+   private XMLBuilder add(XMLBuilder xmlBuilder, String entity, Integer text) {
+      if (text != null) {
+         return xmlBuilder.e(entity).t(text.toString()).up();
+      } else {
+         return xmlBuilder.e(entity).up();
       }
    }
 }

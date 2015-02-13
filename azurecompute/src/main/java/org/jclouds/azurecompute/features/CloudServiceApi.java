@@ -31,9 +31,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
+import org.jclouds.azurecompute.domain.Availability;
 import org.jclouds.azurecompute.domain.CloudService;
 import org.jclouds.azurecompute.functions.Base64EncodeLabel;
 import org.jclouds.azurecompute.functions.ParseRequestIdHeader;
+import org.jclouds.azurecompute.xml.AvailabilityHandler;
 import org.jclouds.azurecompute.xml.CloudServiceHandler;
 import org.jclouds.azurecompute.xml.ListCloudServicesHandler;
 import org.jclouds.javax.annotation.Nullable;
@@ -127,4 +129,18 @@ public interface CloudServiceApi {
    @Fallback(NullOnNotFoundOr404.class)
    @ResponseParser(ParseRequestIdHeader.class)
    String delete(@PathParam("name") String name);
+
+   /**
+    * The Check Hosted Service Name Availability operation checks for the availability
+    * of the specified cloud service name.
+    *
+    * @return the response object
+    */
+   @Named("CheckCloudServiceNameAvailability")
+   @GET
+   @Path("/{name}")
+   @Fallback(NullOnNotFoundOr404.class)
+   @XMLResponseParser(AvailabilityHandler.class)
+   Availability check(String name);
+
 }
