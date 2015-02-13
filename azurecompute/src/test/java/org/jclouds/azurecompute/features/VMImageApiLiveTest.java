@@ -26,7 +26,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 
 import org.jclouds.azurecompute.domain.OSImage;
-import org.jclouds.azurecompute.domain.RoleSize;
 import org.jclouds.azurecompute.domain.Operation;
 import org.jclouds.azurecompute.domain.VMImage;
 import org.jclouds.azurecompute.domain.VMImageParams;
@@ -67,7 +66,8 @@ public class VMImageApiLiveTest extends BaseAzureComputeApiLiveTest {
                   VMImageParams.OSDiskConfigurationParams.Caching.READ_ONLY,
                   VMImageParams.OSDiskConfigurationParams.OSState.SPECIALIZED,
                   OSImage.Type.LINUX,
-                  URI.create("https://restx.blob.core.windows.net/communityimages/community-77355-11c444b5-9758-4488-acdd-db6ec101ab02-2.vhd"),
+                  URI.create(
+                        "https://restx.blob.core.windows.net/communityimages/community-77355-11c444b5-9758-4488-acdd-db6ec101ab02-2.vhd"),
                   30,
                   "Standard");
       VMImageParams params = VMImageParams.builder().name("MyImage").label("MyImage")

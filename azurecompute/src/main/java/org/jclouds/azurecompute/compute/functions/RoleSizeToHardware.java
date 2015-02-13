@@ -18,8 +18,15 @@ package org.jclouds.azurecompute.compute.functions;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicates;
-import org.jclouds.azurecompute.domain.*;
-import org.jclouds.compute.domain.*;
+
+import org.jclouds.azurecompute.domain.RoleSize;
+
+import org.jclouds.compute.domain.Hardware;
+import org.jclouds.compute.domain.HardwareBuilder;
+import org.jclouds.compute.domain.Processor;
+import org.jclouds.compute.domain.Volume;
+import org.jclouds.compute.domain.VolumeBuilder;
+import org.jclouds.compute.domain.Image;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -24,10 +24,20 @@ import javax.inject.Inject;
 import com.google.common.collect.Lists;
 import org.jclouds.azurecompute.AzureComputeApi;
 
-import org.jclouds.azurecompute.domain.*;
+import org.jclouds.azurecompute.domain.Availability;
+import org.jclouds.azurecompute.domain.OSImage;
+import org.jclouds.azurecompute.domain.Role;
+import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.RoleParam;
+import org.jclouds.azurecompute.domain.NewDeploymentParams;
+import org.jclouds.azurecompute.domain.Location;
+import org.jclouds.azurecompute.domain.Deployment;
+import org.jclouds.azurecompute.domain.CloudService;
+
 import org.jclouds.compute.ComputeServiceAdapter;
-import org.jclouds.compute.domain.*;
-import org.jclouds.compute.options.TemplateOptions;
+import org.jclouds.compute.domain.Hardware;
+import org.jclouds.compute.domain.Image;
+import org.jclouds.compute.domain.Template;
 
 import java.util.Iterator;
 import java.util.List;

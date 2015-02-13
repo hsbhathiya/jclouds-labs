@@ -16,22 +16,16 @@
  */
 package org.jclouds.azurecompute.features;
 
-import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
-import org.jclouds.azurecompute.domain.*;
+
+import org.jclouds.azurecompute.domain.NewDeploymentParams;
+import org.jclouds.azurecompute.domain.RoleParam;
+import org.jclouds.azurecompute.domain.VMImage;
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiMockTest;
-import org.jclouds.azurecompute.xml.DeploymentHandlerTest;
-import org.jclouds.azurecompute.xml.ListOSImagesHandlerTest;
 import org.jclouds.azurecompute.xml.ListVMImagesHandlerTest;
 import org.testng.annotations.Test;
 
 import java.net.URI;
-
-import static org.jclouds.azurecompute.domain.DeploymentParams.ExternalEndpoint.inboundTcpToLocalPort;
-import static org.jclouds.azurecompute.domain.DeploymentParams.ExternalEndpoint.inboundUdpToLocalPort;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
 
 @Test(groups = "unit", testName = "NewDeploymentApiMockTest")
 public class NewDeploymentApiMockTest extends BaseAzureComputeApiMockTest {

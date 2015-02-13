@@ -16,14 +16,21 @@
  */
 package org.jclouds.azurecompute.compute.functions;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertFalse;
+
 import com.google.common.collect.ImmutableList;
 import org.jclouds.azurecompute.domain.RoleSize;
-import org.jclouds.compute.domain.*;
+
+import org.jclouds.compute.domain.Hardware;
+import org.jclouds.compute.domain.Processor;
+import org.jclouds.compute.domain.Volume;
+
 import org.testng.annotations.Test;
 
 import java.util.List;
-
-import static org.testng.Assert.*;
 
 @Test(groups = "unit", testName = "RoleSizeToHardwareTest")
 public class RoleSizeToHardwareTest {
@@ -43,7 +50,7 @@ public class RoleSizeToHardwareTest {
          assertEquals(processor.getCores(), (double) roleSize.cores());
          if (roleSize.name().equals(RoleSize.Type.A8) || roleSize.name().equals(RoleSize.Type.A9)) {
             assertEquals(processor.getSpeed(), 2.6);
-         }else{
+         } else {
             assertEquals(processor.getSpeed(), 1.6);
          }
 
@@ -96,7 +103,7 @@ public class RoleSizeToHardwareTest {
                   Boolean.TRUE,
                   Boolean.TRUE,
                   16,
-                  (int)1.77*1024*1024,
+                  (int) 1.77 * 1024 * 1024,
                   382 * 1024
             )
       );

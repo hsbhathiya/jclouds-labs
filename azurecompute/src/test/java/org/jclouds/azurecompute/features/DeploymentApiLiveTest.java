@@ -21,9 +21,15 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import org.jclouds.azurecompute.domain.*;
-import org.jclouds.azurecompute.domain.CloudService.Status;
+
+import org.jclouds.azurecompute.domain.CloudService;
+import org.jclouds.azurecompute.domain.OSVirtualHardDiskParam;
+import org.jclouds.azurecompute.domain.Operation;
+import org.jclouds.azurecompute.domain.VMImage;
+import org.jclouds.azurecompute.domain.RoleParam;
+import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.NewDeploymentParams;
+import org.jclouds.azurecompute.domain.Deployment;
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiLiveTest;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -50,7 +56,7 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
    public void setup() {
       super.setup();
       // TODO: filter locations on those who have compute
-      location = "West US";//Iterables.get(api.getLocationApi().list(), 0).name();
+      location = "West US"; //Iterables.get(api.getLocationApi().list(), 0).name();
       operationSucceeded = retry(new Predicate<String>() {
          public boolean apply(String input) {
             return api.getOperationApi().get(input).status() == Operation.Status.SUCCEEDED;

@@ -17,7 +17,16 @@
 package org.jclouds.azurecompute.binders;
 
 import com.jamesmurty.utils.XMLBuilder;
-import org.jclouds.azurecompute.domain.*;
+
+import org.jclouds.azurecompute.domain.NewDeploymentParams;
+import org.jclouds.azurecompute.domain.OSImage;
+import org.jclouds.azurecompute.domain.RoleParam;
+import org.jclouds.azurecompute.domain.WindowsConfigurationSetParams;
+import org.jclouds.azurecompute.domain.LinuxConfigurationSetParams;
+import org.jclouds.azurecompute.domain.DataVirtualHardDiskParam;
+import org.jclouds.azurecompute.domain.OSVirtualHardDiskParam;
+import org.jclouds.azurecompute.domain.RoleSize;
+
 import org.jclouds.http.HttpRequest;
 import org.jclouds.rest.Binder;
 
