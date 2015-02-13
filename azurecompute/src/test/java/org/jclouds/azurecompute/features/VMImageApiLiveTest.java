@@ -59,7 +59,7 @@ public class VMImageApiLiveTest extends BaseAzureComputeApiLiveTest {
       }
    }
 
-   public void testCreate() {
+/*   public void testCreate() {
       VMImage image = api().list().get(5);
       VMImageParams.OSDiskConfigurationParams osParams = VMImageParams.OSDiskConfigurationParams
             .OSDiskConfiguration("myImage_os_disk",
@@ -78,7 +78,7 @@ public class VMImageApiLiveTest extends BaseAzureComputeApiLiveTest {
       String requestId = api().create(params);
 
       assertTrue(operationSucceeded.apply(requestId), requestId);
-   }
+   }*/
 
    private void checkOSImage(VMImage image) {
       assertNotNull(image.label(), "Label cannot be null for " + image);

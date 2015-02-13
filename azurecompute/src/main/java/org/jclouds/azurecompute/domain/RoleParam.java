@@ -108,7 +108,7 @@ public abstract class RoleParam {
       private URI mediaLocation;
       private RoleSize.Type roleSize;
       private String availabilitySetName;
-      private OSVirtualHardDiskParam OSVirtualHardDiskParam;
+      private OSVirtualHardDiskParam osVirtualHardDiskParam;
       private List<DataVirtualHardDiskParam> dataVirtualHardDiskParams = Lists.newArrayList();
 
       public Builder roleName(String roleName) {
@@ -151,8 +151,8 @@ public abstract class RoleParam {
          return this;
       }
 
-      public Builder OSVirtualHardDiskParam(OSVirtualHardDiskParam OSVirtualHardDiskParam) {
-         this.OSVirtualHardDiskParam = OSVirtualHardDiskParam;
+      public Builder osVirtualHardDiskParam(OSVirtualHardDiskParam osVirtualHardDiskParam) {
+         this.osVirtualHardDiskParam = osVirtualHardDiskParam;
          return this;
       }
 
@@ -173,7 +173,7 @@ public abstract class RoleParam {
                .linuxConfigurationSet(in.linuxConfigurationSet())
                .VMImageName(in.VMImageName())
                .roleSize(in.roleSize())
-               .OSVirtualHardDiskParam(in.OSVirtualHardDiskParam())
+               .osVirtualHardDiskParam(in.OSVirtualHardDiskParam())
                .dataVirtualHardDiskParams(in.dataVirtualHardDiskParams())
                .mediaLocation(in.mediaLocation())
                .availabilitySetName(in.availabilitySetName());
@@ -183,7 +183,7 @@ public abstract class RoleParam {
       public RoleParam build() {
          return RoleParam
                .create(roleName, roleType, windowsConfigurationSet, linuxConfigurationSet, VMImageName, mediaLocation,
-                     roleSize, availabilitySetName, dataVirtualHardDiskParams, OSVirtualHardDiskParam, Boolean.FALSE);
+                     roleSize, availabilitySetName, dataVirtualHardDiskParams, osVirtualHardDiskParam, Boolean.FALSE);
       }
    }
 

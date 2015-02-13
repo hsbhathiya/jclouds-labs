@@ -16,21 +16,17 @@
  */
 package org.jclouds.azurecompute.features;
 
+import static org.jclouds.azurecompute.domain.NewDeploymentParams.ExternalEndpoint.inboundTcpToLocalPort;
+import static org.jclouds.azurecompute.domain.NewDeploymentParams.ExternalEndpoint.inboundUdpToLocalPort;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import com.google.common.base.Predicate;
 
-import org.jclouds.azurecompute.domain.CloudService;
-import org.jclouds.azurecompute.domain.OSVirtualHardDiskParam;
-import org.jclouds.azurecompute.domain.Operation;
-import org.jclouds.azurecompute.domain.VMImage;
-import org.jclouds.azurecompute.domain.RoleParam;
-import org.jclouds.azurecompute.domain.RoleSize;
-import org.jclouds.azurecompute.domain.NewDeploymentParams;
-import org.jclouds.azurecompute.domain.Deployment;
+import org.jclouds.azurecompute.domain.*;
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiLiveTest;
+import org.jclouds.azurecompute.xml.ListOSImagesHandlerTest;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -82,7 +78,7 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
       Logger.getAnonymousLogger().info("cloudService available: " + cloudService);
    }
 
-   @Test(dependsOnMethods = "testCreateCloudService")
+ @Test(dependsOnMethods = "testCreateCloudService")
    public void testCreateVMDeployment() {
 
       VMImage vmImage = api.getVMImageApi().list().get(5);
@@ -91,13 +87,6 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
 
       VMImage.OSDiskConfiguration osConfig = vmImage.osDiskConfiguration();
       assertNotNull(osConfig);
-
-      OSVirtualHardDiskParam osParam = OSVirtualHardDiskParam.builder()
-            .diskName(osConfig.name())
-            .diskLabel(osConfig.name())
-            .hostCaching("ReadWrite")
-            .os(osConfig.os())
-            .mediaLink(osConfig.mediaLink()).build();
 
       RoleParam roleParam = RoleParam.builder().roleName(DEPLOYMENT + "-instance1")
             .VMImageName(vmImage.name())
@@ -112,7 +101,42 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
       assertTrue(operationSucceeded.apply(requestId), requestId);
    }
 
-   @Test(dependsOnMethods = "testCreateVMDeployment")
+   @Test(dependsOnMethods = "testCreateCloudService")
+   public void testCreateVMDeployment2() {
+
+      OSImage OSImage = api.getOSImageApi().list().get(15); //ListOSImagesHandlerTest.expected().get(5); // CentOS
+
+      LinuxConfigurationSetParams linuxConfig = LinuxConfigurationSetParams.builder().hostName("bhash90.jclouds.azure")
+            .userName("Bhash90").userPassword("azure@jclouds2").build();
+
+      OSVirtualHardDiskParam osParam = OSVirtualHardDiskParam.builder()
+            .sourceImageName(OSImage.name())
+            .mediaLink(OSImage
+                  .mediaLink())//(URI.create("https://rest.blob.core.windows.net/image/" + OSImage.name() + ".vhd"))
+            .os(org.jclouds.azurecompute.domain.OSImage.Type.LINUX)
+            .diskName("aaanewDisk")
+            .diskLabel("myinstance-osdisk")
+            .hostCaching("ReadWrite")
+            .build();
+
+      RoleParam roleParam = RoleParam.builder()
+            .roleName(DEPLOYMENT + "-instance2")
+            .roleSize(RoleSize.Type.MEDIUM)
+            .osVirtualHardDiskParam(osParam)
+            .linuxConfigurationSet(linuxConfig)
+            .build();
+
+      NewDeploymentParams deploymentParams = NewDeploymentParams.builder()
+            .name("mydeployment")
+                  //  .externalEndpoint(inboundTcpToLocalPort(80, 8080))
+                  //  .externalEndpoint(inboundUdpToLocalPort(53, 53))
+            .roleParam(roleParam).build();
+
+      String requestId = api().createFromPublicImage(deploymentParams);
+      assertTrue(operationSucceeded.apply(requestId), requestId);
+   }
+
+   @Test(dependsOnMethods = "testCreateVMDeployment2")
    public void testGet() {
       Deployment response = api().get(DEPLOYMENT);
       checkDeployment(response);

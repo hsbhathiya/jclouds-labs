@@ -16,6 +16,8 @@
  */
 package org.jclouds.azurecompute.binders;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.jamesmurty.utils.XMLBuilder;
 
 import org.jclouds.azurecompute.domain.NewDeploymentParams;
@@ -39,9 +41,12 @@ import static com.google.common.base.Throwables.propagate;
 public final class NewDeploymentParamsToXML implements Binder {
 
    @Override public <R extends HttpRequest> R bindToRequest(R request, Object input) {
+
       NewDeploymentParams params = NewDeploymentParams.class.cast(input);
+
       try {
          XMLBuilder builder = XMLBuilder.create("Deployment", "http://schemas.microsoft.com/windowsazure")
+               .namespace("i", "http://www.w3.org/2001/XMLSchema-instance")
                .e("Name").t(params.name()).up()
                .e("DeploymentSlot").t("Production").up()
                .e("Label").t(params.name()).up();
@@ -52,12 +57,18 @@ public final class NewDeploymentParamsToXML implements Binder {
             roleBuilder
                   .e("RoleName").t(roleParam.roleName()).up()
                   .e("RoleType").t("PersistentVMRole").up();
-            //.e("ConfigurationSets").up();
+            //  .e("ConfigurationSets").up();
             String vmImage = roleParam.VMImageName();
             if (vmImage == null || vmImage.isEmpty()) {
+
+               checkNotNull(roleParam.OSVirtualHardDiskParam(), "OSVirtualHardDiskParams cannot be null");
+               checkNotNull(roleParam.OSVirtualHardDiskParam().OS(), "OS cannot be null");
+               XMLBuilder configSetsBuilder = roleBuilder.e("ConfigurationSets");
                if (roleParam.OSVirtualHardDiskParam().OS() == OSImage.Type.WINDOWS) {
+
                   WindowsConfigurationSetParams winParams = roleParam.windowsConfigurationSet();
-                  XMLBuilder configBuilder = roleBuilder.e("ConfigurationSet"); // Windows
+                  XMLBuilder configBuilder = configSetsBuilder.e("ConfigurationSet")
+                        .a("i:type", "WindowsProvisioningConfigurationSet"); // Windows
                   configBuilder.e("ConfigurationSetType").t("WindowsProvisioningConfiguration").up();
                   add(configBuilder, "ComputerName", winParams.computerName());
                   add(configBuilder, "AdminPassword", winParams.adminPassword());
@@ -81,7 +92,8 @@ public final class NewDeploymentParamsToXML implements Binder {
                         .up(); // Windows ConfigurationSet
                } else if (roleParam.OSVirtualHardDiskParam().OS() == OSImage.Type.LINUX) {
                   LinuxConfigurationSetParams linuxParams = roleParam.linuxConfigurationSet();
-                  XMLBuilder configBuilder = builder.e("ConfigurationSet"); // Linux
+                  XMLBuilder configBuilder = configSetsBuilder.e("ConfigurationSet")
+                        .a("i:type", "LinuxProvisioningConfigurationSet"); // Linux
                   configBuilder.e("ConfigurationSetType").t("LinuxProvisioningConfiguration").up();
                   add(configBuilder, "HostName", linuxParams.hostName());
                   add(configBuilder, "UserName", linuxParams.userName());
@@ -89,12 +101,14 @@ public final class NewDeploymentParamsToXML implements Binder {
                   configBuilder.e("DisableSshPasswordAuthentication").t("false").up()
                         .e("SSH").up()
                         .up(); // Linux ConfigurationSet
+                  // ConfigurationsSet
                } else {
                   throw new IllegalArgumentException("Unrecognized os type " + params);
                }
 
-               XMLBuilder configBuilder = roleBuilder.e("ConfigurationSet"); // Network
+               XMLBuilder configBuilder = configSetsBuilder.e("ConfigurationSet"); // Network
                configBuilder.e("ConfigurationSetType").t("NetworkConfiguration").up();
+               configSetsBuilder.up(); //Configurations Sets
 
                XMLBuilder inputEndpoints = configBuilder.e("InputEndpoints");
                for (NewDeploymentParams.ExternalEndpoint endpoint : params.externalEndpoints()) {
@@ -148,7 +162,10 @@ public final class NewDeploymentParamsToXML implements Binder {
                   osDiskBuilder.e("OS").t(osDiskParam.OS().toString()).up();
                }
                add(osDiskBuilder, "ReSizedSizeInGB", osDiskParam.resizedSizeInGB());
-               add(osDiskBuilder, "RemoteSourceImageLink", osDiskParam.remoteSourceImageLink());
+
+               if (osDiskParam.sourceImageName() == null) {
+                  add(osDiskBuilder, "RemoteSourceImageLink", osDiskParam.remoteSourceImageLink());
+               }
 
                roleBuilder.up() //OSVirtualHardDisk
                      .e("RoleSize").t(UPPER_UNDERSCORE.to(UPPER_CAMEL, roleParam.roleSize().getText())).up()

@@ -21,9 +21,7 @@ import static org.jclouds.azurecompute.domain.DeploymentParams.ExternalEndpoint.
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
-import org.jclouds.azurecompute.domain.DeploymentParams;
-import org.jclouds.azurecompute.domain.OSImage;
-import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.*;
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiMockTest;
 import org.jclouds.azurecompute.xml.DeploymentHandlerTest;
 import org.jclouds.azurecompute.xml.ListOSImagesHandlerTest;
@@ -59,6 +57,47 @@ public class DeploymentApiMockTest extends BaseAzureComputeApiMockTest {
          server.shutdown();
       }
    }
+
+  /* public void createLinux2() throws Exception {
+      MockWebServer server = mockAzureManagementServer();
+      server.enqueue(requestIdResponse("request-1"));
+
+      try {
+         DeploymentApi api = api(server.getUrl("/")).getDeploymentApiForService("myservice");
+
+         OSImage OSImage = ListOSImagesHandlerTest.expected().get(5); // CentOS
+
+         LinuxConfigurationSetParams linuxConfig = LinuxConfigurationSetParams.builder().hostName("bhash90.jclouds.azure")
+               .userName("Bhash90").userPassword("azure@jclouds2").build();
+
+         OSVirtualHardDiskParam osParam = OSVirtualHardDiskParam.builder()
+               .sourceImageName(OSImage.name())
+               .mediaLink(OSImage.mediaLink())
+               .os(org.jclouds.azurecompute.domain.OSImage.Type.LINUX)
+               .diskName("myinstance-osdisk")
+               .diskLabel("myinstance-osdisk")
+               .hostCaching("ReadWrite")
+               .build();
+
+         RoleParam roleParam = RoleParam.builder()
+               .roleName("Myinstance2")
+               .roleSize(RoleSize.Type.MEDIUM)
+               .osVirtualHardDiskParam(osParam)
+               .linuxConfigurationSet(linuxConfig)
+               .build();
+
+         NewDeploymentParams deploymentParams = NewDeploymentParams.builder()
+               .name("mydeployment")
+               .externalEndpoint(NewDeploymentParams.ExternalEndpoint.inboundTcpToLocalPort(80, 8080))
+               .externalEndpoint(NewDeploymentParams.ExternalEndpoint.inboundUdpToLocalPort(53, 53))
+               .roleParam(roleParam).build();
+
+         assertEquals(api.createFromPublicImage(deploymentParams), "request-1");
+         assertSent(server, "POST", "/services/hostedservices/myservice/deployments", "/deploymentparams.xml");
+      } finally {
+         server.shutdown();
+      }
+   }*/
 
    public void createWindows() throws Exception {
       MockWebServer server = mockAzureManagementServer();

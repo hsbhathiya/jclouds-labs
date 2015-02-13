@@ -65,7 +65,7 @@ public abstract class OSVirtualHardDiskParam {
     * in blob storage, this element is ignored. If the VHD file exists in blob storage, this element defines the path to
     * the VHD and a disk is registered from it and attached to the virtual machine.
     */
-   @Nullable public abstract URI sourceImageName();
+   @Nullable public abstract String sourceImageName();
 
    /**
     * Specifies the type of operating system that is installed in the image.
@@ -107,7 +107,7 @@ public abstract class OSVirtualHardDiskParam {
       private String diskLabel;
       private String diskName;
       private URI mediaLink;
-      private URI sourceImageName;
+      private String sourceImageName;
       private OSImage.Type os;
       private URI remoteSourceImageLink;
       private Integer resizedSizeInGB;
@@ -132,7 +132,7 @@ public abstract class OSVirtualHardDiskParam {
          return this;
       }
 
-      public Builder sourceImageName(URI sourceImageName) {
+      public Builder sourceImageName(String sourceImageName) {
          this.sourceImageName = sourceImageName;
          return this;
       }
@@ -172,7 +172,7 @@ public abstract class OSVirtualHardDiskParam {
    }
 
    public static OSVirtualHardDiskParam create(String hostCaching, String diskLabel, String diskName,
-         URI mediaLink, URI sourceImageName, OSImage.Type os, URI remoteSourceImageLink, Integer resizedSizeInGB) {
+         URI mediaLink, String sourceImageName, OSImage.Type os, URI remoteSourceImageLink, Integer resizedSizeInGB) {
       return new AutoValue_OSVirtualHardDiskParam(hostCaching, diskLabel, diskName, mediaLink, sourceImageName, os,
             remoteSourceImageLink, resizedSizeInGB);
    }

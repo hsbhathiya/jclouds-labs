@@ -41,7 +41,7 @@ public class NewDeploymentApiMockTest extends BaseAzureComputeApiMockTest {
 
         /* VMImage.OSDiskConfiguration osConfig = vmImage.osDiskConfiguration();
          assertNotNull(osConfig);
-         OSVirtualHardDiskParam osParam = OSVirtualHardDiskParam.builder()
+         osVirtualHardDiskParam osParam = osVirtualHardDiskParam.builder()
                .diskName(osConfig.name())
                .diskLabel(osConfig.name())
                .hostCaching("ReadWrite")
