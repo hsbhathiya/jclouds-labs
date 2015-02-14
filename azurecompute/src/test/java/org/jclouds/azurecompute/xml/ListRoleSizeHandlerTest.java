@@ -28,7 +28,7 @@ public class ListRoleSizeHandlerTest extends BaseHandlerTest {
 
    public void test() {
       InputStream is = getClass().getResourceAsStream("/rolesizes.xml");
-      List<RoleSize> result = factory.create(new ListRoleSizesHandler()).parse(is);
+      List<RoleSize> result = factory.create(new ListRoleSizesHandler(new RoleSizeHandler())).parse(is);
       //assertEquals(result, expected());
    }
 

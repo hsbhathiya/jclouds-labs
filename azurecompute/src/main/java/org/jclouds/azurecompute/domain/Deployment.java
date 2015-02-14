@@ -16,6 +16,7 @@
  */
 package org.jclouds.azurecompute.domain;
 
+import static com.google.common.collect.ImmutableList.copyOf;
 import java.util.List;
 
 import org.jclouds.javax.annotation.Nullable;
@@ -107,10 +108,10 @@ public abstract class Deployment {
       RoleInstance() { // For AutoValue only!
       }
 
-      public static RoleInstance create(String roleName, String instanceName, InstanceStatus instanceStatus, int
-              instanceUpgradeDomain, int instanceFaultDomain, RoleSize.Type instanceSize, String ipAddress, String hostname, List<InstanceEndpoint> instanceEndpoints) {
+      public static RoleInstance create(String roleName, String instanceName, InstanceStatus instanceStatus, int instanceUpgradeDomain,
+                                        int instanceFaultDomain, RoleSize.Type instanceSize, String ipAddress, String hostname, List<InstanceEndpoint> instanceEndpoints) {
          return new AutoValue_Deployment_RoleInstance(roleName, instanceName, instanceStatus, instanceUpgradeDomain,
-                 instanceFaultDomain, instanceSize, ipAddress, hostname, instanceEndpoints);
+                 instanceFaultDomain, instanceSize, ipAddress, hostname, copyOf(instanceEndpoints));
       }
    }
 
@@ -171,10 +172,9 @@ public abstract class Deployment {
 
    @Nullable public abstract String virtualNetworkName();
 
-   public static Deployment create(String name, Slot slot, Status status, String label,
-         String instanceStateDetails, String instanceErrorCode, List<VirtualIP> virtualIPs, List<RoleInstance>
-           roleInstanceList, List<Role> roles, String virtualNetworkName) {
+   public static Deployment create(String name, Slot slot, Status status, String label, String instanceStateDetails, String instanceErrorCode,
+                                   List<VirtualIP> virtualIPs, List<RoleInstance> roleInstanceList, List<Role> roles, String virtualNetworkName) {
       return new AutoValue_Deployment(name, slot, status, label, instanceStateDetails,
-              instanceErrorCode, virtualIPs, roleInstanceList, roles, virtualNetworkName);
+              instanceErrorCode, copyOf(virtualIPs), copyOf(roleInstanceList), copyOf(roles), virtualNetworkName);
    }
 }

@@ -16,6 +16,7 @@
  */
 package org.jclouds.azurecompute.domain;
 
+import static com.google.common.collect.ImmutableList.copyOf;
 import java.util.List;
 
 import com.google.auto.value.AutoValue;
@@ -36,6 +37,6 @@ public abstract class Location {
    public abstract List<String> availableServices();
 
    public static Location create(String name, String displayName, List<String> availableServices) {
-      return new AutoValue_Location(name, displayName, availableServices);
+      return new AutoValue_Location(name, displayName, copyOf(availableServices));
    }
 }

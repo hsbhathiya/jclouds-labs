@@ -32,7 +32,7 @@ public class ListVirtualNetworkSitesHandlerTest extends BaseHandlerTest {
 
    public void test() {
       InputStream is = getClass().getResourceAsStream("/virtualnetworksites.xml");
-      List<VirtualNetworkSite> result = factory.create(new ListVirtualNetworkSitesHandler()).parse(is);
+      List<VirtualNetworkSite> result = factory.create(new ListVirtualNetworkSitesHandler(new VirtualNetworkSiteHandler())).parse(is);
 
       assertEquals(result, expected());
    }

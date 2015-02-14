@@ -16,6 +16,7 @@
  */
 package org.jclouds.azurecompute.domain;
 
+import static com.google.common.collect.ImmutableList.copyOf;
 import java.net.URI;
 import java.util.List;
 
@@ -23,6 +24,9 @@ import org.jclouds.javax.annotation.Nullable;
 
 import com.google.auto.value.AutoValue;
 
+/**
+ * @see <a href="https://msdn.microsoft.com/en-us/library/azure/jj157193.aspx">Role</a>
+ */
 @AutoValue
 public abstract class Role {
 
@@ -71,10 +75,10 @@ public abstract class Role {
          }
 
          public static InputEndpoint create(String name, String protocol, int localPort, int port,
-                                            String vip, boolean enableDirectServerReturn, String loadBalancerName,
-                                            LoadBalancerProbe loadBalancerProbe, Integer idleTimeoutInMinutes) {
+               String vip, boolean enableDirectServerReturn, String loadBalancerName,
+               LoadBalancerProbe loadBalancerProbe, Integer idleTimeoutInMinutes) {
             return new AutoValue_Role_ConfigurationSet_InputEndpoint(localPort, name, port, protocol, vip,
-                    enableDirectServerReturn, loadBalancerName, loadBalancerProbe, idleTimeoutInMinutes);
+                  enableDirectServerReturn, loadBalancerName, loadBalancerProbe, idleTimeoutInMinutes);
          }
       }
 
@@ -120,9 +124,9 @@ public abstract class Role {
       }
 
       public static ConfigurationSet create(String configurationSetType, List<InputEndpoint> inputEndpoints,
-                                            List<SubnetName> subnetNames, String staticVirtualNetworkIPAddress, List<PublicIP> publicIPs) {
+            List<SubnetName> subnetNames, String staticVirtualNetworkIPAddress, List<PublicIP> publicIPs) {
          return new AutoValue_Role_ConfigurationSet(configurationSetType, inputEndpoints, subnetNames,
-                 staticVirtualNetworkIPAddress, publicIPs);
+               staticVirtualNetworkIPAddress, publicIPs);
       }
    }
 
@@ -162,34 +166,10 @@ public abstract class Role {
       }
 
       public static ResourceExtensionReference create(String referenceName, String publisher, String name, String
-              version, List<ResourceExtensionParameterValue> resourceExtensionParameterValues, String state) {
+            version, List<ResourceExtensionParameterValue> resourceExtensionParameterValues, String state) {
          return new AutoValue_Role_ResourceExtensionReference(referenceName, publisher, name, version,
-                 resourceExtensionParameterValues, state);
+               resourceExtensionParameterValues, state);
       }
-   }
-
-   @AutoValue
-   public abstract static class DataVirtualHardDisk {
-
-      public abstract String hostCaching();
-
-      public abstract String diskName();
-
-      public abstract int lun();
-
-      public abstract int logicalDiskSizeInGB();
-
-      public abstract String mediaLink();
-
-      public abstract String ioType();
-
-      DataVirtualHardDisk() { // For AutoValue only!
-      }
-
-      public static DataVirtualHardDisk create(String hostCaching, String diskName, int lun, int logicalDiskSizeInGB, String mediaLink, String ioType) {
-         return new AutoValue_Role_DataVirtualHardDisk(hostCaching, diskName, lun, logicalDiskSizeInGB, mediaLink, ioType);
-      }
-
    }
 
    @AutoValue
@@ -222,24 +202,70 @@ public abstract class Role {
     */
    public abstract String roleName();
 
-   @Nullable public abstract String osVersion();
-
+   /**
+    * Specifies the type of role that is used. For Virtual Machines, this must be PersistentVMRole.
+    */
    public abstract String roleType();
 
+   /**
+    * Specifies the name of the VM Image that was used to create the Virtual Machine.
+    */
+   @Nullable public abstract String vmImage();
+
+   /**
+    * Specifies the path to the VHD files that are associated with the VM Image.
+    */
+   @Nullable public abstract String mediaLocation();
+
+   /**
+    * Contains a collection of configuration sets that define system and application settings.
+    */
    public abstract List<ConfigurationSet> configurationSets();
 
+   /**
+    * Optional. Contains a collection of resource extensions that are installed on the Virtual Machine. This element is used if ProvisionGuestAgent is set to true.
+    */
    @Nullable public abstract List<ResourceExtensionReference> resourceExtensionReferences();
 
+   /**
+    * Specifies the name of a collection of Virtual Machines.
+    * Virtual Machines specified in the same availability set are allocated to different nodes to maximize availability.
+    */
+   @Nullable public abstract String availabilitySetName();
+
+   /**
+    * Contains the parameters that were used to add a data disk to a Virtual Machine.
+    */
    @Nullable public abstract List<DataVirtualHardDisk> dataVirtualHardDisks();
 
-   public abstract OSVirtualHardDisk oSVirtualHardDisk();
+   /**
+    * Contains the parameters that were used to create the operating system disk for a Virtual Machine.
+    */
+   public abstract OSVirtualHardDisk osVirtualHardDisk();
 
+   /**
+    * Specifies the size of the Virtual Machine.
+    */
    public abstract RoleSize.Type roleSize();
 
-   public static Role create(String roleName, String osVersion, String roleType, List<ConfigurationSet> configurationSets,
-                             List<ResourceExtensionReference> resourceExtensionReferences,
-                             List<DataVirtualHardDisk> dataVirtualHardDisks,
-                             OSVirtualHardDisk oSVirtualHardDisk, RoleSize.Type roleSize) {
-      return new AutoValue_Role(roleName, osVersion, roleType, configurationSets, resourceExtensionReferences, dataVirtualHardDisks, oSVirtualHardDisk, roleSize);
+   /**
+    * Optional. Indicates whether the VM Agent is installed on the Virtual Machine.
+    * To run a resource extension in a Virtual Machine, this service must be installed.
+    * @return true or false
+    */
+   @Nullable public abstract Boolean provisionGuestAgent();
+
+   /**
+    * Specifies the read-only thumbprint of the certificate that is used with the HTTPS listener for WinRM.
+    */
+   @Nullable public abstract String defaultWinRmCertificateThumbprint();
+
+   public static Role create(String roleName, String roleType, String vmImage, String mediaLocation,
+         List<ConfigurationSet> configurationSets, List<ResourceExtensionReference> resourceExtensionReferences,
+         String availabilitySetName, List<DataVirtualHardDisk> dataVirtualHardDisks,
+         OSVirtualHardDisk osVirtualHardDisk, RoleSize.Type roleSize, Boolean provisionGuestAgent,
+         String defaultWinRmCertificateThumbprint) {
+      return new AutoValue_Role(roleName, roleType, vmImage, mediaLocation, copyOf(configurationSets), copyOf(resourceExtensionReferences),
+            availabilitySetName, copyOf(dataVirtualHardDisks), osVirtualHardDisk, roleSize, provisionGuestAgent, defaultWinRmCertificateThumbprint);
    }
 }

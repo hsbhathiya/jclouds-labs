@@ -27,6 +27,7 @@ import org.jclouds.http.functions.ParseSax;
 import org.xml.sax.Attributes;
 
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 
 public class ConfigurationSetHandler extends ParseSax.HandlerForGeneratedRequestWithResult<ConfigurationSet> {
    private String configurationSetType;
@@ -38,9 +39,14 @@ public class ConfigurationSetHandler extends ParseSax.HandlerForGeneratedRequest
    private boolean inInputEndpoint;
    private boolean inSubnetNames;
 
-   private final InputEndpointHandler inputEndpointHandler = new InputEndpointHandler();
-   private final SubnetNameHandler subnetNameHandler = new SubnetNameHandler();
+   private final InputEndpointHandler inputEndpointHandler;
+   private final SubnetNameHandler subnetNameHandler;
    private final StringBuilder currentText = new StringBuilder();
+
+   @Inject ConfigurationSetHandler(InputEndpointHandler inputEndpointHandler, SubnetNameHandler subnetNameHandler) {
+      this.inputEndpointHandler = inputEndpointHandler;
+      this.subnetNameHandler = subnetNameHandler;
+   }
 
    @Override
    public ConfigurationSet getResult() {

@@ -17,15 +17,13 @@
 package org.jclouds.azurecompute.xml;
 
 import static org.jclouds.util.SaxUtils.currentOrNull;
-
 import java.net.URI;
 
 import org.jclouds.azurecompute.domain.OSImage;
-import org.jclouds.azurecompute.domain.Role.OSVirtualHardDisk;
+import org.jclouds.azurecompute.domain.Role;
 import org.jclouds.http.functions.ParseSax;
-import org.xml.sax.Attributes;
 
-public class OSVirtualHardDiskHandler extends ParseSax.HandlerForGeneratedRequestWithResult<OSVirtualHardDisk> {
+public class OSVirtualHardDiskHandler extends ParseSax.HandlerForGeneratedRequestWithResult<Role.OSVirtualHardDisk> {
    private String hostCaching;
    private String diskName;
    private URI mediaLink;
@@ -36,11 +34,8 @@ public class OSVirtualHardDiskHandler extends ParseSax.HandlerForGeneratedReques
 
    private final StringBuilder currentText = new StringBuilder();
 
-   @Override public OSVirtualHardDisk getResult() {
-      return OSVirtualHardDisk.create(hostCaching, diskName, lun, logicalDiskSizeInGB, mediaLink, sourceImageName, os);
-   }
-
-   @Override public void startElement(String uri, String localName, String qName, Attributes attributes) {
+   @Override public Role.OSVirtualHardDisk getResult() {
+      return Role.OSVirtualHardDisk.create(hostCaching, diskName, lun, logicalDiskSizeInGB, mediaLink, sourceImageName, os);
    }
 
    @Override public void endElement(String ignoredUri, String ignoredName, String qName) {

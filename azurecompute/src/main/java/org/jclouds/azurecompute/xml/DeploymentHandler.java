@@ -35,6 +35,7 @@ import org.xml.sax.Attributes;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 
 /**
  * @see <a href="http://msdn.microsoft.com/en-us/library/ee460804" >Response body description</a>.
@@ -54,10 +55,16 @@ public final class DeploymentHandler extends ParseSax.HandlerForGeneratedRequest
    private boolean inRoleInstanceList;
    private boolean inRoleList;
    private boolean inListVirtualIPs;
-   private final VirtualIPHandler virtualIPHandler = new VirtualIPHandler();
-   private final RoleInstanceHandler roleInstanceHandler = new RoleInstanceHandler();
-   private final RoleHandler roleHandler = new RoleHandler();
+   private final VirtualIPHandler virtualIPHandler;
+   private final RoleInstanceHandler roleInstanceHandler;
+   private final RoleHandler roleHandler;
    private final StringBuilder currentText = new StringBuilder();
+
+   @Inject DeploymentHandler(VirtualIPHandler virtualIPHandler, RoleInstanceHandler roleInstanceHandler, RoleHandler roleHandler) {
+      this.virtualIPHandler = virtualIPHandler;
+      this.roleInstanceHandler = roleInstanceHandler;
+      this.roleHandler = roleHandler;
+   }
 
    @Override public Deployment getResult() { // Fields don't need to be reset as this isn't used in a loop.
       return Deployment.create(name, slot, status, label, //

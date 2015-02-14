@@ -16,6 +16,7 @@
  */
 package org.jclouds.azurecompute.domain;
 
+import static com.google.common.collect.ImmutableList.copyOf;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
@@ -196,10 +197,10 @@ public abstract class DeploymentParams {
       }
    }
 
-   private static DeploymentParams create(String name, RoleSize.Type size, String username, String password, String
-           sourceImageName, URI mediaLink, OSImage.Type os, List<ExternalEndpoint> externalEndpoints,  String
-           virtualNetworkName, List<String> subnetNames) {
+   private static DeploymentParams create(String name, RoleSize.Type size, String username, String password, String sourceImageName,
+         URI mediaLink, OSImage.Type os, List<ExternalEndpoint> externalEndpoints,
+         String virtualNetworkName, List<String> subnetNames) {
       return new AutoValue_DeploymentParams(name, size, username, password, sourceImageName, mediaLink, os,
-              externalEndpoints, virtualNetworkName, subnetNames);
+            copyOf(externalEndpoints), virtualNetworkName, copyOf(subnetNames));
    }
 }

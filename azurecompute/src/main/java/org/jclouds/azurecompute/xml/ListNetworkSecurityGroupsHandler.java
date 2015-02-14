@@ -23,12 +23,17 @@ import org.jclouds.http.functions.ParseSax;
 import org.xml.sax.Attributes;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
 
 public class ListNetworkSecurityGroupsHandler extends ParseSax.HandlerForGeneratedRequestWithResult<List<NetworkSecurityGroup>> {
 
    private boolean inNetworkSecurityGroup;
-   private final NetworkSecurityGroupHandler networkSecurityGroupHandler = new NetworkSecurityGroupHandler();
+   private final NetworkSecurityGroupHandler networkSecurityGroupHandler;
    private final ImmutableList.Builder<NetworkSecurityGroup> networkSecurityGroups = ImmutableList.builder();
+
+   @Inject ListNetworkSecurityGroupsHandler(NetworkSecurityGroupHandler networkSecurityGroupHandler) {
+      this.networkSecurityGroupHandler = networkSecurityGroupHandler;
+   }
 
    @Override public List<NetworkSecurityGroup> getResult() {
       return networkSecurityGroups.build();

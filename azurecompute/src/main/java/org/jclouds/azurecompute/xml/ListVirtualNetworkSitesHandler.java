@@ -23,12 +23,17 @@ import org.jclouds.http.functions.ParseSax;
 import org.xml.sax.Attributes;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
 
 public class ListVirtualNetworkSitesHandler extends ParseSax.HandlerForGeneratedRequestWithResult<List<VirtualNetworkSite>> {
 
    private boolean inVirtualNetworkSite;
-   private final VirtualNetworkSiteHandler virtualNetworkSiteHandler = new VirtualNetworkSiteHandler();
+   private final VirtualNetworkSiteHandler virtualNetworkSiteHandler;
    private final ImmutableList.Builder<VirtualNetworkSite> virtualNetworkSites = ImmutableList.builder();
+
+   @Inject ListVirtualNetworkSitesHandler(VirtualNetworkSiteHandler virtualNetworkSiteHandler) {
+      this.virtualNetworkSiteHandler = virtualNetworkSiteHandler;
+   }
 
    @Override public List<VirtualNetworkSite> getResult() {
       return virtualNetworkSites.build();

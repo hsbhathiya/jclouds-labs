@@ -19,32 +19,47 @@ package org.jclouds.azurecompute.xml;
 import static org.jclouds.util.SaxUtils.currentOrNull;
 import java.util.List;
 
+import org.jclouds.azurecompute.domain.DataVirtualHardDisk;
 import org.jclouds.azurecompute.domain.Role;
 import org.jclouds.azurecompute.domain.Role.ConfigurationSet;
-import org.jclouds.azurecompute.domain.Role.DataVirtualHardDisk;
-import org.jclouds.azurecompute.domain.Role.OSVirtualHardDisk;
 import org.jclouds.azurecompute.domain.Role.ResourceExtensionReference;
 import org.jclouds.azurecompute.domain.RoleSize;
 import org.jclouds.http.functions.ParseSax;
 import org.xml.sax.Attributes;
 
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 
 public class RoleHandler extends ParseSax.HandlerForGeneratedRequestWithResult<Role> {
 
    private String roleName;
-   private String osVersion;
    private String roleType;
+   private String vmImage;
+   private String mediaLocation;
    private List<ConfigurationSet> configurationSets = Lists.newArrayList();
    private List<ResourceExtensionReference> resourceExtensionReferences = Lists.newArrayList();
+   private String availabilitySetName;
    private List<DataVirtualHardDisk> dataVirtualHardDisks = Lists.newArrayList();
-   private OSVirtualHardDisk osVirtualHardDisk;
+   private Role.OSVirtualHardDisk osVirtualHardDisk;
    private RoleSize.Type roleSize;
+   private Boolean provisionGuestAgent;
+   private String defaultWinRmCertificateThumbprint;
 
    private boolean inConfigurationSets;
    private boolean inOSVirtualHardDisk;
-   private final ConfigurationSetHandler configurationSetHandler = new ConfigurationSetHandler();
-   private final OSVirtualHardDiskHandler osVirtualDiskHandler = new OSVirtualHardDiskHandler();
+   private boolean inDataVirtualHardDisks;
+
+   private final ConfigurationSetHandler configurationSetHandler;
+   private final OSVirtualHardDiskHandler osVirtualDiskHandler;
+   private final DataVirtualHardDiskHandler dataVirtualHardDiskHandler;
+
+   @Inject
+   RoleHandler(ConfigurationSetHandler configurationSetHandler, OSVirtualHardDiskHandler osVirtualDiskHandler,
+         DataVirtualHardDiskHandler dataVirtualHardDiskHandler) {
+      this.configurationSetHandler = configurationSetHandler;
+      this.osVirtualDiskHandler = osVirtualDiskHandler;
+      this.dataVirtualHardDiskHandler = dataVirtualHardDiskHandler;
+   }
 
    private StringBuilder currentText = new StringBuilder();
 
@@ -58,46 +73,71 @@ public class RoleHandler extends ParseSax.HandlerForGeneratedRequestWithResult<R
       if (qName.equals("OSVirtualHardDisk")) {
          inOSVirtualHardDisk = true;
       }
+      if (qName.equals("DataVirtualHardDisks")) {
+         inDataVirtualHardDisks = true;
+      }
+      if (inDataVirtualHardDisks) {
+         dataVirtualHardDiskHandler.startElement(uri, localName, qName, attributes);
+      }
    }
 
    private void resetState() {
-      roleName = osVersion = roleType = null;
+      roleName = roleType = vmImage = mediaLocation = availabilitySetName = defaultWinRmCertificateThumbprint = null;
       configurationSets = null;
       osVirtualHardDisk = null;
       configurationSets = Lists.newArrayList();
       resourceExtensionReferences = Lists.newArrayList();
       dataVirtualHardDisks = Lists.newArrayList();
       roleSize = null;
+      provisionGuestAgent = null;
    }
 
    @Override
    public Role getResult() {
-      Role result = Role.create(roleName, osVersion, roleType, configurationSets, resourceExtensionReferences,
-              dataVirtualHardDisks, osVirtualHardDisk, roleSize);
+      Role result = Role.create(roleName, roleType, vmImage, mediaLocation, configurationSets,
+            resourceExtensionReferences, availabilitySetName, dataVirtualHardDisks, osVirtualHardDisk, roleSize,
+            provisionGuestAgent, defaultWinRmCertificateThumbprint);
       resetState(); // handler is called in a loop.
       return result;
    }
 
    @Override public void endElement(String ignoredUri, String ignoredName, String qName) {
-      if (qName.equals("ConfigurationSets")) {
-         inConfigurationSets = false;
+      if (qName.equals("DataVirtualHardDisks")) {
+         inDataVirtualHardDisks = false;
       } else if (qName.equals("ConfigurationSet")) {
+         inConfigurationSets = false;
          configurationSets.add(configurationSetHandler.getResult());
       } else if (inConfigurationSets) {
          configurationSetHandler.endElement(ignoredUri, ignoredName, qName);
+      } else if (qName.equals("DataVirtualHardDisks")) {
+         inDataVirtualHardDisks = false;
+         dataVirtualHardDisks.add(dataVirtualHardDiskHandler.getResult());
+      } else if (inDataVirtualHardDisks) {
+         dataVirtualHardDiskHandler.endElement(ignoredUri, ignoredName, qName);
       } else if (qName.equals("RoleName")) {
          roleName = currentOrNull(currentText);
-      } else if (qName.equals("OsVersion")) {
-         osVersion = currentOrNull(currentText);
+      } else if (qName.equals("VMImage")) {
+         vmImage = currentOrNull(currentText);
+      } else if (qName.equals("MediaLocation")) {
+         mediaLocation = currentOrNull(currentText);
+      } else if (qName.equals("AvailabilitySetName")) {
+         availabilitySetName = currentOrNull(currentText);
+      } else if (qName.equals("DefaultWinRmCertificateThumbprint")) {
+         defaultWinRmCertificateThumbprint = currentOrNull(currentText);
       } else if (qName.equals("RoleType")) {
          roleType = currentOrNull(currentText);
       } else if (qName.equals("OSVirtualHardDisk")) {
-            osVirtualHardDisk = osVirtualDiskHandler.getResult();
-            inOSVirtualHardDisk = false;
-         } else if (inOSVirtualHardDisk) {
+         inOSVirtualHardDisk = false;
+         osVirtualHardDisk = osVirtualDiskHandler.getResult();
+      } else if (inOSVirtualHardDisk) {
          osVirtualDiskHandler.endElement(ignoredUri, ignoredName, qName);
       } else if (qName.equals("RoleSize")) {
          roleSize = RoleSize.Type.valueOf(currentOrNull(currentText).toUpperCase());
+      } else if (qName.equals("ProvisionGuestAgent")) {
+         String provisionGuestAgentString = currentOrNull(currentText);
+         if (provisionGuestAgentString != null) {
+            provisionGuestAgent = Boolean.valueOf(provisionGuestAgentString);
+         }
       }
       currentText.setLength(0);
    }

@@ -23,11 +23,16 @@ import org.jclouds.http.functions.ParseSax;
 import org.xml.sax.Attributes;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
 
 public final class ListRoleSizesHandler extends ParseSax.HandlerForGeneratedRequestWithResult<List<RoleSize>> {
    private boolean inRoleSize;
-   private final RoleSizeHandler roleSizeHandler = new RoleSizeHandler();
+   private final RoleSizeHandler roleSizeHandler;
    private final ImmutableList.Builder<RoleSize> roleSizes = ImmutableList.builder();
+
+   @Inject ListRoleSizesHandler(RoleSizeHandler roleSizeHandler) {
+      this.roleSizeHandler = roleSizeHandler;
+   }
 
    @Override
    public List<RoleSize> getResult() {
