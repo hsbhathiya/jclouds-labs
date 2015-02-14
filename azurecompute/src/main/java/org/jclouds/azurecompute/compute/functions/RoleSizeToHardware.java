@@ -43,7 +43,7 @@ public class RoleSizeToHardware implements Function<RoleSize, Hardware> {
       Processor processor = new Processor(cores, speed);
 
       return new HardwareBuilder()
-            .id(input.name().toString())
+            .ids(input.name().name())
             .name(input.label())
             .processor(processor)
             .ram(input.memoryInMb())

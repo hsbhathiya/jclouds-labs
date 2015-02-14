@@ -16,30 +16,27 @@
  */
 package org.jclouds.azurecompute.features;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.jclouds.azurecompute.internal.BaseAzureComputeApiMockTest;
-import org.jclouds.azurecompute.xml.ListLocationsHandlerTest;
+import static org.testng.Assert.assertNotNull;
+import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.internal.BaseAzureComputeApiLiveTest;
 import org.testng.annotations.Test;
 
-import com.squareup.okhttp.mockwebserver.MockWebServer;
+@Test(groups = "live", testName = "LocationApiLiveTest")
+public class SubscriptionApiLiveTest extends BaseAzureComputeApiLiveTest {
 
-@Test(groups = "unit", testName = "LocationApiMockTest")
-public class LocationApiMockTest extends BaseAzureComputeApiMockTest {
-
-   public void testList() throws Exception {
-      MockWebServer server = mockAzureManagementServer();
-      server.enqueue(xmlResponse("/locations.xml"));
-
-      try {
-         LocationApi api = api(server.getUrl("/")).getLocationApi();
-
-         assertThat(api.list()).containsExactlyElementsOf(ListLocationsHandlerTest.expected());
-
-         assertSent(server, "GET", "/locations");
-      } finally {
-         server.shutdown();
+   @Test public void testList() {
+      for (RoleSize roleSize : api().list(subscriptionId)) {
+         checkLocation(roleSize);
       }
    }
 
+   private void checkLocation(RoleSize roleSize) {
+      assertNotNull(roleSize.name(), "Name cannot be null for a Location.");
+      assertNotNull(roleSize.label(), "Label cannot be null for: " + roleSize);
+      assertNotNull(roleSize.cores(), "Cores cannot be null for: " + roleSize.name());
+   }
+
+   private SubscriptionApi api() {
+      return api.getSubscriptionApi();
+   }
 }

@@ -17,6 +17,7 @@
 package org.jclouds.azurecompute;
 
 import static org.jclouds.azurecompute.config.AzureComputeProperties.SUBSCRIPTION_ID;
+import static org.jclouds.compute.config.ComputeServiceProperties.TEMPLATE;
 
 import java.net.URI;
 import java.util.Properties;
@@ -48,6 +49,7 @@ public class AzureComputeProviderMetadata extends BaseProviderMetadata {
 
    public static Properties defaultProperties() {
       Properties properties = new Properties();
+      properties.setProperty(TEMPLATE, "osFamily=UBUNTU,loginUser=jclouds");
       return properties;
    }
 

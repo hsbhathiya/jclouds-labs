@@ -19,7 +19,8 @@ package org.jclouds.azurecompute.features;
 import static org.jclouds.azurecompute.domain.DeploymentParams.ExternalEndpoint.inboundTcpToLocalPort;
 import static org.jclouds.azurecompute.domain.DeploymentParams.ExternalEndpoint.inboundUdpToLocalPort;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
+
+import java.net.URI;
 
 import org.jclouds.azurecompute.domain.*;
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiMockTest;
@@ -27,28 +28,28 @@ import org.jclouds.azurecompute.xml.DeploymentHandlerTest;
 import org.jclouds.azurecompute.xml.ListOSImagesHandlerTest;
 import org.testng.annotations.Test;
 
-import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
 
 @Test(groups = "unit", testName = "DeploymentApiMockTest")
 public class DeploymentApiMockTest extends BaseAzureComputeApiMockTest {
 
-   public void createLinux() throws Exception {
+   public void testCreateLinux() throws Exception {
       MockWebServer server = mockAzureManagementServer();
       server.enqueue(requestIdResponse("request-1"));
 
       try {
          DeploymentApi api = api(server.getUrl("/")).getDeploymentApiForService("myservice");
 
-         OSImage OSImage = ListOSImagesHandlerTest.expected().get(5); // CentOS
+         OSImage OSImage = ListOSImagesHandlerTest.expected().get(5); // Centos
 
          DeploymentParams params = DeploymentParams.builder()
-               .name("mydeployment")
-               .size(RoleSize.Type.MEDIUM)
-               .sourceImageName(OSImage.name()).mediaLink(OSImage.mediaLink()).os(OSImage.os())
-               .username("username").password("testpwd")
-               .externalEndpoint(inboundTcpToLocalPort(80, 8080))
-               .externalEndpoint(inboundUdpToLocalPort(53, 53)).build();
+                 .name("mydeployment")
+                 .size(RoleSize.Type.MEDIUM)
+                 .sourceImageName(OSImage.name()).mediaLink(URI.create("https://mydeployment.blob.core.windows.net/vhds/disk-mydeployment.vhd")).os(OSImage.os())
+                 .username("username").password("testpwd")
+                 .virtualNetworkName("my-virtualNetworkName")
+                 .externalEndpoint(inboundTcpToLocalPort(80, 8080))
+                 .externalEndpoint(inboundUdpToLocalPort(53, 53)).build();
 
          assertEquals(api.create(params), "request-1");
 
@@ -57,7 +58,6 @@ public class DeploymentApiMockTest extends BaseAzureComputeApiMockTest {
          server.shutdown();
       }
    }
-
   /* public void createLinux2() throws Exception {
       MockWebServer server = mockAzureManagementServer();
       server.enqueue(requestIdResponse("request-1"));
@@ -109,12 +109,13 @@ public class DeploymentApiMockTest extends BaseAzureComputeApiMockTest {
          OSImage OSImage = ListOSImagesHandlerTest.expected().get(1); // Windows
 
          DeploymentParams params = DeploymentParams.builder()
-               .name("mydeployment")
-               .size(RoleSize.Type.MEDIUM)
-               .sourceImageName(OSImage.name()).mediaLink(OSImage.mediaLink()).os(OSImage.os())
-               .username("username").password("testpwd")
-               .externalEndpoint(inboundTcpToLocalPort(80, 8080))
-               .externalEndpoint(inboundUdpToLocalPort(53, 53)).build();
+                 .name("mydeployment")
+                 .size(RoleSize.Type.MEDIUM)
+                 .sourceImageName(OSImage.name()).mediaLink(OSImage.mediaLink()).os(OSImage.os())
+                 .username("username").password("testpwd")
+                 .virtualNetworkName("my-virtualNetworkName")
+                 .externalEndpoint(inboundTcpToLocalPort(80, 8080))
+                 .externalEndpoint(inboundUdpToLocalPort(53, 53)).build();
 
          assertEquals(api.create(params), "request-1");
 
@@ -124,7 +125,7 @@ public class DeploymentApiMockTest extends BaseAzureComputeApiMockTest {
       }
    }
 
-   public void getWhenFound() throws Exception {
+   public void testGet() throws Exception {
       MockWebServer server = mockAzureManagementServer();
       server.enqueue(xmlResponse("/deployment.xml"));
 
@@ -139,22 +140,7 @@ public class DeploymentApiMockTest extends BaseAzureComputeApiMockTest {
       }
    }
 
-   public void getWhenNotFound() throws Exception {
-      MockWebServer server = mockAzureManagementServer();
-      server.enqueue(new MockResponse().setResponseCode(404));
-
-      try {
-         DeploymentApi api = api(server.getUrl("/")).getDeploymentApiForService("myservice");
-
-         assertNull(api.get("mydeployment"));
-
-         assertSent(server, "GET", "/services/hostedservices/myservice/deployments/mydeployment");
-      } finally {
-         server.shutdown();
-      }
-   }
-
-   public void deleteWhenFound() throws Exception {
+   public void testDelete() throws Exception {
       MockWebServer server = mockAzureManagementServer();
       server.enqueue(requestIdResponse("request-1"));
 
@@ -169,18 +155,4 @@ public class DeploymentApiMockTest extends BaseAzureComputeApiMockTest {
       }
    }
 
-   public void deleteWhenNotFound() throws Exception {
-      MockWebServer server = mockAzureManagementServer();
-      server.enqueue(new MockResponse().setResponseCode(404));
-
-      try {
-         DeploymentApi api = api(server.getUrl("/")).getDeploymentApiForService("myservice");
-
-         assertNull(api.delete("mydeployment"));
-
-         assertSent(server, "DELETE", "/services/hostedservices/myservice/deployments/mydeployment");
-      } finally {
-         server.shutdown();
-      }
-   }
 }

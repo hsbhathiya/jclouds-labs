@@ -20,15 +20,7 @@ import java.io.Closeable;
 
 import javax.ws.rs.PathParam;
 
-import org.jclouds.azurecompute.features.CloudServiceApi;
-import org.jclouds.azurecompute.features.DeploymentApi;
-import org.jclouds.azurecompute.features.DiskApi;
-import org.jclouds.azurecompute.features.LocationApi;
-import org.jclouds.azurecompute.features.OSImageApi;
-import org.jclouds.azurecompute.features.OperationApi;
-import org.jclouds.azurecompute.features.VirtualMachineApi;
-import org.jclouds.azurecompute.features.VMImageApi;
-import org.jclouds.azurecompute.features.RoleSizesApi;
+import org.jclouds.azurecompute.features.*;
 import org.jclouds.rest.annotations.Delegate;
 
 /**
@@ -45,7 +37,8 @@ public interface AzureComputeApi extends Closeable {
     *
     * @see <a href="http://msdn.microsoft.com/en-us/library/gg441299">docs</a>
     */
-   @Delegate LocationApi getLocationApi();
+   @Delegate
+   LocationApi getLocationApi();
 
    /**
     * The Service Management API includes operations for managing the cloud services beneath your
@@ -53,7 +46,8 @@ public interface AzureComputeApi extends Closeable {
     *
     * @see <a href="http://msdn.microsoft.com/en-us/library/ee460812">docs</a>
     */
-   @Delegate CloudServiceApi getCloudServiceApi();
+   @Delegate
+   CloudServiceApi getCloudServiceApi();
 
    /**
     * The Service Management API includes operations for managing the virtual machines in your
@@ -61,7 +55,8 @@ public interface AzureComputeApi extends Closeable {
     *
     * @see <a href="http://msdn.microsoft.com/en-us/library/jj157206">docs</a>
     */
-   @Delegate DeploymentApi getDeploymentApiForService(@PathParam("serviceName") String serviceName);
+   @Delegate
+   DeploymentApi getDeploymentApiForService(@PathParam("serviceName") String serviceName);
 
    /**
     * The Service Management API includes operations for managing the virtual machines in your
@@ -70,8 +65,8 @@ public interface AzureComputeApi extends Closeable {
     * @see <a href="http://msdn.microsoft.com/en-us/library/jj157206">docs</a>
     */
    // TODO: revisit once we have multi-level @Delegate working
-   @Delegate VirtualMachineApi getVirtualMachineApiForDeploymentInService(
-         @PathParam("deploymentName") String deploymentName,
+   @Delegate
+   VirtualMachineApi getVirtualMachineApiForDeploymentInService(@PathParam("deploymentName") String deploymentName,
          @PathParam("serviceName") String serviceName);
 
    /**
@@ -80,7 +75,8 @@ public interface AzureComputeApi extends Closeable {
     *
     * @see <a href="http://msdn.microsoft.com/en-us/library/jj157175">docs</a>
     */
-   @Delegate OSImageApi getOSImageApi();
+   @Delegate
+   OSImageApi getOSImageApi();
 
    /**
     * The Service Management API includes operations for Tracking Asynchronous Service Management
@@ -88,28 +84,54 @@ public interface AzureComputeApi extends Closeable {
     *
     * @see <a href="http://msdn.microsoft.com/en-us/library/ee460791">docs</a>
     */
-   @Delegate OperationApi getOperationApi();
+   @Delegate
+   OperationApi getOperationApi();
 
    /**
     * The Service Management API includes operations for managing Disks in your subscription.
     *
     * @see <a href="http://msdn.microsoft.com/en-us/library/jj157188">docs</a>
     */
-   @Delegate DiskApi getDiskApi();
+   @Delegate
+   DiskApi getDiskApi();
 
    /**
-    * The Service Management API includes operations for managing the VM Images in your subscription.
+    * The Service Management API includes operations for retrieving information about a subscription.
     *
-    * @see <a href="https://msdn.microsoft.com/en-us/library/azure/dn499771.aspx">docs</a>
+    * @see <a href="http://msdn.microsoft.com/en-us/library/azure/gg715315.aspx">docs</a>
     */
-   @Delegate VMImageApi getVMImageApi();
+   @Delegate
+   SubscriptionApi getSubscriptionApi();
 
    /**
-    * The Service Management API includes operations for listing the available Role Sizes
-    * for a subscription.
+    * The Service Management API includes operations for managing the virtual networks in your subscription.
     *
-    * @see <a href="https://msdn.microsoft.com/en-us/library/azure/dn469422.aspx">docs</a>
+    * @see <a href="http://msdn.microsoft.com/en-us/library/jj157182.aspx">docs</a>
     */
+   @Delegate
+   VirtualNetworkApi getVirtualNetworkApi();
 
-   @Delegate RoleSizesApi getRoleSizesApi();
+   /**
+    * The Service Management API includes operations for managing the storage accounts in your subscription.
+    *
+    * @see <a href="http://msdn.microsoft.com/en-us/library/ee460790.aspx">docs</a>
+    */
+   @Delegate
+   StorageAccountApi getStorageAccountApi();
+
+   /**
+    * The Service Management API includes operations for managing the Network Security Groups in your
+    * subscription.
+    *
+    */
+   @Delegate
+   NetworkSecurityGroupApi getNetworkSecurityGroupApi();
+
+   @Delegate
+   VMImageApi getVMImageApi();
+
+   @Delegate
+   RoleSizesApi getRoleSizesApi();
+
+
 }

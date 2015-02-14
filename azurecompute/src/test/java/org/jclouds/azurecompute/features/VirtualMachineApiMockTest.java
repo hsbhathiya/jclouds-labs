@@ -26,7 +26,7 @@ import com.squareup.okhttp.mockwebserver.MockWebServer;
 @Test(groups = "unit", testName = "VirtualMachineApiMockTest")
 public class VirtualMachineApiMockTest extends BaseAzureComputeApiMockTest {
 
-   public void start() throws Exception {
+   public void testStart() throws Exception {
       MockWebServer server = mockAzureManagementServer();
       server.enqueue(requestIdResponse("request-1"));
 
@@ -43,7 +43,7 @@ public class VirtualMachineApiMockTest extends BaseAzureComputeApiMockTest {
       }
    }
 
-   public void restart() throws Exception {
+   public void testRestart() throws Exception {
       MockWebServer server = mockAzureManagementServer();
       server.enqueue(requestIdResponse("request-1"));
 
@@ -60,7 +60,7 @@ public class VirtualMachineApiMockTest extends BaseAzureComputeApiMockTest {
       }
    }
 
-   public void shutdown() throws Exception {
+   public void testShutdown() throws Exception {
       MockWebServer server = mockAzureManagementServer();
       server.enqueue(requestIdResponse("request-1"));
 
@@ -77,7 +77,7 @@ public class VirtualMachineApiMockTest extends BaseAzureComputeApiMockTest {
       }
    }
 
-   public void capture() throws Exception {
+   public void testCapture() throws Exception {
       MockWebServer server = mockAzureManagementServer();
       server.enqueue(requestIdResponse("request-1"));
 

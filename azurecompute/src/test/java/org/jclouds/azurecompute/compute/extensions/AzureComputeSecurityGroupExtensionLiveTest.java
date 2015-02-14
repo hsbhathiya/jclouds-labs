@@ -14,19 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.azurecompute.internal;
+package org.jclouds.azurecompute.compute.extensions;
 
 import static org.jclouds.azurecompute.config.AzureComputeProperties.SUBSCRIPTION_ID;
 import java.util.Properties;
 
-import org.jclouds.apis.BaseApiLiveTest;
-import org.jclouds.azurecompute.AzureComputeApi;
+import org.jclouds.compute.extensions.internal.BaseSecurityGroupExtensionLiveTest;
+import org.jclouds.sshj.config.SshjSshClientModule;
+import org.testng.annotations.Test;
 
-public class BaseAzureComputeApiLiveTest extends BaseApiLiveTest<AzureComputeApi> {
+import com.google.common.collect.ImmutableSet;
+import com.google.inject.Module;
+
+/**
+ * Live test for AzureCompute {@link org.jclouds.compute.extensions.SecurityGroupExtension} implementation.
+ */
+@Test(groups = "live", singleThreaded = true, testName = "AzureComputeSecurityGroupExtensionLiveTest")
+public class AzureComputeSecurityGroupExtensionLiveTest extends BaseSecurityGroupExtensionLiveTest {
 
    protected String subscriptionId;
 
-   public BaseAzureComputeApiLiveTest() {
+   public AzureComputeSecurityGroupExtensionLiveTest() {
       provider = "azurecompute";
    }
 
@@ -35,6 +43,15 @@ public class BaseAzureComputeApiLiveTest extends BaseApiLiveTest<AzureComputeApi
       Properties props = super.setupProperties();
       subscriptionId = setIfTestSystemPropertyPresent(props, SUBSCRIPTION_ID);
       return props;
+   }
+
+   @Override
+   protected Iterable<Module> setupModules() {
+      return ImmutableSet.of(getLoggingModule(), credentialStoreModule, getSshModule());
+   }
+
+   protected Module getSshModule() {
+      return new SshjSshClientModule();
    }
 
 }

@@ -19,9 +19,11 @@ package org.jclouds.azurecompute.internal;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jclouds.azurecompute.config.AzureComputeProperties.SUBSCRIPTION_ID;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Properties;
 import java.util.Set;
 
 import org.jclouds.ContextBuilder;
@@ -53,8 +55,10 @@ public class BaseAzureComputeApiMockTest {
    }
 
    public AzureComputeApi api(URL url) {
+      Properties properties = new Properties();
+      properties.setProperty(SUBSCRIPTION_ID, "1234-1234-1234");
       return ContextBuilder.newBuilder(provider).credentials(identity, credential).endpoint(url.toString())
-            .modules(modules).buildApi(AzureComputeApi.class);
+            .modules(modules).overrides(properties).buildApi(AzureComputeApi.class);
    }
 
    protected static MockWebServer mockAzureManagementServer() throws IOException {
@@ -83,7 +87,7 @@ public class BaseAzureComputeApiMockTest {
       RecordedRequest request = server.takeRequest();
       assertThat(request.getMethod()).isEqualTo(method);
       assertThat(request.getPath()).isEqualTo(path);
-      assertThat(request.getHeader("x-ms-version")).isEqualTo("2014-06-01");
+      assertThat(request.getHeader("x-ms-version")).isEqualTo("2014-10-01");
       assertThat(request.getHeader("Accept")).isEqualTo("application/xml");
       return request;
    }

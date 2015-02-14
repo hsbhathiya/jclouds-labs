@@ -40,7 +40,7 @@ public class RoleSizeToHardwareTest {
       for (RoleSize roleSize : createRoleSizes()) {
          Hardware transformed = roleSizeToHardware.apply(roleSize);
 
-         assertEquals(transformed.getId(), roleSize.name().toString());
+         assertEquals(transformed.getId(), roleSize.name().name());
          assertEquals(transformed.getName(), roleSize.label());
          assertEquals(transformed.getHypervisor(), "Azure Hypervisor");
 

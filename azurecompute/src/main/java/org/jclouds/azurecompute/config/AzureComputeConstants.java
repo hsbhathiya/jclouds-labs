@@ -14,18 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.azurecompute.compute.functions;
+package org.jclouds.azurecompute.config;
 
-import org.jclouds.azurecompute.domain.Role;
-import org.jclouds.compute.domain.NodeMetadata;
+public class AzureComputeConstants {
 
-import com.google.common.base.Function;
-
-public class RoleToNodeMetadata implements Function<Role, NodeMetadata> {
-
-   @Override
-   public NodeMetadata apply(Role input) {
-      return null;
-   }
+   public static final String TCP_FORMAT = "tcp_%s-%s";
 
 }
