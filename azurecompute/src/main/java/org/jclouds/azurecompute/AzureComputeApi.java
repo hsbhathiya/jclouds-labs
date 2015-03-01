@@ -31,6 +31,7 @@ import org.jclouds.azurecompute.features.StorageAccountApi;
 import org.jclouds.azurecompute.features.SubscriptionApi;
 import org.jclouds.azurecompute.features.VirtualMachineApi;
 import org.jclouds.azurecompute.features.VirtualNetworkApi;
+import org.jclouds.azurecompute.features.VMImageApi;
 import org.jclouds.rest.annotations.Delegate;
 
 /**
@@ -136,4 +137,11 @@ public interface AzureComputeApi extends Closeable {
     */
    @Delegate
    NetworkSecurityGroupApi getNetworkSecurityGroupApi();
+
+
+   /*
+   * The Service Management API includes operations for managing the VM Images in your subscription.
+   */
+   @Delegate
+   VMImageApi getVMImageApi();
 }

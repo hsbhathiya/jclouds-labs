@@ -16,36 +16,35 @@
  */
 package org.jclouds.azurecompute.xml;
 
+import org.jclouds.azurecompute.domain.OSImage;
+import org.jclouds.azurecompute.domain.VMImage;
+import org.jclouds.http.functions.ParseSax;
+
+import java.net.URI;
+
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
 import static org.jclouds.util.SaxUtils.currentOrNull;
-import java.net.URI;
-
-import org.jclouds.azurecompute.domain.DataVirtualHardDisk;
-import org.jclouds.http.functions.ParseSax;
-import org.xml.sax.Attributes;
 
 /**
  * @see <a href="https://msdn.microsoft.com/en-us/library/azure/jj157193.aspx#DataVirtualHardDisks" >api</a>
  */
-final class DataVirtualHardDiskHandler extends ParseSax.HandlerForGeneratedRequestWithResult<DataVirtualHardDisk> {
+final class OSConfigHandler extends ParseSax.HandlerForGeneratedRequestWithResult<VMImage.OSDiskConfiguration> {
 
-   private DataVirtualHardDisk.Caching hostCaching;
-   private String diskName;
-   private Integer lun;
+   private VMImage.OSDiskConfiguration.Caching hostCaching;
+   private String name;
+   private VMImage.OSDiskConfiguration.OSState osState;
+   private OSImage.Type os;
    private Integer logicalDiskSizeInGB;
    private URI mediaLink;
    private String ioType;
 
    private final StringBuilder currentText = new StringBuilder();
 
-   @Override public void startElement(String uri, String localName, String qName, Attributes attributes) {
-   }
-
    @Override
-   public DataVirtualHardDisk getResult() {
-      DataVirtualHardDisk result = DataVirtualHardDisk
-            .create(hostCaching, diskName, lun, logicalDiskSizeInGB, mediaLink, ioType);
+   public VMImage.OSDiskConfiguration getResult() {
+      VMImage.OSDiskConfiguration result = VMImage.OSDiskConfiguration
+            .create(name, hostCaching, osState, os, mediaLink, logicalDiskSizeInGB, ioType);
       return result;
    }
 
@@ -56,13 +55,18 @@ final class DataVirtualHardDiskHandler extends ParseSax.HandlerForGeneratedReque
          if (hostCachingText != null) {
             hostCaching = parseHostCache(hostCachingText);
          }
-      } else if (qName.equals("DiskName") || qName.equals("Name")) {
-         diskName = currentOrNull(currentText);
-      } else if (qName.equals("Lun")) {
-         String lunText = currentOrNull(currentText);
-         if (lunText != null) {
-            lun = Integer.parseInt(lunText);
+      } else if (qName.equals("OSState")) {
+         String osStateText = currentOrNull(currentText);
+         if (osStateText != null) {
+            osState = VMImage.OSDiskConfiguration.OSState.valueOf(osStateText.toUpperCase());
          }
+      } else if (qName.equals("OS")) {
+         String osText = currentOrNull(currentText);
+         if (osText != null) {
+            os = OSImage.Type.valueOf(osText.toUpperCase());
+         }
+      } else if (qName.equals("Name")) {
+         name = currentOrNull(currentText);
       } else if (qName.equals("LogicalDiskSizeInGB")) {
          String gb = currentOrNull(currentText);
          if (gb != null) {
@@ -79,11 +83,19 @@ final class DataVirtualHardDiskHandler extends ParseSax.HandlerForGeneratedReque
       currentText.setLength(0);
    }
 
-   private static DataVirtualHardDisk.Caching parseHostCache(String hostCaching) {
+   private static VMImage.OSDiskConfiguration.Caching parseHostCache(String hostCaching) {
       try {
-         return DataVirtualHardDisk.Caching.valueOf(UPPER_CAMEL.to(UPPER_UNDERSCORE, hostCaching));
+         return VMImage.OSDiskConfiguration.Caching.valueOf(UPPER_CAMEL.to(UPPER_UNDERSCORE, hostCaching));
       } catch (IllegalArgumentException e) {
-         return DataVirtualHardDisk.Caching.NONE;
+         return VMImage.OSDiskConfiguration.Caching.NONE;
+      }
+   }
+
+   private static VMImage.OSDiskConfiguration.OSState parseOSState(String osState) {
+      try {
+         return VMImage.OSDiskConfiguration.OSState.valueOf(UPPER_CAMEL.to(UPPER_UNDERSCORE, osState));
+      } catch (IllegalArgumentException e) {
+         throw new IllegalArgumentException(e);
       }
    }
 

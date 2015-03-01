@@ -20,15 +20,18 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jclouds.azurecompute.domain.Deployment.InstanceStatus.READY_ROLE;
 import static org.jclouds.util.Predicates2.retry;
 import static org.testng.Assert.assertTrue;
+
 import java.util.logging.Logger;
 
 import org.jclouds.azurecompute.compute.AzureComputeServiceAdapter;
-import org.jclouds.azurecompute.domain.CloudService;
 import org.jclouds.azurecompute.domain.Deployment;
-import org.jclouds.azurecompute.domain.Deployment.RoleInstance;
 import org.jclouds.azurecompute.domain.DeploymentParams;
-import org.jclouds.azurecompute.domain.OSImage;
+import org.jclouds.azurecompute.domain.CloudService;
 import org.jclouds.azurecompute.domain.Role;
+import org.jclouds.azurecompute.domain.VMImage;
+import org.jclouds.azurecompute.domain.CaptureVMImageParams;
+import org.jclouds.azurecompute.domain.Deployment.RoleInstance;
+import org.jclouds.azurecompute.domain.OSImage;
 import org.jclouds.azurecompute.domain.RoleSize;
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiLiveTest;
 import org.testng.annotations.AfterClass;
@@ -41,13 +44,15 @@ import com.google.common.collect.Iterables;
 @Test(groups = "live", testName = "VirtualMachineApiLiveTest", singleThreaded = true)
 public class VirtualMachineApiLiveTest extends BaseAzureComputeApiLiveTest {
 
-   private static final String CLOUD_SERVICE = (System.getProperty("user.name") + "-jclouds-cloudService").toLowerCase();
+   private static final String CLOUD_SERVICE = (System.getProperty("user.name") + "-jclouds-cloudService")
+         .toLowerCase();
    private static final String DEPLOYMENT = DeploymentApiLiveTest.class.getSimpleName().toLowerCase();
 
    private String roleName;
    private Predicate<String> roleInstanceReady;
    private Predicate<String> roleInstanceStopped;
    private CloudService cloudService;
+   private Deployment deployment;
 
    @BeforeClass(groups = { "integration", "live" })
    public void setup() {
@@ -71,18 +76,18 @@ public class VirtualMachineApiLiveTest extends BaseAzureComputeApiLiveTest {
       }, 600, 5, 5, SECONDS);
 
       final DeploymentParams params = DeploymentParams.builder()
-              .name(DEPLOYMENT)
-              .os(OSImage.Type.LINUX)
-              .sourceImageName("b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu-14_04_1-LTS-amd64-server-20150123-en-us-30GB")
-              .mediaLink(AzureComputeServiceAdapter.createMediaLink(storageService.serviceName(), DEPLOYMENT))
-              .username("test")
-              .password("supersecurePassword1!")
-              .size(RoleSize.Type.BASIC_A2)
-              .subnetName(Iterables.get(virtualNetworkSite.subnets(), 0).name())
-              .virtualNetworkName(virtualNetworkSite.name())
-              .externalEndpoint(DeploymentParams.ExternalEndpoint.inboundTcpToLocalPort(22, 22))
-              .build();
-      getOrCreateDeployment(cloudService.name(), params);
+            .name(DEPLOYMENT)
+            .os(OSImage.Type.LINUX)
+            .sourceImageName("b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu-14_04_1-LTS-amd64-server-20150123-en-us-30GB")
+            .mediaLink(AzureComputeServiceAdapter.createMediaLink(storageService.serviceName(), DEPLOYMENT))
+            .username("test")
+            .password("supersecurePassword1!")
+            .size(RoleSize.Type.BASIC_A2)
+            .subnetName(Iterables.get(virtualNetworkSite.subnets(), 0).name())
+            .virtualNetworkName(virtualNetworkSite.name())
+            .externalEndpoint(DeploymentParams.ExternalEndpoint.inboundTcpToLocalPort(22, 22))
+            .build();
+      deployment = getOrCreateDeployment(cloudService.name(), params);
       RoleInstance roleInstance = getFirstRoleInstanceInDeployment(DEPLOYMENT);
       assertTrue(roleInstanceReady.apply(DEPLOYMENT), roleInstance.toString());
       roleName = roleInstance.roleName();
@@ -91,19 +96,19 @@ public class VirtualMachineApiLiveTest extends BaseAzureComputeApiLiveTest {
    public void testUpdate() {
       Role role = api().getRole(roleName);
       String requestId = api().updateRole(roleName,
-              Role.create(
-                      role.roleName(),
-                      role.roleType(),
-                      role.vmImage(),
-                      role.mediaLocation(),
-                      role.configurationSets(),
-                      role.resourceExtensionReferences(),
-                      role.availabilitySetName(),
-                      role.dataVirtualHardDisks(),
-                      role.osVirtualHardDisk(),
-                      role.roleSize(),
-                      role.provisionGuestAgent(),
-                      role.defaultWinRmCertificateThumbprint()));
+            Role.create(
+                  role.roleName(),
+                  role.roleType(),
+                  role.vmImage(),
+                  role.mediaLocation(),
+                  role.configurationSets(),
+                  role.resourceExtensionReferences(),
+                  role.availabilitySetName(),
+                  role.dataVirtualHardDisks(),
+                  role.osVirtualHardDisk(),
+                  role.roleSize(),
+                  role.provisionGuestAgent(),
+                  role.defaultWinRmCertificateThumbprint()));
       assertTrue(operationSucceeded.apply(requestId), requestId);
       Logger.getAnonymousLogger().info("operation succeeded: " + requestId);
    }
@@ -150,12 +155,21 @@ public class VirtualMachineApiLiveTest extends BaseAzureComputeApiLiveTest {
       }
    }
 
+   public void testCaptureVMImage() {
+      CaptureVMImageParams captureParams = CaptureVMImageParams.builder()
+            .osState(VMImage.OSDiskConfiguration.OSState.SPECIALIZED).name("Captured-Image")
+            .label("Captured Image").recommendedVMSize(RoleSize.Type.MEDIUM).build();
+      api.getVirtualMachineApiForDeploymentInService(DEPLOYMENT, CLOUD_SERVICE)
+            .capture(roleName, captureParams);
+   }
+
    private VirtualMachineApi api() {
       return api.getVirtualMachineApiForDeploymentInService(DEPLOYMENT, cloudService.name());
    }
 
    private RoleInstance getFirstRoleInstanceInDeployment(String deployment) {
-      return Iterables.getOnlyElement(api.getDeploymentApiForService(cloudService.name()).get(deployment).roleInstanceList());
+      return Iterables
+            .getOnlyElement(api.getDeploymentApiForService(cloudService.name()).get(deployment).roleInstanceList());
    }
 
 }
