@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.azurecompute.compute.extensions;
+/*package org.jclouds.azurecompute.compute.extensions;
 
 import org.jclouds.compute.extensions.internal.BaseSecurityGroupExtensionLiveTest;
 import org.jclouds.sshj.config.SshjSshClientModule;
@@ -25,7 +25,7 @@ import com.google.inject.Module;
 
 /**
  * Live test for AzureCompute {@link org.jclouds.compute.extensions.SecurityGroupExtension} implementation.
- */
+ * /
 @Test(groups = "live", singleThreaded = true, testName = "AzureComputeSecurityGroupExtensionLiveTest")
 public class AzureComputeSecurityGroupExtensionLiveTest extends BaseSecurityGroupExtensionLiveTest {
 
@@ -45,3 +45,4 @@ public class AzureComputeSecurityGroupExtensionLiveTest extends BaseSecurityGrou
    }
 
 }
+*/

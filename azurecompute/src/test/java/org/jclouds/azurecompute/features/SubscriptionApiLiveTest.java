@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.azurecompute.features;
+/*package org.jclouds.azurecompute.features;
 
 import static org.testng.Assert.assertNotNull;
 import org.jclouds.azurecompute.domain.RoleSize;
@@ -41,3 +41,4 @@ public class SubscriptionApiLiveTest extends BaseAzureComputeApiLiveTest {
       return api.getSubscriptionApi();
    }
 }
+*/

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.azurecompute.compute;
+/*package org.jclouds.azurecompute.compute;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jclouds.util.Predicates2.retry;
@@ -82,7 +82,7 @@ public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveT
 
    /**
     * Functionally equivalent to {@link AzureComputeServiceContextLiveTest#testLaunchNode()}.
-    */
+    * /
    @Test
    public void testCreateNodeWithGroupEncodedIntoNameThenStoreCredentials() {
       final String groupName = String.format("%s%d-group-acsalt",
@@ -164,3 +164,4 @@ public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveT
    }
 
 }
+*/

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.azurecompute.features;
+/*package org.jclouds.azurecompute.features;
 
 import static com.google.common.collect.Iterables.transform;
 import static org.testng.Assert.assertFalse;
@@ -88,3 +88,4 @@ public class OSImageApiLiveTest extends BaseAzureComputeApiLiveTest {
       return api.getOSImageApi();
    }
 }
+*/

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.azurecompute.features;
+/*package org.jclouds.azurecompute.features;
 
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
@@ -51,3 +51,4 @@ public class LocationApiLiveTest extends BaseAzureComputeApiLiveTest {
       return api.getLocationApi();
    }
 }
+*/
