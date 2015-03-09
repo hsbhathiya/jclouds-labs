@@ -31,6 +31,7 @@ public abstract class RoleSize {
    public enum Type {
       BASIC_A0 ("Basic_A0"), BASIC_A1 ("Basic_A1"), BASIC_A2 ("Basic_A2"), BASIC_A3 ("Basic_A3"), BASIC_A4 ("Basic_A4"),
       A0 ("A0"), A1 ("A1"), A2 ("A2"), A3 ("A3"), A4 ("A4"), A5 ("A5"), A6 ("A6"), A7 ("A7"), A8 ("A8"), A9 ("A9"),
+      A10 ("A10"), A11 ("A11"),
       STANDARD_A0 ("Standard_A0"), STANDARD_A1 ("Standard_A1"), STANDARD_A2 ("Standard_A2"), STANDARD_A3
               ("Standard_A3"),
       STANDARD_A4 ("Standard_A4"), STANDARD_A5 ("Standard_A5"), STANDARD_A6 ("Standard_A6"),

@@ -33,14 +33,14 @@ import javax.inject.Singleton;
 import org.jclouds.azurecompute.AzureComputeApi;
 import org.jclouds.azurecompute.compute.config.AzureComputeServiceContextModule.AzureComputeConstants;
 import org.jclouds.azurecompute.config.AzureComputeProperties;
-import org.jclouds.azurecompute.domain.CloudService;
 import org.jclouds.azurecompute.domain.Deployment;
+import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.OSImage;
+import org.jclouds.azurecompute.domain.Location;
+import org.jclouds.azurecompute.domain.CloudService;
 import org.jclouds.azurecompute.domain.Deployment.RoleInstance;
 import org.jclouds.azurecompute.domain.DeploymentParams;
 import org.jclouds.azurecompute.domain.DeploymentParams.ExternalEndpoint;
-import org.jclouds.azurecompute.domain.Location;
-import org.jclouds.azurecompute.domain.OSImage;
-import org.jclouds.azurecompute.domain.RoleSize;
 import org.jclouds.azurecompute.options.AzureComputeTemplateOptions;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.domain.OsFamily;
@@ -115,14 +115,7 @@ public class AzureComputeServiceAdapter implements ComputeServiceAdapter<Deploym
       }
       final DeploymentParams params = DeploymentParams.builder()
               .name(name)
-              .os(os)
-              .username(loginUser)
-              .password(loginPassword)
-              .sourceImageName(template.getImage().getId())
-              .mediaLink(createMediaLink(storageAccountName, name))
-              .size(RoleSize.Type.fromString(template.getHardware().getName()))
               .externalEndpoints(externalEndpoints)
-              .subnetName(subnetName)
               .virtualNetworkName(virtualNetworkName)
               .build();
 

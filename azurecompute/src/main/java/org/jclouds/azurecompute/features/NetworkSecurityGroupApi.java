@@ -46,7 +46,7 @@ import org.jclouds.rest.annotations.ResponseParser;
 import org.jclouds.rest.annotations.XMLResponseParser;
 
 @Path("/services/networking")
-@Headers(keys = "x-ms-version", values = "{jclouds.api-version}")
+@Headers(keys = "x-ms-version", values = "2014-10-01")
 @Consumes(MediaType.APPLICATION_XML)
 public interface NetworkSecurityGroupApi {
 

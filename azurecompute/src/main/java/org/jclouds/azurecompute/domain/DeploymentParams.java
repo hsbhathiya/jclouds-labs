@@ -16,20 +16,17 @@
  */
 package org.jclouds.azurecompute.domain;
 
-import static com.google.common.collect.ImmutableList.copyOf;
-import java.net.URI;
-import java.util.Collection;
-import java.util.List;
-
-import org.jclouds.javax.annotation.Nullable;
-
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import org.jclouds.javax.annotation.Nullable;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * To create a new deployment/role
- *
+ * <p/>
  * Warning : the OSType must be the one of the source image used to create the VM
  */
 // TODO: check which can be null.
@@ -40,7 +37,9 @@ public abstract class DeploymentParams {
 
       public abstract String name();
 
-      /** Either {@code tcp} or {@code udp}. */
+      /**
+       * Either {@code tcp} or {@code udp}.
+       */
       public abstract String protocol();
 
       public abstract int port();
@@ -48,12 +47,12 @@ public abstract class DeploymentParams {
       public abstract int localPort();
 
       public static ExternalEndpoint inboundTcpToLocalPort(int port, int localPort) {
-         return new AutoValue_DeploymentParams_ExternalEndpoint(String.format("tcp_%s-%s", port, localPort), "tcp",
+         return new AutoValue_DeploymentParams_ExternalEndpoint(String.format("tcp%s_%s", port, localPort), "tcp",
                port, localPort);
       }
 
       public static ExternalEndpoint inboundUdpToLocalPort(int port, int localPort) {
-         return new AutoValue_DeploymentParams_ExternalEndpoint(String.format("udp_%s-%s", port, localPort), "udp",
+         return new AutoValue_DeploymentParams_ExternalEndpoint(String.format("udp%s_%s", port, localPort), "udp",
                port, localPort);
       }
 
@@ -61,43 +60,18 @@ public abstract class DeploymentParams {
       }
    }
 
-   DeploymentParams() {} // For AutoValue only!
-
-   /** The user-supplied name for this deployment. */
+   /**
+    * The user-supplied name for this deployment.
+    */
    public abstract String name();
 
-   /** The size of the virtual machine to allocate. The default value is Small. */
-   public abstract RoleSize.Type size();
+  @Nullable public abstract List<ExternalEndpoint> externalEndpoints();
 
-   /**
-    * Specifies the name of a user to be created in the sudoers group of the
-    * virtual machine. User names are ASCII character strings 1 to 32
-    * characters in length.
-    */
-   public abstract String username();
+   public abstract List<RoleParam> roleParams();
 
-   /**
-    * Specifies the associated password for the user name.
-    * Passwords are ASCII character strings 6 to 72 characters in
-    * length.
-    */
-   public abstract String password();
+  @Nullable  public abstract String virtualNetworkName();
 
-   /** {@link OSImage#name() name} of the user or platform image. */
-   public abstract String sourceImageName();
-
-   /** Indicates the {@link OSImage#mediaLink() location} when {@link #sourceImageName() source} is a platform image. */
-   public abstract URI mediaLink();
-
-   /** {@link OSImage#os() Os type} of the {@link #sourceImageName() source image}. */
-   public abstract OSImage.Type os();
-
-   public abstract List<ExternalEndpoint> externalEndpoints();
-
-   /** {@link org.jclouds.azurecompute.domain.NetworkConfiguration.VirtualNetworkSite#name} */
-   @Nullable public abstract String virtualNetworkName();
-
-   public abstract List<String> subnetNames();
+   @Nullable public abstract String reservedIpName();
 
    public Builder toBuilder() {
       return builder().fromDeploymentParams(this);
@@ -109,48 +83,13 @@ public abstract class DeploymentParams {
 
    public static final class Builder {
       private String name;
-      private RoleSize.Type size;
-      private String username;
-      private String password;
-      private String sourceImageName;
-      private URI mediaLink;
-      private OSImage.Type os;
       private List<ExternalEndpoint> externalEndpoints = Lists.newArrayList();
+      private List<RoleParam> roleParams = Lists.newArrayList();
       private String virtualNetworkName;
-      private List<String> subnetNames = Lists.newArrayList();
+      private String reservedIpName;
 
       public Builder name(String name) {
          this.name = name;
-         return this;
-      }
-
-      public Builder size(RoleSize.Type size) {
-         this.size = size;
-         return this;
-      }
-
-      public Builder username(String username) {
-         this.username = username;
-         return this;
-      }
-
-      public Builder password(String password) {
-         this.password = password;
-         return this;
-      }
-
-      public Builder sourceImageName(String sourceImageName) {
-         this.sourceImageName = sourceImageName;
-         return this;
-      }
-
-      public Builder mediaLink(URI mediaLink) {
-         this.mediaLink = mediaLink;
-         return this;
-      }
-
-      public Builder os(OSImage.Type os) {
-         this.os = os;
          return this;
       }
 
@@ -160,7 +99,17 @@ public abstract class DeploymentParams {
       }
 
       public Builder externalEndpoints(Collection<ExternalEndpoint> externalEndpoints) {
-         this.externalEndpoints.addAll(externalEndpoints);
+         externalEndpoints.addAll(externalEndpoints);
+         return this;
+      }
+
+      public Builder roleParam(RoleParam roleParam) {
+         roleParams.add(roleParam);
+         return this;
+      }
+
+      public Builder roleParams(Collection<RoleParam> roleParams) {
+         roleParams.addAll(roleParams);
          return this;
       }
 
@@ -169,38 +118,28 @@ public abstract class DeploymentParams {
          return this;
       }
 
-      public Builder subnetName(String subnetName) {
-         subnetNames.add(subnetName);
-         return this;
-      }
-
-      public Builder subnetNames(Collection<String> subnetNames) {
-         this.subnetNames.addAll(subnetNames);
+      public Builder reservedIpName(String reservedIpName) {
+         this.reservedIpName = reservedIpName;
          return this;
       }
 
       public DeploymentParams build() {
-         return DeploymentParams.create(name, size, username, password, sourceImageName, mediaLink, os,
-               ImmutableList.copyOf(externalEndpoints), virtualNetworkName, ImmutableList.copyOf(subnetNames));
+         return DeploymentParams
+               .create(name, ImmutableList.copyOf(externalEndpoints), ImmutableList.copyOf(roleParams),
+                     virtualNetworkName, reservedIpName);
       }
 
       public Builder fromDeploymentParams(DeploymentParams in) {
          return name(in.name())
-               .size(in.size())
-               .username(in.username())
-               .password(in.password())
-               .sourceImageName(in.sourceImageName())
-               .mediaLink(in.mediaLink())
-               .os(in.os())
                .externalEndpoints(in.externalEndpoints())
-               .subnetNames(in.subnetNames());
+               .roleParams(in.roleParams())
+               .virtualNetworkName(in.virtualNetworkName())
+               .reservedIpName(in.reservedIpName());
       }
    }
 
-   private static DeploymentParams create(String name, RoleSize.Type size, String username, String password, String sourceImageName,
-                                          URI mediaLink, OSImage.Type os, List<ExternalEndpoint> externalEndpoints,
-                                          String virtualNetworkName, List<String> subnetNames) {
-      return new AutoValue_DeploymentParams(name, size, username, password, sourceImageName, mediaLink, os,
-              copyOf(externalEndpoints), virtualNetworkName, copyOf(subnetNames));
+   private static DeploymentParams create(String name, List<ExternalEndpoint> externalEndpoints,
+         List<RoleParam> roleParams, String virtualNetworkName, String reservedIpName) {
+      return new AutoValue_DeploymentParams(name, externalEndpoints, roleParams, virtualNetworkName, reservedIpName);
    }
 }

@@ -25,20 +25,22 @@ import static org.jclouds.azurecompute.domain.NetworkConfiguration.Subnet;
 import static org.jclouds.azurecompute.domain.NetworkConfiguration.VirtualNetworkSite;
 import static org.jclouds.util.Predicates2.retry;
 import static org.testng.Assert.assertTrue;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.jclouds.apis.BaseApiLiveTest;
 import org.jclouds.azurecompute.AzureComputeApi;
+import org.jclouds.azurecompute.domain.StorageService;
+import org.jclouds.azurecompute.domain.DeploymentParams;
+import org.jclouds.azurecompute.domain.Operation;
+import org.jclouds.azurecompute.domain.StorageServiceParams;
 import org.jclouds.azurecompute.domain.CloudService;
 import org.jclouds.azurecompute.domain.Deployment;
-import org.jclouds.azurecompute.domain.DeploymentParams;
 import org.jclouds.azurecompute.domain.NetworkConfiguration;
+
 import org.jclouds.azurecompute.domain.NetworkConfiguration.VirtualNetworkConfiguration;
-import org.jclouds.azurecompute.domain.Operation;
-import org.jclouds.azurecompute.domain.StorageService;
-import org.jclouds.azurecompute.domain.StorageServiceParams;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
@@ -52,8 +54,11 @@ import com.google.common.collect.Lists;
 
 public class BaseAzureComputeApiLiveTest extends BaseApiLiveTest<AzureComputeApi> {
 
-   private static final String STORAGE_SERVICE = (System.getProperty("user.name") + "4jcloudsstorageaccount").toLowerCase().substring(0, 24);
-   private static final String VIRTUAL_NETWORK = (System.getProperty("user.name") + "-jclouds-virtual-network").toLowerCase();
+   private String STORAGE_SERVICE =
+         (System.getProperty("user.name") + "4jcloudsstorageaccount").toLowerCase().substring(0, 22) + (int) (
+               Math.random() * 100);
+   private static final String VIRTUAL_NETWORK = (System.getProperty("user.name") + "-jclouds-virtual-network")
+         .toLowerCase();
 
    private static final String DEFAULT_ADDRESS_SPACE_ADDRESS_PREFIX = "10.0.0.0/20";
    private static final String DEFAULT_SUBNET_NAME = "jclouds-1";
@@ -82,12 +87,12 @@ public class BaseAzureComputeApiLiveTest extends BaseApiLiveTest<AzureComputeApi
       location = get(api.getLocationApi().list(), 0).name();
 
       StorageServiceParams params = StorageServiceParams.builder()
-              .name(STORAGE_SERVICE)
-              .label(STORAGE_SERVICE)
-              .location(location)
-              .accountType(StorageServiceParams.Type.Standard_GRS)
-              .build();
-      virtualNetworkSite = getOrCreateVirtualNetworkSite(VIRTUAL_NETWORK, location);
+            .name(STORAGE_SERVICE)
+            .label(STORAGE_SERVICE)
+            .location(location)
+            .accountType(StorageServiceParams.Type.Standard_GRS)
+            .build();
+      // virtualNetworkSite = getOrCreateVirtualNetworkSite(VIRTUAL_NETWORK, location);
       storageService = getOrCreateStorageService(STORAGE_SERVICE, params);
    }
 
@@ -95,6 +100,13 @@ public class BaseAzureComputeApiLiveTest extends BaseApiLiveTest<AzureComputeApi
    @Override
    protected void tearDown() {
       super.tearDown();
+      List<StorageService> services = api.getStorageAccountApi().list();
+      for (StorageService storageService : services) {
+         String serviceName = storageService.serviceName();
+         if (serviceName.contains("4jcloudsstorageaccount")) {
+            api.getStorageAccountApi().delete(storageService.serviceName());
+         }
+      }
       // TODO fix remove storage account: it can't be removed as it contains disks!
       /*
       if (api.getStorageAccountApi().get(subscriptionId, STORAGE_SERVICE) != null) {
@@ -103,19 +115,22 @@ public class BaseAzureComputeApiLiveTest extends BaseApiLiveTest<AzureComputeApi
          Logger.getAnonymousLogger().info("storageService deleted: " + STORAGE_SERVICE);
       }
       */
-      List<VirtualNetworkSite> virtualNetworkSites = Lists.newArrayList(Iterables.filter(api.getVirtualNetworkApi().list(),
-              Predicates.not(new SameVirtualNetworkSiteNamePredicate(VIRTUAL_NETWORK))));
+      List<VirtualNetworkSite> virtualNetworkSites = Lists
+            .newArrayList(Iterables.filter(api.getVirtualNetworkApi().list(),
+                  Predicates.not(new SameVirtualNetworkSiteNamePredicate(VIRTUAL_NETWORK))));
 
       String requestId = api.getVirtualNetworkApi().set(NetworkConfiguration.create(VirtualNetworkConfiguration.create
-              (null, virtualNetworkSites)));
+            (null, virtualNetworkSites)));
       assertTrue(operationSucceeded.apply(requestId), requestId);
    }
 
    protected CloudService getOrCreateCloudService(String cloudServiceName, String location) {
       CloudService cloudService = api.getCloudServiceApi().get(cloudServiceName);
-      if (cloudService != null) return cloudService;
+      if (cloudService != null)
+         return cloudService;
 
-      String requestId = api.getCloudServiceApi().createWithLabelInLocation(cloudServiceName, cloudServiceName, location);
+      String requestId = api.getCloudServiceApi()
+            .createWithLabelInLocation(cloudServiceName, cloudServiceName, location);
       assertTrue(operationSucceeded.apply(requestId), requestId);
       Logger.getAnonymousLogger().info("operation succeeded: " + requestId);
       cloudService = api.getCloudServiceApi().get(cloudServiceName);
@@ -125,7 +140,8 @@ public class BaseAzureComputeApiLiveTest extends BaseApiLiveTest<AzureComputeApi
 
    protected Deployment getOrCreateDeployment(String serviceName, DeploymentParams params) {
       Deployment deployment = api.getDeploymentApiForService(serviceName).get(params.name());
-      if (deployment != null) return deployment;
+      if (deployment != null)
+         return deployment;
 
       String requestId = api.getDeploymentApiForService(serviceName).create(params);
       assertTrue(operationSucceeded.apply(requestId), requestId);
@@ -138,7 +154,8 @@ public class BaseAzureComputeApiLiveTest extends BaseApiLiveTest<AzureComputeApi
 
    protected StorageService getOrCreateStorageService(String storageServiceName, StorageServiceParams params) {
       StorageService storageService = api.getStorageAccountApi().get(storageServiceName);
-      if (storageService != null) return storageService;
+      if (storageService != null)
+         return storageService;
       String requestId = api.getStorageAccountApi().create(params);
       assertTrue(operationSucceeded.apply(requestId), requestId);
       Logger.getAnonymousLogger().info("operation succeeded: " + requestId);
@@ -150,23 +167,25 @@ public class BaseAzureComputeApiLiveTest extends BaseApiLiveTest<AzureComputeApi
 
    protected VirtualNetworkSite getOrCreateVirtualNetworkSite(final String virtualNetworkSiteName, String location) {
       Optional<VirtualNetworkSite> optionalVirtualNetworkSite = tryFind(api.getVirtualNetworkApi().list(),
-              new SameVirtualNetworkSiteNamePredicate(virtualNetworkSiteName));
-      if (optionalVirtualNetworkSite.isPresent()) return optionalVirtualNetworkSite.get();
+            new SameVirtualNetworkSiteNamePredicate(virtualNetworkSiteName));
+      if (optionalVirtualNetworkSite.isPresent())
+         return optionalVirtualNetworkSite.get();
 
       final NetworkConfiguration networkConfiguration = NetworkConfiguration.create(
-              VirtualNetworkConfiguration.create(null,
-                      ImmutableList.of(VirtualNetworkSite.create(
-                              UUID.randomUUID().toString(),
-                              virtualNetworkSiteName,
-                              location,
-                              AddressSpace.create(DEFAULT_ADDRESS_SPACE_ADDRESS_PREFIX),
-                              ImmutableList.of(Subnet.create(DEFAULT_SUBNET_NAME, DEFAULT_SUBNET_ADDRESS_PREFIX, null))))
-              )
+            VirtualNetworkConfiguration.create(null,
+                  ImmutableList.of(VirtualNetworkSite.create(
+                        UUID.randomUUID().toString(),
+                        virtualNetworkSiteName,
+                        location,
+                        AddressSpace.create(DEFAULT_ADDRESS_SPACE_ADDRESS_PREFIX),
+                        ImmutableList.of(Subnet.create(DEFAULT_SUBNET_NAME, DEFAULT_SUBNET_ADDRESS_PREFIX, null))))
+            )
       );
       String requestId = api.getVirtualNetworkApi().set(networkConfiguration);
       assertTrue(operationSucceeded.apply(requestId), requestId);
       Logger.getAnonymousLogger().info("operation succeeded: " + requestId);
-      VirtualNetworkSite virtualNetworkSite = find(api.getVirtualNetworkApi().list(), new SameVirtualNetworkSiteNamePredicate(virtualNetworkSiteName));
+      VirtualNetworkSite virtualNetworkSite = find(api.getVirtualNetworkApi().list(),
+            new SameVirtualNetworkSiteNamePredicate(virtualNetworkSiteName));
 
       Logger.getAnonymousLogger().info("created virtualNetworkSite: " + virtualNetworkSite);
       return virtualNetworkSite;

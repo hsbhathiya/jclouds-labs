@@ -31,9 +31,9 @@ public class RoleToXML implements Binder {
 
       try {
          XMLBuilder builder = XMLBuilder.create("PersistentVMRole", "http://schemas.microsoft.com/windowsazure")
-                 .e("RoleName").t(role.roleName()).up()
-                 .e("RoleType").t(role.roleType()).up()
-                 .e("ConfigurationSets");
+               .e("RoleName").t(role.roleName()).up()
+               .e("RoleType").t(role.roleType()).up()
+               .e("ConfigurationSets");
 
          if (!role.configurationSets().isEmpty()) {
             for (Role.ConfigurationSet configurationSet : role.configurationSets()) {
@@ -44,27 +44,30 @@ public class RoleToXML implements Binder {
                for (Role.ConfigurationSet.InputEndpoint endpoint : configurationSet.inputEndpoints()) {
                   XMLBuilder inputBuilder = inputEndpoints.e("InputEndpoint");
                   inputBuilder.e("LocalPort").t(Integer.toString(endpoint.localPort())).up()
-                          .e("Name").t(endpoint.name()).up()
-                          .e("Port").t(Integer.toString(endpoint.port())).up()
-                          .e("Protocol").t(endpoint.protocol().toLowerCase()).up()
-                          .up(); //InputEndpoint
+                        .e("Name").t(endpoint.name()).up()
+                        .e("Port").t(Integer.toString(endpoint.port())).up()
+                        .e("Protocol").t(endpoint.protocol().toLowerCase()).up()
+                        .up(); //InputEndpoint
                }
                XMLBuilder subnetNames = configBuilder.e("SubnetNames");
                for (Role.ConfigurationSet.SubnetName subnetName : configurationSet.subnetNames()) {
                   subnetNames.e("SubnetName").t(subnetName.name()).up();
                }
-               configBuilder.e("NetworkSecurityGroup").t(configurationSet.networkSecurityGroup()).up();
+               String nsg = configurationSet.networkSecurityGroup();
+               if (nsg != null) {
+                  configBuilder.e("NetworkSecurityGroup").t(nsg).up();
+               }
             }
          }
          builder.e("DataVirtualHardDisks").up()
-                .e("OSVirtualHardDisk")
-                .e("HostCaching").t(role.osVirtualHardDisk().hostCaching()).up()
-                .e("DiskName").t(role.osVirtualHardDisk().diskName()).up()
-                .e("MediaLink").t(role.osVirtualHardDisk().mediaLink().toString()).up()
-                .e("SourceImageName").t(role.osVirtualHardDisk().sourceImageName()).up()
-                .e("OS").t(role.osVirtualHardDisk().os().toString()).up()
-                .up() // DataVirtualHardDisks
-                .e("RoleSize").t(role.roleSize().getText());
+               .e("OSVirtualHardDisk")
+               .e("HostCaching").t(role.osVirtualHardDisk().hostCaching()).up()
+               .e("DiskName").t(role.osVirtualHardDisk().diskName()).up()
+               .e("MediaLink").t(role.osVirtualHardDisk().mediaLink().toString()).up()
+               .e("SourceImageName").t(role.osVirtualHardDisk().sourceImageName()).up()
+               .e("OS").t(role.osVirtualHardDisk().os().toString()).up()
+               .up() // DataVirtualHardDisks
+               .e("RoleSize").t(role.roleSize().getText());
          return (R) request.toBuilder().payload(builder.asString()).build();
       } catch (Exception e) {
          throw propagate(e);
