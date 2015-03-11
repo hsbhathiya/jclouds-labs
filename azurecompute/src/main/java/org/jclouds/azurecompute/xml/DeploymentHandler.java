@@ -72,7 +72,7 @@ public final class DeploymentHandler extends ParseSax.HandlerForGeneratedRequest
    }
 
    @Override public void startElement(String url, String name, String qName, Attributes attributes) {
-      if (qName.equals("VirtualIPs")) {
+      if (qName.equals("VirtualIP")) {
          inListVirtualIPs = true;
       } else if (qName.equals("RoleInstanceList")) {
          inRoleInstanceList = true;
@@ -100,7 +100,7 @@ public final class DeploymentHandler extends ParseSax.HandlerForGeneratedRequest
          roleList.add(roleHandler.getResult());
       } else if (inRoleList) {
          roleHandler.endElement(ignoredUri, ignoredName, qName);
-      } else if (qName.equals("VirtualIPs")) {
+      } else if (qName.equals("VirtualIP")) {
          inListVirtualIPs = false;
          virtualIPs.add(virtualIPHandler.getResult());
       } else if (inListVirtualIPs) {

@@ -49,11 +49,11 @@ public abstract class Deployment {
    @AutoValue
    public abstract static class VirtualIP {
 
-      public abstract String address();
+     @Nullable public abstract String address();
 
-      public abstract Boolean isDnsProgrammed();
+     @Nullable public abstract Boolean isDnsProgrammed();
 
-      public abstract String name();
+     @Nullable public abstract String name();
 
       VirtualIP() { // For AutoValue only!
       }

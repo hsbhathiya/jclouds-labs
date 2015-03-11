@@ -19,18 +19,20 @@ package org.jclouds.azurecompute.compute;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
+
 import java.util.Properties;
 import java.util.Random;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.net.InetAddresses;
 import org.jclouds.azurecompute.AzureComputeApi;
-import org.jclouds.azurecompute.domain.Deployment;
 import org.jclouds.azurecompute.domain.Location;
 import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.VirtualMachine;
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiLiveTest;
+import org.jclouds.azurecompute.options.AzureComputeTemplateOptions;
 import org.jclouds.compute.ComputeServiceAdapter.NodeAndInitialCredentials;
-import org.jclouds.compute.domain.ExecResponse;
-import org.jclouds.compute.domain.Template;
-import org.jclouds.compute.domain.TemplateBuilder;
+import org.jclouds.compute.domain.*;
 import org.jclouds.compute.functions.DefaultCredentialsFromImageOrOverridingCredentials;
 import org.jclouds.compute.strategy.PrioritizeCredentialsFromTemplate;
 import org.jclouds.domain.LoginCredentials;
@@ -43,7 +45,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.net.HostAndPort;
-import com.google.common.net.InetAddresses;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 
@@ -53,7 +54,7 @@ public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveT
    private AzureComputeServiceAdapter adapter;
    private TemplateBuilder templateBuilder;
    private Factory sshFactory;
-   private NodeAndInitialCredentials<Deployment> deployment;
+   private NodeAndInitialCredentials<VirtualMachine> nodeAndInitialCredentials;
 
    @Override
    protected AzureComputeApi create(Properties props, Iterable<Module> modules) {
@@ -80,20 +81,40 @@ public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveT
 
    @Test
    public void testCreateNodeWithGroupEncodedIntoNameThenStoreCredentials() {
+
+      final String UBUNTU_IMAGE = "b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu-14_04_1-LTS-amd64-server-20150123-en-us-30GB";
+
       String group = "foo";
-      String name = "node" + new Random().nextInt();
+      String name = "mnode" + new Random().nextInt();
 
-      Template template = templateBuilder.build();
+      AzureComputeTemplateOptions options = new AzureComputeTemplateOptions();
 
-      deployment = adapter.createNodeWithGroupEncodedIntoName(group, name, template);
-      assertEquals(deployment.getNode().name(), name);
-      assertEquals(deployment.getNodeId(), deployment.getNode().name());
-      assert InetAddresses.isInetAddress(deployment.getNode().virtualIPs().get(0).address()) : deployment;
-      doConnectViaSsh(deployment.getNode(), prioritizeCredentialsFromTemplate.apply(template, deployment.getCredentials()));
+  //    options.overrideLoginUser("Bhathiya");
+  //    options.overrideLoginPassword("azure@jclouds90");
+      options.inboundPorts(29, 30);
+      options.storageAccountName("jcloudsstorage" + (int)(Math.random()*1000));
+      options.virtualNetworkName("virtnet123");
+      options.subnetName("subnet123");
+
+    //  Hardware hardware = new HardwareBuilder().id("Medium").name("Medium").ram("Azure-Hypervisor").supportsImage(ima).build();
+      HardwareBuilder builder = new HardwareBuilder().ids("Medium")
+            .name("Medium")
+            .hypervisor("Hyper-V")
+            .processors(ImmutableList.of(new Processor(2, 2)))
+            .ram((int)3.5*1024);
+      Template template = templateBuilder.options(options).imageId(UBUNTU_IMAGE).fromHardware(builder.build()).locationId(
+            "West US").build();
+
+      nodeAndInitialCredentials = adapter.createNodeWithGroupEncodedIntoName(group, name, template);
+      assertEquals(nodeAndInitialCredentials.getNode().instanceName(), name);
+      assertEquals(nodeAndInitialCredentials.getNodeId(), nodeAndInitialCredentials.getNode().instanceName());
+      assert InetAddresses.isInetAddress(nodeAndInitialCredentials.getNode().virtualIPs().get(0).address()) : nodeAndInitialCredentials;
+  /*    doConnectViaSsh(nodeAndInitialCredentials.getNode(),
+            prioritizeCredentialsFromTemplate.apply(template, nodeAndInitialCredentials.getCredentials()));*/
    }
 
-   protected void doConnectViaSsh(Deployment deployment, LoginCredentials creds) {
-      SshClient ssh = sshFactory.create(HostAndPort.fromParts(deployment.virtualIPs().get(0).address(), 22), creds);
+   protected void doConnectViaSsh(VirtualMachine virtualMachine, LoginCredentials creds) {
+      SshClient ssh = sshFactory.create(HostAndPort.fromParts(virtualMachine.virtualIPs().get(0).address(), 22), creds);
       try {
          ssh.connect();
          ExecResponse hello = ssh.exec("echo hello");
@@ -116,15 +137,15 @@ public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveT
 
    @AfterGroups(groups = "live", alwaysRun = true)
    protected void tearDown() {
-      if (deployment != null) {
-         adapter.destroyNode(deployment.getNodeId());
+      if (nodeAndInitialCredentials != null) {
+         adapter.destroyNode(nodeAndInitialCredentials.getNodeId());
       }
       super.tearDown();
    }
 
    @Override
    protected Iterable<Module> setupModules() {
-      return ImmutableSet.<Module> of(getLoggingModule(), new SshjSshClientModule());
+      return ImmutableSet.<Module>of(getLoggingModule(), new SshjSshClientModule());
    }
 
 }

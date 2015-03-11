@@ -46,6 +46,11 @@ public abstract class DeploymentParams {
 
       public abstract int localPort();
 
+      public static ExternalEndpoint inboundSshToLocalPort(int port, int localPort) {
+         return new AutoValue_DeploymentParams_ExternalEndpoint(String.format("ssh%s_%s", port, localPort), "ssh",
+               port, localPort);
+      }
+
       public static ExternalEndpoint inboundTcpToLocalPort(int port, int localPort) {
          return new AutoValue_DeploymentParams_ExternalEndpoint(String.format("tcp%s_%s", port, localPort), "tcp",
                port, localPort);

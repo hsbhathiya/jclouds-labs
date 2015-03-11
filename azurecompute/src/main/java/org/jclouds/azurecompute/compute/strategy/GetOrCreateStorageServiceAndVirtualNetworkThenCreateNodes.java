@@ -164,7 +164,16 @@ public class GetOrCreateStorageServiceAndVirtualNetworkThenCreateNodes extends C
     */
    private StorageService tryFindExistingStorageServiceAccountOrCreate(AzureComputeApi api, String location, final String name, final String type) {
       final List<StorageService> storageServices = api.getStorageAccountApi().list();
-      Predicate<StorageService> storageServicePredicate;
+     // Optional<StorageService> storageServiceOptional = Optional.absent();
+      StorageService storage = null;
+      for(StorageService storageService :storageServices){
+         if(storageService.serviceName().equals(name) && storageService.storageServiceProperties().location().equals(location)){
+            storage = storageService;
+            break;
+         };
+      }
+
+      /*Predicate<StorageService> storageServicePredicate;
       logger.debug("Looking for a suitable existing storage account ...");
       storageServicePredicate = and(notNull(), new SameLocationAndCreatedStorageServicePredicate(location), new Predicate<StorageService>() {
          @Override
@@ -172,11 +181,11 @@ public class GetOrCreateStorageServiceAndVirtualNetworkThenCreateNodes extends C
             return input.serviceName().matches(format("^%s[a-z]{10}$", DEFAULT_STORAGE_ACCOUNT_PREFIX));
          }
       });
-      final Optional<StorageService> storageServiceOptional = tryFind(storageServices, storageServicePredicate);
-      if (storageServiceOptional.isPresent()) {
-         final StorageService storageService = storageServiceOptional.get();
-         logger.debug("Found a suitable existing storage service account '%s'", storageService);
-         return storageService;
+      final Optional<StorageService> storageServiceOptional = tryFind(storageServices, storageServicePredicate);*/
+      if (storage!= null) {
+         //final StorageService storageService = storageServiceOptional.get();
+         logger.debug("Found a suitable existing storage service account '%s'", storage);
+         return storage;
       } else {
          // create
          if (!checkAvailability(name)) {

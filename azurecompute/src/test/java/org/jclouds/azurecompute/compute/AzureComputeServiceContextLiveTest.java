@@ -61,6 +61,7 @@ public class AzureComputeServiceContextLiveTest extends BaseComputeServiceContex
       AzureComputeTemplateOptions options = template.getOptions().as(AzureComputeTemplateOptions.class);
       options.inboundPorts(22);
       options.runScript(AdminAccess.standard());
+      options.storageAccountName("jcloudslaunchstorag" + (int) (Math.random()*100));
 
       NodeMetadata node = null;
       try {

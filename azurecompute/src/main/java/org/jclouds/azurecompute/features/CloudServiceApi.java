@@ -32,10 +32,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 import org.jclouds.azurecompute.domain.CloudService;
+import org.jclouds.azurecompute.domain.CloudServiceProperties;
 import org.jclouds.azurecompute.functions.Base64EncodeLabel;
 import org.jclouds.azurecompute.functions.ParseRequestIdHeader;
 import org.jclouds.azurecompute.xml.CloudServiceHandler;
 import org.jclouds.azurecompute.xml.ListCloudServicesHandler;
+import org.jclouds.azurecompute.xml.CloudServicePropertiesHandler;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.rest.annotations.Fallback;
 import org.jclouds.rest.annotations.Headers;
@@ -127,4 +129,12 @@ public interface CloudServiceApi {
    @Fallback(NullOnNotFoundOr404.class)
    @ResponseParser(ParseRequestIdHeader.class)
    String delete(@PathParam("name") String name);
+
+   @Named("CloudServiceProperties")
+   @GET
+   @Path("/{name}")
+   @QueryParams(keys = "embed-detail", values = "true")
+   @XMLResponseParser(CloudServicePropertiesHandler.class)
+   @Fallback(NullOnNotFoundOr404.class)
+   @Nullable CloudServiceProperties getProperties(@PathParam("name") String name);
 }

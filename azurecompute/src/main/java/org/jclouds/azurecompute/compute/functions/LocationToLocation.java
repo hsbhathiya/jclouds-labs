@@ -47,7 +47,7 @@ public class LocationToLocation implements Function<Location, org.jclouds.domain
       LocationBuilder builder = new LocationBuilder();
       builder.id(location.name());
       builder.description(location.displayName());
-      builder.scope(LocationScope.REGION);
+      builder.scope(LocationScope.ZONE);
       builder.parent(getOnlyElement(justProvider.get()));
       builder.iso3166Codes(ImmutableSet.<String> of("name", location.name()));
       return builder.build();

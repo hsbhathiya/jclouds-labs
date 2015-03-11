@@ -98,9 +98,20 @@ public final class DeploymentParamsToXML implements Binder {
                   add(configBuilder, "HostName", linuxParams.hostName());
                   add(configBuilder, "UserName", linuxParams.userName());
                   add(configBuilder, "UserPassword", linuxParams.userPassword());
-                  configBuilder.e("DisableSshPasswordAuthentication").t("false").up()
-                        .e("SSH").up()
-                        .up(); // Linux ConfigurationSet
+                  configBuilder.e("DisableSshPasswordAuthentication").t("false").up();
+                  configBuilder.e("SSH");
+                  LinuxConfigurationSetParams.SSH ssh = linuxParams.ssh();
+                  if (ssh != null) {
+                     configBuilder
+                           .e("KeyPairs")
+                           .e("KeyPair")
+                           .e("FingerPrint").t(ssh.keyPairs().get(0).fingerPrint()).up()
+                           .e("Path").t(ssh.keyPairs().get(0).path()).up()
+                           .up() // KeyPair
+                           .up(); // keyPairs
+                  }
+                  configBuilder.up() //SSH
+                  .up(); // Linux ConfigurationSet
                   // ConfigurationsSet
                } else {
                   throw new IllegalArgumentException("Unrecognized os type " + params);
@@ -108,7 +119,7 @@ public final class DeploymentParamsToXML implements Binder {
 
                XMLBuilder configBuilder = configSetsBuilder.e("ConfigurationSet"); // Network
                configBuilder.e("ConfigurationSetType").t("NetworkConfiguration").up();
-               configSetsBuilder.up(); //Configurations Sets
+
 
                XMLBuilder inputEndpoints = configBuilder.e("InputEndpoints");
                for (DeploymentParams.ExternalEndpoint endpoint : params.externalEndpoints()) {
@@ -123,6 +134,7 @@ public final class DeploymentParamsToXML implements Binder {
                inputEndpoints.up();
                configBuilder.e("SubnetNames").up()
                      .up();
+               configSetsBuilder.up(); //Configurations Sets
                roleBuilder.up(); //ConfigurationSets
                XMLBuilder dataDisks = roleBuilder.e("DataVirtualHardDisks");
                for (DataVirtualHardDiskParam dataDisk : roleParam.dataVirtualHardDiskParams()) {

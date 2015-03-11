@@ -120,7 +120,7 @@ public abstract class VirtualMachine {
       }
 
       public Builder instanceName(String instanceName) {
-         this.instanceName = roleName;
+         this.instanceName = instanceName;
          return this;
       }
 
@@ -155,7 +155,7 @@ public abstract class VirtualMachine {
       }
 
       public Builder virtualIps(Collection<Deployment.VirtualIP> virtualIPs) {
-         virtualIPs.addAll(virtualIPs);
+         this.virtualIPs.addAll(virtualIPs);
          return this;
       }
 

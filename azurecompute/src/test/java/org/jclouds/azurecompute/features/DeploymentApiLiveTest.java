@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.azurecompute.features;
+/*package org.jclouds.azurecompute.features;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jclouds.util.Predicates2.retry;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
 
 import java.util.logging.Logger;
 
@@ -32,6 +33,7 @@ import org.jclouds.azurecompute.domain.LinuxConfigurationSetParams;
 import org.jclouds.azurecompute.domain.OSVirtualHardDiskParam;
 import org.jclouds.azurecompute.domain.RoleParam;
 import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.CloudServiceProperties;
 
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiLiveTest;
 import org.testng.annotations.AfterClass;
@@ -56,14 +58,6 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
    @BeforeClass(groups = { "integration", "live" })
    public void setup() {
       super.setup();
-    /*  String location  = "West US";
-      StorageServiceParams params = StorageServiceParams.builder()
-            .name(STORAGE_SERVICE)
-            .label(STORAGE_SERVICE)
-            .location(location)
-            .accountType(StorageServiceParams.Type.Standard_GRS)
-            .build();
-      storageService = getOrCreateStorageService(STORAGE_SERVICE, params);*/
       String storageLocation = storageService.storageServiceProperties().location();
       cloudService = getOrCreateCloudService(CLOUD_SERVICE, storageLocation);
 
@@ -136,8 +130,19 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
               .subnetName(Iterables.get(virtualNetworkSite.subnets(), 0).name())
               .virtualNetworkName(virtualNetworkSite.name())
               .externalEndpoint(DeploymentParams.ExternalEndpoint.inboundTcpToLocalPort(22, 22))
-              .build();*/
+              .build(); * /
 
+   }
+
+   // Test CloudServiceProperties with a deployment
+   @Test(dependsOnMethods = "testCreate")
+   public void testGetProperties() {
+      CloudServiceProperties cloudServiceProperties = cloudServiceApi().getProperties(cloudService.name());
+      assertNotNull(cloudServiceProperties);
+      assertEquals(cloudServiceProperties.serviceName(), CLOUD_SERVICE);
+
+      Deployment deployment = cloudServiceProperties.deployments().get(0);
+      checkDeployment(deployment);
    }
 
    @Test(dependsOnMethods = "testCreate")
@@ -146,7 +151,7 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
       assertThat(foundDeployment).isEqualToComparingFieldByField(deployment);
    }
 
-   @Test(dependsOnMethods = "testGet")
+   @Test(dependsOnMethods = { "testGet", "testGetProperties" })
    public void testDelete() {
       String requestId = api().delete(deployment.name());
       assertTrue(operationSucceeded.apply(requestId), requestId);
@@ -171,7 +176,23 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
       }
    }
 
+   private void checkDeployment(Deployment deployment) {
+      assertNotNull(deployment);
+      assertNotNull(deployment.name(), "Name cannot be Null for Deployment" + deployment);
+      assertTrue(deployment.roles().size() > 0, "There should be atleast 1 Virtual machine for a deployment  ");
+      assertNotNull(deployment.label(), "Label cannot be Null for Deployment" + deployment);
+
+      Deployment.Slot slot = deployment.slot();
+      assertTrue((slot == Deployment.Slot.PRODUCTION) || (slot == Deployment.Slot.STAGING));
+      assertEquals(deployment.name(), DEPLOYMENT);
+   }
+
    private DeploymentApi api() {
       return api.getDeploymentApiForService(cloudService.name());
    }
+
+   private CloudServiceApi cloudServiceApi() {
+      return api.getCloudServiceApi();
+   }
 }
+*/

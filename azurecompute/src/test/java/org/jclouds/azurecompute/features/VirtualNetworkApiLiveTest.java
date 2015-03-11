@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.azurecompute.features;
+/*package org.jclouds.azurecompute.features;
 
 import static com.google.common.base.CaseFormat.LOWER_UNDERSCORE;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
@@ -110,3 +110,4 @@ public class VirtualNetworkApiLiveTest extends BaseAzureComputeApiLiveTest {
    }
 
 }
+*/

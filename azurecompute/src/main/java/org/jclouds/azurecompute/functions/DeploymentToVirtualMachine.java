@@ -59,6 +59,7 @@ public class DeploymentToVirtualMachine implements Function<Deployment, List<Vir
                .instanceEndpoints(instance.instanceEndpoints())
                .role(mappedRoles.get(instance.roleName()))
                .virtualNetworkName(input.virtualNetworkName())
+               .virtualIps(input.virtualIPs())
                .build();
 
          virtualMachines.add(vm);

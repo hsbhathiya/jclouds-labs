@@ -55,8 +55,8 @@ import com.google.common.collect.Lists;
 public class BaseAzureComputeApiLiveTest extends BaseApiLiveTest<AzureComputeApi> {
 
    private String STORAGE_SERVICE =
-         (System.getProperty("user.name") + "4jcloudsstorageaccount").toLowerCase().substring(0, 22) + (int) (
-               Math.random() * 100);
+         (System.getProperty("user.name") + "4jcloudsstorageaccount").toLowerCase().substring(0, 21) + (int) (
+               Math.random() * 1000);
    private static final String VIRTUAL_NETWORK = (System.getProperty("user.name") + "-jclouds-virtual-network")
          .toLowerCase();
 
