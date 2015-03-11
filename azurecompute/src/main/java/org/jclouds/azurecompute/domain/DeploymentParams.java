@@ -46,8 +46,8 @@ public abstract class DeploymentParams {
 
       public abstract int localPort();
 
-      public static ExternalEndpoint inboundSshToLocalPort(int port, int localPort) {
-         return new AutoValue_DeploymentParams_ExternalEndpoint(String.format("ssh%s_%s", port, localPort), "ssh",
+      public static ExternalEndpoint create(String name, String protocol, int port, int localPort) {
+         return new AutoValue_DeploymentParams_ExternalEndpoint(name, protocol,
                port, localPort);
       }
 
@@ -104,7 +104,7 @@ public abstract class DeploymentParams {
       }
 
       public Builder externalEndpoints(Collection<ExternalEndpoint> externalEndpoints) {
-         externalEndpoints.addAll(externalEndpoints);
+         this.externalEndpoints.addAll(externalEndpoints);
          return this;
       }
 

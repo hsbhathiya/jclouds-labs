@@ -54,7 +54,8 @@ public class VirtualMachineToNodeMetadata implements Function<VirtualMachine, No
 			  .put(Deployment.Status.RUNNING, NodeMetadata.Status.RUNNING)
 			  .put(Deployment.Status.UNRECOGNIZED, NodeMetadata.Status.UNRECOGNIZED).build();
 
-	@Inject VirtualMachineToNodeMetadata(@Memoized Supplier<Set<? extends Location>> locations,
+	@Inject
+	VirtualMachineToNodeMetadata(@Memoized Supplier<Set<? extends Location>> locations,
 			GroupNamingConvention.Factory namingConvention, OSImageToImage osImageToImage,
 			RoleSizeToHardware roleSizeToHardware, Map<String, Credentials> credentialStore) {
 		this.nodeNamingConvention = checkNotNull(namingConvention, "namingConvention").createWithoutPrefix();
@@ -67,8 +68,9 @@ public class VirtualMachineToNodeMetadata implements Function<VirtualMachine, No
 	@Override
 	public NodeMetadata apply(VirtualMachine from) {
 		NodeMetadataBuilder builder = new NodeMetadataBuilder();
-		builder.ids(from.deploymentName());
-		builder.name(from.deploymentName());
+		builder.providerId(from.instanceName());
+		builder.ids(from.instanceName());
+		builder.name(from.instanceName());
 		builder.hostname(from.serviceName());
 		/* TODO
 		if (from.getDatacenter() != null) {

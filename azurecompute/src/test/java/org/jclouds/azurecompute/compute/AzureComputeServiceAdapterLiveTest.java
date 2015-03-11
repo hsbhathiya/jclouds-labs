@@ -91,7 +91,7 @@ public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveT
 
   //    options.overrideLoginUser("Bhathiya");
   //    options.overrideLoginPassword("azure@jclouds90");
-      options.inboundPorts(29, 30);
+      options.inboundPorts(22, 22);
       options.storageAccountName("jcloudsstorage" + (int)(Math.random()*1000));
       options.virtualNetworkName("virtnet123");
       options.subnetName("subnet123");
@@ -109,7 +109,7 @@ public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveT
       assertEquals(nodeAndInitialCredentials.getNode().instanceName(), name);
       assertEquals(nodeAndInitialCredentials.getNodeId(), nodeAndInitialCredentials.getNode().instanceName());
       assert InetAddresses.isInetAddress(nodeAndInitialCredentials.getNode().virtualIPs().get(0).address()) : nodeAndInitialCredentials;
-  /*    doConnectViaSsh(nodeAndInitialCredentials.getNode(),
+     /* doConnectViaSsh(nodeAndInitialCredentials.getNode(),
             prioritizeCredentialsFromTemplate.apply(template, nodeAndInitialCredentials.getCredentials()));*/
    }
 

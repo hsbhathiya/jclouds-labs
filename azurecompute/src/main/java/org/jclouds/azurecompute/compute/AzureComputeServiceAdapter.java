@@ -129,11 +129,9 @@ public class AzureComputeServiceAdapter implements ComputeServiceAdapter<Virtual
       final OSImage.Type os = template.getImage().getOperatingSystem().getFamily().equals(OsFamily.WINDOWS) ?
             OSImage.Type.WINDOWS : OSImage.Type.LINUX;
       Set<ExternalEndpoint> externalEndpoints = Sets.newHashSet();
-      externalEndpoints.add(ExternalEndpoint.inboundTcpToLocalPort(22, 22));
       for (int inboundPort : inboundPorts) {
          externalEndpoints.add(ExternalEndpoint.inboundTcpToLocalPort(inboundPort, inboundPort));
       }
-
       List<LinuxConfigurationSetParams.KeyPair> keyPairs  = Lists.newArrayList();
 
       LinuxConfigurationSetParams linuxConfig = LinuxConfigurationSetParams.builder().hostName("bhash90.jclouds.azure")

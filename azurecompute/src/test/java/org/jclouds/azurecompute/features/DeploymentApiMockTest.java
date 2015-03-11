@@ -119,8 +119,10 @@ public class DeploymentApiMockTest extends BaseAzureComputeApiMockTest {
 
          DeploymentParams deploymentParams = DeploymentParams.builder()
                .name("mydeployment")
-               .externalEndpoint(DeploymentParams.ExternalEndpoint.inboundTcpToLocalPort(80, 8080))
-               .externalEndpoint(DeploymentParams.ExternalEndpoint.inboundUdpToLocalPort(53, 53))
+               .externalEndpoint(DeploymentParams.ExternalEndpoint.create("tcp80_8080", "tcp", 80, 8080))
+               .externalEndpoint(DeploymentParams.ExternalEndpoint.create("udp53_53", "udp", 53, 53))
+               //.externalEndpoint(DeploymentParams.ExternalEndpoint.inboundTcpToLocalPort(80, 8080))
+               //.externalEndpoint(DeploymentParams.ExternalEndpoint.inboundUdpToLocalPort(53, 53))
                .roleParam(roleParam).build();
 
          assertEquals(api.create(deploymentParams), "request-1");
