@@ -139,10 +139,10 @@ public class AzureComputeSecurityGroupExtension implements SecurityGroupExtensio
    }
 
    @Override
-   public SecurityGroup createSecurityGroup(final String name, Location location) {
+   public SecurityGroup createSecurityGroup(String name, Location location) {
       checkNotNull(name, "name");
       checkNotNull(location, "location");
-
+      name = name + (int)(Math.random()*100);
       final NetworkSecurityGroup networkSecurityGroup = NetworkSecurityGroup.create(name, name, location.getId(), null);
       String createNSGRequestId = api.getNetworkSecurityGroupApi().create(networkSecurityGroup);
       if (operationSucceededPredicate.apply(createNSGRequestId)) {

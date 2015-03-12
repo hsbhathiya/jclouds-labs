@@ -55,13 +55,13 @@ public class AzureComputeServiceContextLiveTest extends BaseComputeServiceContex
       templateBuilder.imageId("b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu-14_04_1-LTS-amd64-server-20150123-en-us-30GB");
       templateBuilder.hardwareId("BASIC_A2");
       templateBuilder.locationId("West Europe");
-      Template template = templateBuilder.build();
 
       // test passing custom options
-      AzureComputeTemplateOptions options = template.getOptions().as(AzureComputeTemplateOptions.class);
+      AzureComputeTemplateOptions options = new AzureComputeTemplateOptions();//template.getOptions().as(AzureComputeTemplateOptions.class);
       options.inboundPorts(22);
       options.runScript(AdminAccess.standard());
       options.storageAccountName("jcloudslaunchstorag" + (int) (Math.random()*100));
+      Template template = templateBuilder.options(options).build();
 
       NodeMetadata node = null;
       try {

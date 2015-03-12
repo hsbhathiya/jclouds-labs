@@ -147,5 +147,4 @@ public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveT
    protected Iterable<Module> setupModules() {
       return ImmutableSet.<Module>of(getLoggingModule(), new SshjSshClientModule());
    }
-
 }

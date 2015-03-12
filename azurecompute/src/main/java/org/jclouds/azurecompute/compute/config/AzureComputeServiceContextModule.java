@@ -16,6 +16,8 @@
  */
 package org.jclouds.azurecompute.compute.config;
 
+import static com.google.common.base.Suppliers.memoizeWithExpiration;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.jclouds.azurecompute.config.AzureComputeProperties.OPERATION_POLL_INITIAL_PERIOD;
 import static org.jclouds.azurecompute.config.AzureComputeProperties.OPERATION_POLL_MAX_PERIOD;
@@ -25,7 +27,10 @@ import static org.jclouds.azurecompute.config.AzureComputeProperties.TCP_RULE_FO
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableMap;
 import org.jclouds.azurecompute.AzureComputeApi;
+import org.jclouds.azurecompute.compute.AzureComputeService;
 import org.jclouds.azurecompute.compute.AzureComputeServiceAdapter;
 import org.jclouds.azurecompute.compute.extensions.AzureComputeSecurityGroupExtension;
 import org.jclouds.azurecompute.compute.functions.*;
@@ -33,6 +38,8 @@ import org.jclouds.azurecompute.compute.strategy.GetOrCreateStorageServiceAndVir
 import org.jclouds.azurecompute.compute.strategy.UseNodeCredentialsButOverrideFromTemplate;
 import org.jclouds.azurecompute.domain.*;
 import org.jclouds.azurecompute.options.AzureComputeTemplateOptions;
+import org.jclouds.collect.Memoized;
+import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.config.ComputeServiceAdapterContextModule;
 import org.jclouds.compute.domain.Hardware;
@@ -52,34 +59,38 @@ import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
 
+import java.util.Map;
+import java.util.Set;
+
 public class AzureComputeServiceContextModule
       extends ComputeServiceAdapterContextModule<VirtualMachine, RoleSize, OSImage, Location> {
 
    @Override
    protected void configure() {
       super.configure();
+      bind(ComputeService.class).to(AzureComputeService.class);
       bind(new TypeLiteral<ComputeServiceAdapter<VirtualMachine, RoleSize, OSImage, Location>>() {
       }).to(AzureComputeServiceAdapter.class);
       bind(new TypeLiteral<Function<OSImage, org.jclouds.compute.domain.Image>>() {
       }).to(OSImageToImage.class);
       bind(new TypeLiteral<Function<RoleSize, Hardware>>() {
       }).to(RoleSizeToHardware.class);
-      bind(new TypeLiteral<Function<Deployment, NodeMetadata>>() {
-      }).to(DeploymentToNodeMetadata.class);
       bind(new TypeLiteral<Function<VirtualMachine, NodeMetadata>>() {
       }).to(VirtualMachineToNodeMetadata.class);
-
       bind(PrioritizeCredentialsFromTemplate.class).to(UseNodeCredentialsButOverrideFromTemplate.class);
       bind(new TypeLiteral<Function<Location, org.jclouds.domain.Location>>() {
       }).to(LocationToLocation.class);
 
       bind(TemplateOptions.class).to(AzureComputeTemplateOptions.class);
 
-      bind(new TypeLiteral<SecurityGroupExtension>() {}).to(AzureComputeSecurityGroupExtension.class);
+      bind(new TypeLiteral<SecurityGroupExtension>() {
+      }).to(AzureComputeSecurityGroupExtension.class);
+
       bind(CreateNodesInGroupThenAddToSet.class).to(GetOrCreateStorageServiceAndVirtualNetworkThenCreateNodes.class);
 
       // to have the compute service adapter override default locations
-      install(new LocationsFromComputeServiceAdapterModule<VirtualMachine, RoleSize, OSImage, Location>(){});
+      install(new LocationsFromComputeServiceAdapterModule<VirtualMachine, RoleSize, OSImage, Location>() {
+      });
    }
 
    @Override
@@ -89,10 +100,44 @@ public class AzureComputeServiceContextModule
 
    @Provides
    @Singleton
-   protected Predicate<String> provideOperationSucceededPredicate(final AzureComputeApi api, AzureComputeConstants azureComputeConstants) {
+   protected Predicate<String> operationSucceededPredicate(
+         final AzureComputeApi api, final AzureComputeConstants azureComputeConstants) {
+
       return Predicates2.retry(new OperationSucceededPredicate(api),
-              azureComputeConstants.operationTimeout(), azureComputeConstants.operationPollInitialPeriod(),
-              azureComputeConstants.operationPollMaxPeriod());
+            1000, 5, 5, SECONDS);
+
+
+      /*return Predicates2.retry(new OperationSucceededPredicate(api),
+            azureComputeConstants.operationTimeout(), azureComputeConstants.operationPollInitialPeriod(),
+            azureComputeConstants.operationPollMaxPeriod());*/
+   }
+
+   @Provides @Singleton @Memoized Supplier<Map<String, Hardware>> hardwareByRoleName(
+         @Memoized final Supplier<Set<? extends Hardware>> hardwareSupplier,
+         @Named(OPERATION_TIMEOUT) long seconds) {
+      return memoizeWithExpiration(new com.google.common.base.Supplier<Map<String, Hardware>>() {
+         @Override public Map<String, Hardware> get() {
+            ImmutableMap.Builder<String, Hardware> result = ImmutableMap.builder();
+            for (Hardware hardware : hardwareSupplier.get()) {
+               result.put(hardware.getId(), hardware);
+            }
+            return result.build();
+         }
+      }, seconds, SECONDS);
+   }
+
+   @Provides @Singleton @Memoized Supplier<Map<String, org.jclouds.domain.Location>> locationsByName(
+         @Memoized final Supplier<Set<? extends org.jclouds.domain.Location>> locations,
+         @Named(OPERATION_TIMEOUT) long seconds) {
+      return memoizeWithExpiration(new Supplier<Map<String, org.jclouds.domain.Location>>() {
+         @Override public Map<String, org.jclouds.domain.Location> get() {
+            ImmutableMap.Builder<String, org.jclouds.domain.Location> result = ImmutableMap.builder();
+            for (org.jclouds.domain.Location location : locations.get()) {
+               result.put(location.getId(), location);
+            }
+            return result.build();
+         }
+      }, seconds, SECONDS);
    }
 
    @VisibleForTesting
@@ -120,7 +165,6 @@ public class AzureComputeServiceContextModule
                throw new IllegalStateException("Operation is in invalid status: " + operation.status().name());
          }
       }
-
    }
 
    @Singleton
