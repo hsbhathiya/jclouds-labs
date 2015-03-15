@@ -34,6 +34,7 @@ import javax.inject.Singleton;
 import org.jclouds.azurecompute.AzureComputeApi;
 import org.jclouds.azurecompute.compute.config.AzureComputeServiceContextModule.AzureComputeConstants;
 import org.jclouds.azurecompute.config.AzureComputeProperties;
+
 import org.jclouds.azurecompute.domain.CloudService;
 import org.jclouds.azurecompute.domain.Deployment;
 import org.jclouds.azurecompute.domain.Deployment.RoleInstance;
@@ -43,6 +44,9 @@ import org.jclouds.azurecompute.domain.Location;
 import org.jclouds.azurecompute.domain.OSImage;
 import org.jclouds.azurecompute.domain.RoleSize;
 import org.jclouds.azurecompute.options.AzureComputeTemplateOptions;
+import org.jclouds.azurecompute.domain.LinuxConfigurationSetParams;
+import org.jclouds.azurecompute.domain.OSVirtualHardDiskParam;
+import org.jclouds.azurecompute.domain.RoleParam;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.domain.OsFamily;
 import org.jclouds.compute.domain.Template;
@@ -80,9 +84,8 @@ public class AzureComputeServiceAdapter implements ComputeServiceAdapter<Deploym
 
    private final AzureComputeConstants azureComputeConstants;
 
-   @Inject
-   AzureComputeServiceAdapter(final AzureComputeApi api,
-           final Predicate<String> operationSucceededPredicate, final AzureComputeConstants azureComputeConstants) {
+   @Inject AzureComputeServiceAdapter(final AzureComputeApi api,
+         final Predicate<String> operationSucceededPredicate, final AzureComputeConstants azureComputeConstants) {
 
       this.api = api;
       this.operationSucceededPredicate = operationSucceededPredicate;
@@ -91,15 +94,15 @@ public class AzureComputeServiceAdapter implements ComputeServiceAdapter<Deploym
 
    @Override
    public NodeAndInitialCredentials<Deployment> createNodeWithGroupEncodedIntoName(
-           final String group, final String name, final Template template) {
+         final String group, final String name, final Template template) {
 
       // azure-specific options
       final AzureComputeTemplateOptions templateOptions = template.getOptions().as(AzureComputeTemplateOptions.class);
 
       final String loginUser = templateOptions.getLoginUser() == null
-              ? DEFAULT_LOGIN_USER : templateOptions.getLoginUser();
+            ? DEFAULT_LOGIN_USER : templateOptions.getLoginUser();
       final String loginPassword = templateOptions.getLoginPassword() == null
-              ? DEFAULT_LOGIN_PASSWORD : templateOptions.getLoginPassword();
+            ? DEFAULT_LOGIN_PASSWORD : templateOptions.getLoginPassword();
       final String location = template.getLocation().getId();
       final int[] inboundPorts = template.getOptions().getInboundPorts();
 
@@ -111,36 +114,53 @@ public class AzureComputeServiceAdapter implements ComputeServiceAdapter<Deploym
       String createCloudServiceRequestId = api.getCloudServiceApi().createWithLabelInLocation(name, name, location);
       if (!operationSucceededPredicate.apply(createCloudServiceRequestId)) {
          final String message = generateIllegalStateExceptionMessage(
-                 createCloudServiceRequestId, azureComputeConstants.operationTimeout());
+               createCloudServiceRequestId, azureComputeConstants.operationTimeout());
          logger.warn(message);
          throw new IllegalStateException(message);
       }
       logger.info("Cloud Service (%s) created with operation id: %s", name, createCloudServiceRequestId);
 
       final OSImage.Type os = template.getImage().getOperatingSystem().getFamily() == OsFamily.WINDOWS
-              ? OSImage.Type.WINDOWS : OSImage.Type.LINUX;
+            ? OSImage.Type.WINDOWS : OSImage.Type.LINUX;
       Set<ExternalEndpoint> externalEndpoints = Sets.newHashSet();
       for (int inboundPort : inboundPorts) {
          externalEndpoints.add(ExternalEndpoint.inboundTcpToLocalPort(inboundPort, inboundPort));
       }
-      final DeploymentParams params = DeploymentParams.builder()
-              .name(name)
-              .os(os)
-              .username(loginUser)
-              .password(loginPassword)
-              .sourceImageName(Splitter.on('/').split(template.getImage().getId()).iterator().next())
-              .mediaLink(createMediaLink(storageAccountName, name))
-              .size(RoleSize.Type.fromString(template.getHardware().getName()))
-              .externalEndpoints(externalEndpoints)
-              .subnetName(subnetName)
-              .virtualNetworkName(virtualNetworkName)
-              .build();
+
+      LinuxConfigurationSetParams linuxConfig = LinuxConfigurationSetParams.builder().hostName("jclouds.azure")
+            .userName(loginUser)
+            .userPassword(loginPassword).build();
+
+      String roleName = name;
+      String diskName = roleName + "osdisk" + (int) (Math.random() * 100);
+      OSVirtualHardDiskParam osParam = OSVirtualHardDiskParam.builder()
+            .sourceImageName(Splitter.on('/').split(template.getImage().getId()).iterator().next())
+            .mediaLink(createMediaLink(storageAccountName, name))
+            .os(os)
+            .diskName(diskName)
+            .diskLabel(diskName)
+            .build();
+
+      RoleParam roleParam = RoleParam.builder()
+            .roleName(roleName)
+            .roleSize(RoleSize.Type.fromString(template.getHardware().getName()))
+            .osVirtualHardDiskParam(osParam)
+            .linuxConfigurationSet(linuxConfig)
+            .build();
+
+      DeploymentParams params = DeploymentParams.builder()
+            .name(name)
+            .roleParam(roleParam)
+            .virtualNetworkName(virtualNetworkName)
+            .externalEndpoints(externalEndpoints)
+            .subnetName(subnetName)
+            .build();
 
       logger.debug("Creating a deployment with params '%s' ...", params);
       String createDeploymentRequestId = api.getDeploymentApiForService(name).create(params);
       if (!operationSucceededPredicate.apply(createDeploymentRequestId)) {
          final String message = generateIllegalStateExceptionMessage(
-                 createCloudServiceRequestId, azureComputeConstants.operationTimeout());
+               createCloudServiceRequestId, azureComputeConstants.operationTimeout());
          logger.warn(message);
          logger.debug("Deleting cloud service (%s) ...", name);
          deleteCloudService(name);
@@ -152,34 +172,34 @@ public class AzureComputeServiceAdapter implements ComputeServiceAdapter<Deploym
          @Override
          public boolean apply(String name) {
             return FluentIterable.from(api.getDeploymentApiForService(name).get(name).roleInstanceList())
-                    .allMatch(new Predicate<RoleInstance>() {
-                       @Override
-                       public boolean apply(RoleInstance input) {
-                          return input != null && input.instanceStatus() == READY_ROLE;
-                       }
-                    });
+                  .allMatch(new Predicate<RoleInstance>() {
+                     @Override
+                     public boolean apply(RoleInstance input) {
+                        return input != null && input.instanceStatus() == READY_ROLE;
+                     }
+                  });
          }
       }, 30 * 60, 1, SECONDS).apply(name)) {
          logger.warn("Instances %s of %s has not reached the status %s within %sms so it will be destroyed.",
-                 Iterables.toString(api.getDeploymentApiForService(name).get(name).roleInstanceList()), name,
-                 READY_ROLE, azureComputeConstants.operationTimeout());
+               Iterables.toString(api.getDeploymentApiForService(name).get(name).roleInstanceList()), name,
+               READY_ROLE, azureComputeConstants.operationTimeout());
          api.getDeploymentApiForService(group).delete(name);
          api.getCloudServiceApi().delete(name);
          throw new IllegalStateException(format("Deployment %s is being destroyed as its instanceStatus didn't reach "
-                 + "status %s after %ss. Please, try by increasing `jclouds.azure.operation-timeout` and "
-                 + " try again", name, READY_ROLE, 30 * 60));
+               + "status %s after %ss. Please, try by increasing `jclouds.azure.operation-timeout` and "
+               + " try again", name, READY_ROLE, 30 * 60));
       }
 
       Deployment deployment = api.getDeploymentApiForService(name).get(name);
 
       return new NodeAndInitialCredentials<Deployment>(deployment, deployment.name(),
-              LoginCredentials.builder().user(loginUser).password(loginPassword).build());
+            LoginCredentials.builder().user(loginUser).password(loginPassword).build());
    }
 
    public static String generateIllegalStateExceptionMessage(final String operationId, final long timeout) {
       final String warnMessage = format("%s has not been completed within %sms.", operationId, timeout);
       return format("%s. Please, try by increasing `%s` and try again",
-              warnMessage, AzureComputeProperties.OPERATION_TIMEOUT);
+            warnMessage, AzureComputeProperties.OPERATION_TIMEOUT);
    }
 
    @Override
@@ -193,32 +213,32 @@ public class AzureComputeServiceAdapter implements ComputeServiceAdapter<Deploym
       for (OSImage osImage : api.getOSImageApi().list()) {
          if (osImage.location() == null) {
             osImages.add(OSImage.create(
-                    osImage.name(),
-                    null,
-                    osImage.affinityGroup(),
-                    osImage.label(),
-                    osImage.description(),
-                    osImage.category(),
-                    osImage.os(),
-                    osImage.publisherName(),
-                    osImage.mediaLink(),
-                    osImage.logicalSizeInGB(),
-                    osImage.eula()
+                  osImage.name(),
+                  null,
+                  osImage.affinityGroup(),
+                  osImage.label(),
+                  osImage.description(),
+                  osImage.category(),
+                  osImage.os(),
+                  osImage.publisherName(),
+                  osImage.mediaLink(),
+                  osImage.logicalSizeInGB(),
+                  osImage.eula()
             ));
          } else {
             for (String actualLocation : Splitter.on(';').split(osImage.location())) {
                osImages.add(OSImage.create(
-                       osImage.name() + "/" + actualLocation,
-                       actualLocation,
-                       osImage.affinityGroup(),
-                       osImage.label() + "/" + actualLocation,
-                       osImage.description(),
-                       osImage.category(),
-                       osImage.os(),
-                       osImage.publisherName(),
-                       osImage.mediaLink(),
-                       osImage.logicalSizeInGB(),
-                       osImage.eula()
+                     osImage.name() + "/" + actualLocation,
+                     actualLocation,
+                     osImage.affinityGroup(),
+                     osImage.label() + "/" + actualLocation,
+                     osImage.description(),
+                     osImage.category(),
+                     osImage.os(),
+                     osImage.publisherName(),
+                     osImage.mediaLink(),
+                     osImage.logicalSizeInGB(),
+                     osImage.eula()
                ));
             }
          }
@@ -244,14 +264,14 @@ public class AzureComputeServiceAdapter implements ComputeServiceAdapter<Deploym
    @Override
    public Deployment getNode(final String id) {
       return FluentIterable.from(api.getCloudServiceApi().list())
-              .transform(new Function<CloudService, Deployment>() {
-                 @Override
-                 public Deployment apply(final CloudService input) {
-                    return api.getDeploymentApiForService(input.name()).get(id);
-                 }
-              })
-              .firstMatch(notNull())
-              .orNull();
+            .transform(new Function<CloudService, Deployment>() {
+               @Override
+               public Deployment apply(final CloudService input) {
+                  return api.getDeploymentApiForService(input.name()).get(id);
+               }
+            })
+            .firstMatch(notNull())
+            .orNull();
    }
 
    @Override
@@ -289,14 +309,14 @@ public class AzureComputeServiceAdapter implements ComputeServiceAdapter<Deploym
    @Override
    public Iterable<Deployment> listNodes() {
       Set<Deployment> deployments = FluentIterable.from(api.getCloudServiceApi().list())
-              .transform(new Function<CloudService, Deployment>() {
-                 @Override
-                 public Deployment apply(CloudService cloudService) {
-                    return api.getDeploymentApiForService(cloudService.name()).get(cloudService.name());
-                 }
-              })
-              .filter(notNull())
-              .toSet();
+            .transform(new Function<CloudService, Deployment>() {
+               @Override
+               public Deployment apply(CloudService cloudService) {
+                  return api.getDeploymentApiForService(cloudService.name()).get(cloudService.name());
+               }
+            })
+            .filter(notNull())
+            .toSet();
       return deployments;
    }
 
@@ -313,14 +333,14 @@ public class AzureComputeServiceAdapter implements ComputeServiceAdapter<Deploym
    @VisibleForTesting
    public static URI createMediaLink(String storageServiceName, String diskName) {
       return URI.create(
-              String.format("https://%s.blob.core.windows.net/vhds/disk-%s.vhd", storageServiceName, diskName));
+            String.format("https://%s.blob.core.windows.net/vhds/disk-%s.vhd", storageServiceName, diskName));
    }
 
    private void deleteCloudService(final String name) {
       String deleteCloudServiceId = api.getCloudServiceApi().delete(name);
       if (!operationSucceededPredicate.apply(deleteCloudServiceId)) {
          final String deleteMessage = generateIllegalStateExceptionMessage(
-                 deleteCloudServiceId, azureComputeConstants.operationTimeout());
+               deleteCloudServiceId, azureComputeConstants.operationTimeout());
          logger.warn(deleteMessage);
          throw new IllegalStateException(deleteMessage);
       }
@@ -330,7 +350,7 @@ public class AzureComputeServiceAdapter implements ComputeServiceAdapter<Deploym
       String deleteDeploymentId = api.getDeploymentApiForService(cloudServiceName).delete(id);
       if (!operationSucceededPredicate.apply(deleteDeploymentId)) {
          final String deleteMessage = generateIllegalStateExceptionMessage(
-                 deleteDeploymentId, azureComputeConstants.operationTimeout());
+               deleteDeploymentId, azureComputeConstants.operationTimeout());
          logger.warn(deleteMessage);
          throw new IllegalStateException(deleteMessage);
       }
