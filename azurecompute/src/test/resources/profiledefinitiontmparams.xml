@@ -16,10 +16,10 @@
       </HttpOptions>
     </Monitor>
   </Monitors>
-  
+
   <Policy>
     <LoadBalancingMethod>RoundRobin</LoadBalancingMethod>
-    
+
     <Endpoints>
       <Endpoint>
         <DomainName>jcloudsprova.cloudapp.net</DomainName>
@@ -30,6 +30,6 @@
         <Weight>1</Weight>
       </Endpoint>
     </Endpoints>
-    
+
   </Policy>
 </Definition>

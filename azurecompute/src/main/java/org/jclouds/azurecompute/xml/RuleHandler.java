@@ -51,7 +51,7 @@ final class RuleHandler extends ParseSax.HandlerForGeneratedRequestWithResult<Ru
    public Rule getResult() {
       Rule result = Rule.create(name, type, priority, action, sourceAddressPrefix, sourcePortRange,
               destinationAddressPrefix, destinationPortRange, protocol, state, isDefault);
-      
+
       name = priority = sourceAddressPrefix = sourcePortRange = destinationAddressPrefix
               = destinationPortRange = state = null; // handler is called in a loop.
       protocol = null;
