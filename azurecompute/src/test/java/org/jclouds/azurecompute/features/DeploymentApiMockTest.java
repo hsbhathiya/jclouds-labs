@@ -16,17 +16,18 @@
  */
 package org.jclouds.azurecompute.features;
 
-import static org.jclouds.azurecompute.domain.DeploymentParams.ExternalEndpoint.inboundTcpToLocalPort;
-import static org.jclouds.azurecompute.domain.DeploymentParams.ExternalEndpoint.inboundUdpToLocalPort;
 import static org.testng.Assert.assertEquals;
 
-import java.net.URI;
-
-import org.jclouds.azurecompute.domain.DeploymentParams;
-import org.jclouds.azurecompute.domain.OSImage;
+import org.jclouds.azurecompute.domain.LinuxConfigurationSetParams;
+import org.jclouds.azurecompute.domain.OSVirtualHardDiskParam;
+import org.jclouds.azurecompute.domain.RoleParam;
 import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.OSImage;
+import org.jclouds.azurecompute.domain.DeploymentParams;
+
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiMockTest;
 import org.jclouds.azurecompute.xml.DeploymentHandlerTest;
+
 import org.jclouds.azurecompute.xml.ListOSImagesHandlerTest;
 import org.testng.annotations.Test;
 
@@ -42,46 +43,36 @@ public class DeploymentApiMockTest extends BaseAzureComputeApiMockTest {
       try {
          DeploymentApi api = api(server.getUrl("/")).getDeploymentApiForService("myservice");
 
-         OSImage OSImage = ListOSImagesHandlerTest.expected().get(5); // Centos
+         OSImage OSImage = ListOSImagesHandlerTest.expected().get(5); // CentOS
 
-         DeploymentParams params = DeploymentParams.builder()
-                 .name("mydeployment")
-                 .size(RoleSize.Type.MEDIUM)
-                 .sourceImageName(OSImage.name()).mediaLink(URI.create("https://mydeployment.blob.core.windows.net/vhds/disk-mydeployment.vhd")).os(OSImage.os())
-                 .username("username").password("testpwd")
-                 .virtualNetworkName("my-virtualNetworkName")
-                 .externalEndpoint(inboundTcpToLocalPort(80, 8080))
-                 .externalEndpoint(inboundUdpToLocalPort(53, 53)).build();
+         LinuxConfigurationSetParams linuxConfig = LinuxConfigurationSetParams.builder()
+               .hostName("jclouds.azure")
+               .userName("testAzure2").userPassword("azure@jclouds2").build();
 
-         assertEquals(api.create(params), "request-1");
+         OSVirtualHardDiskParam osParam = OSVirtualHardDiskParam.builder()
+               .sourceImageName(OSImage.name())
+               .mediaLink(OSImage.mediaLink())
+               .os(org.jclouds.azurecompute.domain.OSImage.Type.LINUX)
+               .diskName("myinstance-osdisk")
+               .diskLabel("myinstance-osdisk")
+               .hostCaching("ReadWrite")
+               .build();
 
-         assertSent(server, "POST", "/services/hostedservices/myservice/deployments", "/deploymentparams.xml");
-      } finally {
-         server.shutdown();
-      }
-   }
+         RoleParam roleParam = RoleParam.builder()
+               .roleName("Myinstance2")
+               .roleSize(RoleSize.Type.MEDIUM)
+               .osVirtualHardDiskParam(osParam)
+               .linuxConfigurationSet(linuxConfig)
+               .build();
 
-   public void testCreateWindows() throws Exception {
-      MockWebServer server = mockAzureManagementServer();
-      server.enqueue(requestIdResponse("request-1"));
+         DeploymentParams deploymentParams = DeploymentParams.builder()
+               .name("mydeployment")
+               .externalEndpoint(DeploymentParams.ExternalEndpoint.inboundTcpToLocalPort(80, 8080))
+               .externalEndpoint(DeploymentParams.ExternalEndpoint.inboundUdpToLocalPort(53, 53))
+               .roleParam(roleParam).build();
 
-      try {
-         DeploymentApi api = api(server.getUrl("/")).getDeploymentApiForService("myservice");
-
-         OSImage OSImage = ListOSImagesHandlerTest.expected().get(1); // Windows
-
-         DeploymentParams params = DeploymentParams.builder()
-                 .name("mydeployment")
-                 .size(RoleSize.Type.MEDIUM)
-                 .sourceImageName(OSImage.name()).mediaLink(OSImage.mediaLink()).os(OSImage.os())
-                 .username("username").password("testpwd")
-                 .virtualNetworkName("my-virtualNetworkName")
-                 .externalEndpoint(inboundTcpToLocalPort(80, 8080))
-                 .externalEndpoint(inboundUdpToLocalPort(53, 53)).build();
-
-         assertEquals(api.create(params), "request-1");
-
-         assertSent(server, "POST", "/services/hostedservices/myservice/deployments", "/deploymentparams-windows.xml");
+         assertEquals(api.create(deploymentParams), "request-1");
+         assertSent(server, "POST", "/services/hostedservices/myservice/deployments", "/newdeploymentparams-linux.xml");
       } finally {
          server.shutdown();
       }
