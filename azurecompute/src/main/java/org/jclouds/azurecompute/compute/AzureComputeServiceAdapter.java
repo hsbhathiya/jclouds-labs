@@ -44,6 +44,9 @@ import org.jclouds.azurecompute.domain.Deployment.RoleInstance;
 import org.jclouds.azurecompute.domain.Role;
 import org.jclouds.azurecompute.compute.functions.OSImageToImage;
 import org.jclouds.azurecompute.options.AzureComputeTemplateOptions;
+import org.jclouds.azurecompute.domain.LinuxConfigurationSetParams;
+import org.jclouds.azurecompute.domain.OSVirtualHardDiskParam;
+import org.jclouds.azurecompute.domain.RoleParam;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.domain.OsFamily;
 import org.jclouds.compute.domain.Template;
@@ -121,25 +124,43 @@ public class AzureComputeServiceAdapter implements ComputeServiceAdapter<Deploym
       }
       logger.info("Cloud Service (%s) created with operation id: %s", name, createCloudServiceRequestId);
 
-      final OSImage.Type os = template.getImage().getOperatingSystem().getFamily() == OsFamily.WINDOWS
-              ? OSImage.Type.WINDOWS : OSImage.Type.LINUX;
-      final Set<ExternalEndpoint> externalEndpoints = Sets.newHashSet();
-      for (int inboundPort : inboundPorts) {
-         externalEndpoints.add(ExternalEndpoint.inboundTcpToLocalPort(inboundPort, inboundPort));
-      }
+       final OSImage.Type os = template.getImage().getOperatingSystem().getFamily() == OsFamily.WINDOWS
+               ? OSImage.Type.WINDOWS : OSImage.Type.LINUX;
+       Set<ExternalEndpoint> externalEndpoints = Sets.newHashSet();
+       for (int inboundPort : inboundPorts) {
+           externalEndpoints.add(ExternalEndpoint.inboundTcpToLocalPort(inboundPort, inboundPort));
+       }
+
+       LinuxConfigurationSetParams linuxConfig = LinuxConfigurationSetParams.builder()
+               .hostName("jclouds.azure")
+               .userName(loginUser)
+               .userPassword(loginPassword).build();
+
+       String roleName = name;
+       String diskName = roleName; // + "osdisk" + (int) (Math.random() * 100);
+       OSVirtualHardDiskParam osParam = OSVirtualHardDiskParam.builder()
+               .sourceImageName(OSImageToImage.fromGeoName(template.getImage().getId())[0])
+               .mediaLink(createMediaLink(storageAccountName, name))
+               .os(os)
+           //    .diskName(diskName)
+           //    .diskLabel(diskName)
+               .build();
+
+       RoleParam roleParam = RoleParam.builder()
+               .roleName(roleName)
+               .roleSize(RoleSize.Type.fromString(template.getHardware().getName()))
+               .osVirtualHardDiskParam(osParam)
+               .linuxConfigurationSet(linuxConfig)
+               .build();
+
       final DeploymentParams params = DeploymentParams.builder()
-              .name(name)
-              .os(os)
-              .username(loginUser)
-              .password(loginPassword)
-              .sourceImageName(OSImageToImage.fromGeoName(template.getImage().getId())[0])
-              .mediaLink(createMediaLink(storageAccountName, name))
-              .size(RoleSize.Type.fromString(template.getHardware().getName()))
-              .externalEndpoints(externalEndpoints)
-              .subnetName(subnetName)
-              .virtualNetworkName(virtualNetworkName)
-              .reservedIPName(reservedIPAddress)
-              .build();
+               .name(name)
+               .roleParam(roleParam)
+               .virtualNetworkName(virtualNetworkName)
+               .externalEndpoints(externalEndpoints)
+               .subnetName(subnetName)
+               .reservedIpName(reservedIPAddress)
+               .build();
 
       logger.debug("Creating a deployment with params '%s' ...", params);
 
