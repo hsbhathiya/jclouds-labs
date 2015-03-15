@@ -25,11 +25,14 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.logging.Logger;
 
+import com.google.common.collect.Iterables;
 import org.jclouds.azurecompute.compute.AzureComputeServiceAdapter;
 import org.jclouds.azurecompute.domain.CloudService;
 import org.jclouds.azurecompute.domain.Deployment;
 import org.jclouds.azurecompute.domain.DeploymentParams;
-import org.jclouds.azurecompute.domain.OSImage;
+import org.jclouds.azurecompute.domain.OSVirtualHardDiskParam;
+import org.jclouds.azurecompute.domain.LinuxConfigurationSetParams;
+import org.jclouds.azurecompute.domain.RoleParam;
 import org.jclouds.azurecompute.domain.RoleSize;
 import org.jclouds.azurecompute.domain.CloudServiceProperties;
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiLiveTest;
@@ -38,9 +41,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+
 import java.util.List;
 import java.util.logging.Level;
+
 import org.jclouds.azurecompute.domain.Role;
 import org.jclouds.azurecompute.util.ConflictManagementPredicate;
 
@@ -48,10 +52,10 @@ import org.jclouds.azurecompute.util.ConflictManagementPredicate;
 public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
 
    private static final String CLOUD_SERVICE = String.format("%s%d-%s",
-           System.getProperty("user.name"), RAND, DeploymentApiLiveTest.class.getSimpleName()).toLowerCase();
+         System.getProperty("user.name"), RAND, DeploymentApiLiveTest.class.getSimpleName()).toLowerCase();
 
    private static final String DEPLOYMENT = String.format("%s%d-%s",
-           System.getProperty("user.name"), RAND, DeploymentApiLiveTest.class.getSimpleName()).toLowerCase();
+         System.getProperty("user.name"), RAND, DeploymentApiLiveTest.class.getSimpleName()).toLowerCase();
 
    private Predicate<Deployment> deploymentCreated;
 
@@ -61,7 +65,7 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
 
    private CloudService cloudService;
 
-   @BeforeClass(groups = {"integration", "live"})
+   @BeforeClass(groups = { "integration", "live" })
    @Override
    public void setup() {
       super.setup();
@@ -86,19 +90,38 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
    }
 
    public void testCreate() {
-      final DeploymentParams params = DeploymentParams.builder()
-              .name(DEPLOYMENT)
-              .os(OSImage.Type.LINUX)
-              .sourceImageName(DeploymentApiLiveTest.IMAGE_NAME)
-              .mediaLink(AzureComputeServiceAdapter.createMediaLink(storageService.serviceName(), DEPLOYMENT))
-              .username("test")
-              .password("supersecurePassword1!")
-              .size(RoleSize.Type.BASIC_A2)
-              .subnetName(Iterables.get(virtualNetworkSite.subnets(), 0).name())
-              .virtualNetworkName(virtualNetworkSite.name())
-              .externalEndpoint(DeploymentParams.ExternalEndpoint.inboundTcpToLocalPort(22, 22))
-              .build();
-      final String requestId = api().create(params);
+      LinuxConfigurationSetParams linuxConfig = LinuxConfigurationSetParams.builder()
+            .hostName("bhash90.jclouds.azure")
+            .userName("test")
+            .userPassword("supersecurePassword1!").build();
+
+      String roleName = DEPLOYMENT;
+      String diskName = roleName + "osdisk" + (int) (Math.random() * 100);
+      OSVirtualHardDiskParam osParam = OSVirtualHardDiskParam.builder()
+            .sourceImageName(IMAGE_NAME)
+            .mediaLink(AzureComputeServiceAdapter.createMediaLink(storageService.serviceName(), DEPLOYMENT))
+            .os(org.jclouds.azurecompute.domain.OSImage.Type.LINUX)
+            .diskName(diskName)
+            .diskLabel(diskName)
+            .hostCaching("ReadWrite")
+            .build();
+
+      RoleParam roleParam = RoleParam.builder()
+            .roleName(roleName)
+            .roleSize(RoleSize.Type.BASIC_A2)
+            .osVirtualHardDiskParam(osParam)
+            .linuxConfigurationSet(linuxConfig)
+            .build();
+
+      DeploymentParams params = DeploymentParams.builder()
+            .name(DEPLOYMENT)
+            .roleParam(roleParam)
+            .virtualNetworkName(virtualNetworkSite.name())
+            .subnetName(Iterables.get(virtualNetworkSite.subnets(), 0).name())
+            .externalEndpoint(DeploymentParams.ExternalEndpoint.inboundTcpToLocalPort(22, 22))
+            .build();
+
+      String requestId = api().create(params);
       assertTrue(operationSucceeded.apply(requestId), requestId);
 
       deployment = api().get(DEPLOYMENT);
@@ -111,7 +134,6 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
       assertThat(deployment.roleList().size()).isEqualTo(1);
       assertThat(deployment.roleInstanceList().size()).isEqualTo(1);
       assertThat(deployment.virtualNetworkName()).isEqualTo(virtualNetworkSite.name());
-
    }
 
    @Test(dependsOnMethods = "testCreate")
