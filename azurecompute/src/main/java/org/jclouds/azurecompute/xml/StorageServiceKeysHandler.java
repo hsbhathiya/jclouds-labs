@@ -59,7 +59,7 @@ public class StorageServiceKeysHandler extends ParseSax.HandlerForGeneratedReque
       } else if ("Secondary".equals(qName)) {
          secondary = currentOrNull(currentText);
       }
-      
+
       currentText.setLength(0);
    }
 

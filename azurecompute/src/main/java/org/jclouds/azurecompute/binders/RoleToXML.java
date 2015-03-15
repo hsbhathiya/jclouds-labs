@@ -53,10 +53,13 @@ public class RoleToXML implements Binder {
                }
                XMLBuilder subnetNames = configBuilder.e("SubnetNames");
                for (Role.ConfigurationSet.SubnetName subnetName : configurationSet.subnetNames()) {
-                  subnetNames.e("SubnetName").t(subnetName.name()).up();
+                  String subnetText = subnetName.name();
+                  if (subnetText != null) {
+                     subnetNames.e("SubnetName").t(subnetText).up();
+                  }
                }
-               if (configurationSet.networkSecurityGroup() != null
-                       && !configurationSet.networkSecurityGroup().isEmpty()) {
+               if (configurationSet.networkSecurityGroup() != null && !configurationSet.networkSecurityGroup()
+                     .isEmpty()) {
                   configBuilder.e("NetworkSecurityGroup").t(configurationSet.networkSecurityGroup()).up();
                }
             }

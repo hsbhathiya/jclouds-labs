@@ -19,8 +19,8 @@ package org.jclouds.azurecompute.features;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jclouds.azurecompute.domain.Deployment.InstanceStatus.READY_ROLE;
 import static org.jclouds.util.Predicates2.retry;
-import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertTrue;
 
 import com.google.common.base.Predicate;
@@ -28,14 +28,17 @@ import com.google.common.collect.ImmutableSet;
 
 import com.google.common.collect.Iterables;
 import org.jclouds.azurecompute.compute.AzureComputeServiceAdapter;
-import org.jclouds.azurecompute.domain.Deployment;
 import org.jclouds.azurecompute.domain.DeploymentParams;
-import org.jclouds.azurecompute.domain.VMImage;
+import org.jclouds.azurecompute.domain.RoleParam;
+import org.jclouds.azurecompute.domain.LinuxConfigurationSetParams;
+import org.jclouds.azurecompute.domain.OSVirtualHardDiskParam;
 import org.jclouds.azurecompute.domain.RoleSize;
-import org.jclouds.azurecompute.domain.OSImage;
+import org.jclouds.azurecompute.domain.VMImage;
 import org.jclouds.azurecompute.domain.CloudService;
-import org.jclouds.azurecompute.domain.CaptureVMImageParams;
+import org.jclouds.azurecompute.domain.Deployment;
 import org.jclouds.azurecompute.domain.VMImageParams;
+import org.jclouds.azurecompute.domain.CaptureVMImageParams;
+
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiLiveTest;
 import org.jclouds.azurecompute.util.ConflictManagementPredicate;
 import org.testng.annotations.AfterClass;
@@ -43,8 +46,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Date;
+import java.util.List;
 import java.text.SimpleDateFormat;
 
 @Test(groups = "live", testName = "VMImageApiLiveTest")
@@ -83,23 +86,38 @@ public class VMImageApiLiveTest extends BaseAzureComputeApiLiveTest {
             }
         }, 600, 5, 5, SECONDS);
 
-        final DeploymentParams params = DeploymentParams.builder()
-                .name(DEPLOYMENT)
-                .os(OSImage.Type.LINUX)
-                .sourceImageName(BaseAzureComputeApiLiveTest.IMAGE_NAME)
+        LinuxConfigurationSetParams linuxConfig = LinuxConfigurationSetParams.builder().hostName("bhash90.jclouds.azure")
+                .userName("test")
+                .userPassword("supersecurePassword1!").build();
+
+        roleName = DEPLOYMENT;
+        diskName = roleName + "osdisk" + (int) (Math.random() * 100);
+        OSVirtualHardDiskParam osParam = OSVirtualHardDiskParam.builder()
+                .sourceImageName(IMAGE_NAME)
                 .mediaLink(AzureComputeServiceAdapter.createMediaLink(storageService.serviceName(), DEPLOYMENT))
-                .username("test")
-                .password("supersecurePassword1!")
-                .size(RoleSize.Type.BASIC_A2)
-                .subnetName(Iterables.get(virtualNetworkSite.subnets(), 0).name())
+                .os(org.jclouds.azurecompute.domain.OSImage.Type.LINUX)
+                .diskName(diskName)
+                .diskLabel(diskName)
+                .hostCaching("ReadWrite")
+                .build();
+
+        RoleParam roleParam = RoleParam.builder()
+                .roleName(roleName)
+                .roleSize(RoleSize.Type.BASIC_A2)
+                .osVirtualHardDiskParam(osParam)
+                .linuxConfigurationSet(linuxConfig)
+                .build();
+
+        DeploymentParams params = DeploymentParams.builder()
+                .name(DEPLOYMENT)
+                .roleParam(roleParam)
                 .virtualNetworkName(virtualNetworkSite.name())
                 .externalEndpoint(DeploymentParams.ExternalEndpoint.inboundTcpToLocalPort(22, 22))
                 .build();
+
         Deployment deployment = getOrCreateDeployment(cloudService.name(), params);
         Deployment.RoleInstance roleInstance = getFirstRoleInstanceInDeployment(DEPLOYMENT);
         assertTrue(roleInstanceReady.apply(DEPLOYMENT), roleInstance.toString());
-        roleName = roleInstance.roleName();
-        diskName = deployment.roleList().get(0).osVirtualHardDisk().diskName();
     }
 
     @Test(dependsOnMethods = "testCaptureVMImage")

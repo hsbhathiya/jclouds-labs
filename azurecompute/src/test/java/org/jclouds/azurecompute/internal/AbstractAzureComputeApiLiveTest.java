@@ -39,6 +39,6 @@ public abstract class AbstractAzureComputeApiLiveTest extends BaseApiLiveTest<Az
    @Override
    public void setup() {
       super.setup();
-      operationSucceeded = new ConflictManagementPredicate(api, 600, 5, 5, SECONDS);
+      operationSucceeded = new ConflictManagementPredicate(api, 900, 5, 5, SECONDS);
    }
 }

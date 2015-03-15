@@ -63,7 +63,7 @@ public class ConflictManagementPredicate implements Predicate<String> {
     * @param api azure api.
     */
    public ConflictManagementPredicate(final AzureComputeApi api) {
-      this(api, Predicates2.retry(new OperationSucceededPredicate(api), 600, 5, 5, SECONDS));
+      this(api, Predicates2.retry(new OperationSucceededPredicate(api), 900, 5, 5, SECONDS));
    }
 
    /**

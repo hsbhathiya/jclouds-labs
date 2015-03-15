@@ -25,11 +25,14 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.logging.Logger;
 
+import com.google.common.collect.Iterables;
 import org.jclouds.azurecompute.compute.AzureComputeServiceAdapter;
 import org.jclouds.azurecompute.domain.CloudService;
 import org.jclouds.azurecompute.domain.Deployment;
 import org.jclouds.azurecompute.domain.DeploymentParams;
-import org.jclouds.azurecompute.domain.OSImage;
+import org.jclouds.azurecompute.domain.OSVirtualHardDiskParam;
+import org.jclouds.azurecompute.domain.LinuxConfigurationSetParams;
+import org.jclouds.azurecompute.domain.RoleParam;
 import org.jclouds.azurecompute.domain.RoleSize;
 import org.jclouds.azurecompute.domain.CloudServiceProperties;
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiLiveTest;
@@ -38,7 +41,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import java.util.List;
 import java.util.logging.Level;
 import org.jclouds.azurecompute.domain.Role;
@@ -86,18 +88,32 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
    }
 
    public void testCreate() {
-      final DeploymentParams params = DeploymentParams.builder()
-              .name(DEPLOYMENT)
-              .os(OSImage.Type.LINUX)
-              .sourceImageName(DeploymentApiLiveTest.IMAGE_NAME)
-              .mediaLink(AzureComputeServiceAdapter.createMediaLink(storageService.serviceName(), DEPLOYMENT))
-              .username("test")
-              .password("supersecurePassword1!")
-              .size(RoleSize.Type.BASIC_A2)
-              .subnetName(Iterables.get(virtualNetworkSite.subnets(), 0).name())
-              .virtualNetworkName(virtualNetworkSite.name())
-              .externalEndpoint(DeploymentParams.ExternalEndpoint.inboundTcpToLocalPort(22, 22))
-              .build();
+      LinuxConfigurationSetParams linuxConfig = LinuxConfigurationSetParams.builder()
+            .hostName("jcloudsazure")
+            .userName("test")
+            .userPassword("supersecurePassword1!")
+            .build();
+
+      String roleName = DEPLOYMENT;
+      String diskName = roleName + "osdisk" + (int) (Math.random() * 100);
+      OSVirtualHardDiskParam osParam = OSVirtualHardDiskParam.builder()
+            .sourceImageName(IMAGE_NAME)
+            .mediaLink(AzureComputeServiceAdapter.createMediaLink(storageService.serviceName(), DEPLOYMENT))
+            .os(org.jclouds.azurecompute.domain.OSImage.Type.LINUX)
+            .diskName(diskName)
+            .diskLabel(diskName)
+            .hostCaching("ReadWrite")
+            .build();
+
+      RoleParam roleParam = RoleParam.builder().roleName(roleName).roleSize(RoleSize.Type.BASIC_A2)
+            .osVirtualHardDiskParam(osParam).linuxConfigurationSet(linuxConfig).build();
+
+      DeploymentParams params = DeploymentParams.builder()
+            .name(DEPLOYMENT).roleParam(roleParam)
+            .virtualNetworkName(virtualNetworkSite.name())
+            .subnetName(Iterables.get(virtualNetworkSite.subnets(), 0).name())
+            .externalEndpoint(DeploymentParams.ExternalEndpoint.inboundTcpToLocalPort(22, 22))
+            .build();
       final String requestId = api().create(params);
       assertTrue(operationSucceeded.apply(requestId), requestId);
 

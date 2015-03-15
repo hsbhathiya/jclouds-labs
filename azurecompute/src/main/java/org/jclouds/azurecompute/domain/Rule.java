@@ -125,7 +125,7 @@ public abstract class Rule {
     * @param destinationAddressPrefix
     * @param destinationPortRange
     * @param protocol
-    * @return 
+    * @return
     */
    public static Rule create(final String name, final Type type, final String priority, final Action action,
            final String sourceAddressPrefix, final String sourcePortRange, final String destinationAddressPrefix,
