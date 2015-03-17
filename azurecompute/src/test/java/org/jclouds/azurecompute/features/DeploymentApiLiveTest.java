@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.jclouds.util.Predicates2.retry;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
 
 import java.util.logging.Logger;
 
@@ -32,6 +33,7 @@ import org.jclouds.azurecompute.domain.OSVirtualHardDiskParam;
 import org.jclouds.azurecompute.domain.LinuxConfigurationSetParams;
 import org.jclouds.azurecompute.domain.RoleParam;
 import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.CloudServiceProperties;
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiLiveTest;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -138,6 +140,17 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
       assertThat(foundDeployment).isEqualToComparingFieldByField(deployment);
    }
 
+   // Test CloudServiceProperties with a deployment
+   @Test(dependsOnMethods = "testCreate")
+   public void testGetProperties() {
+      CloudServiceProperties cloudServiceProperties = api.getCloudServiceApi().getProperties(cloudService.name());
+      assertNotNull(cloudServiceProperties);
+      assertEquals(cloudServiceProperties.serviceName(), CLOUD_SERVICE);
+
+      Deployment deployment = cloudServiceProperties.deployments().get(0);
+      checkDeployment(deployment);
+   }
+
    @Test(dependsOnMethods = "testGet")
    public void testDelete() {
       final List<Role> roles = api.getDeploymentApiForService(cloudService.name()).get(DEPLOYMENT).roles();
@@ -173,6 +186,17 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
             }, 600, 30, 30, SECONDS).apply(disk.diskName());
          }
       }
+   }
+
+   private void checkDeployment(Deployment deployment) {
+      assertNotNull(deployment);
+      assertNotNull(deployment.name(), "Name cannot be Null for Deployment" + deployment);
+      assertTrue(deployment.roles().size() > 0, "There should be atleast 1 Virtual machine for a deployment  ");
+      assertNotNull(deployment.label(), "Label cannot be Null for Deployment" + deployment);
+
+      Deployment.Slot slot = deployment.slot();
+      assertTrue((slot == Deployment.Slot.PRODUCTION) || (slot == Deployment.Slot.STAGING));
+      assertEquals(deployment.name(), DEPLOYMENT);
    }
 
    @Override
