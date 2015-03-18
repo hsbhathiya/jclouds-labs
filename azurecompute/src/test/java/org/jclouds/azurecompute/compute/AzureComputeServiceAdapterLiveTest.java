@@ -27,8 +27,8 @@ import java.util.Properties;
 import java.util.Random;
 
 import org.jclouds.azurecompute.AzureComputeApi;
-import org.jclouds.azurecompute.domain.Deployment;
 import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.VirtualMachine;
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiLiveTest;
 import org.jclouds.compute.ComputeServiceAdapter.NodeAndInitialCredentials;
 import org.jclouds.compute.domain.ExecResponse;
@@ -55,7 +55,7 @@ import org.jclouds.azurecompute.util.ConflictManagementPredicate;
 @Test(groups = "live", singleThreaded = true, testName = "AzureComputeServiceAdapterLiveTest")
 public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveTest {
 
-   private AzureComputeServiceAdapter adapter;
+   private NewAzureComputeServiceAdapter adapter;
 
    private TemplateBuilder templateBuilder;
 
@@ -64,7 +64,7 @@ public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveT
    @Override
    protected AzureComputeApi create(final Properties props, final Iterable<Module> modules) {
       final Injector injector = newBuilder().modules(modules).overrides(props).buildInjector();
-      adapter = injector.getInstance(AzureComputeServiceAdapter.class);
+      adapter = injector.getInstance(NewAzureComputeServiceAdapter.class);
       templateBuilder = injector.getInstance(TemplateBuilder.class);
       sshFactory = injector.getInstance(SshClient.Factory.class);
       return injector.getInstance(AzureComputeApi.class);
@@ -106,25 +106,25 @@ public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveT
       options.subnetAddressPrefix(DEFAULT_SUBNET_ADDRESS_SPACE);
       options.nodeNames(Arrays.asList(name));
 
-      NodeAndInitialCredentials<Deployment> deployment = null;
+      NodeAndInitialCredentials<VirtualMachine> virtualMachine = null;
       try {
-         deployment = adapter.createNodeWithGroupEncodedIntoName(groupName, name, template);
-         assertEquals(deployment.getNode().name(), name);
-         assertEquals(deployment.getNodeId(), deployment.getNode().name());
-         assert InetAddresses.isInetAddress(deployment.getNode().virtualIPs().get(0).address()) : deployment;
+         virtualMachine = adapter.createNodeWithGroupEncodedIntoName(groupName, name, template);
+         assertEquals(virtualMachine.getNode().deploymentName(), name);
+         assertEquals(virtualMachine.getNodeId(), virtualMachine.getNode().deploymentName());
+         assert InetAddresses.isInetAddress(virtualMachine.getNode().virtualIPs().get(0).address()) : virtualMachine;
 
          SshClient client = sshFactory.create(
-                 HostAndPort.fromParts(deployment.getNode().virtualIPs().get(0).address(), 22),
-                 deployment.getCredentials());
+                 HostAndPort.fromParts(virtualMachine.getNode().virtualIPs().get(0).address(), 22),
+                 virtualMachine.getCredentials());
          client.connect();
          ExecResponse hello = client.exec("echo hello");
          assertEquals(hello.getOutput().trim(), "hello");
       } finally {
-         if (deployment != null) {
-            final List<Role> roles = api.getDeploymentApiForService(deployment.getNodeId()).
-                    get(deployment.getNodeId()).roles();
+         if (virtualMachine != null) {
+            final List<Role> roles = api.getDeploymentApiForService(virtualMachine.getNodeId()).
+                    get(virtualMachine.getNodeId()).roles();
 
-            adapter.destroyNode(deployment.getNodeId());
+            adapter.destroyNode(virtualMachine.getNodeId());
 
             for (Role role : roles) {
                final Role.OSVirtualHardDisk disk = role.osVirtualHardDisk();

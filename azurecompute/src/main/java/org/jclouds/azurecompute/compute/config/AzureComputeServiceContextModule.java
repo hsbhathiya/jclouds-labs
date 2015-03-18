@@ -27,19 +27,19 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.jclouds.azurecompute.AzureComputeApi;
-import org.jclouds.azurecompute.compute.AzureComputeServiceAdapter;
+import org.jclouds.azurecompute.compute.NewAzureComputeServiceAdapter;
 import org.jclouds.azurecompute.compute.extensions.AzureComputeSecurityGroupExtension;
-import org.jclouds.azurecompute.compute.functions.DeploymentToNodeMetadata;
-import org.jclouds.azurecompute.compute.functions.LocationToLocation;
 import org.jclouds.azurecompute.compute.functions.OSImageToImage;
+import org.jclouds.azurecompute.compute.functions.VirtualMachineToNodeMetadata;
+import org.jclouds.azurecompute.compute.functions.LocationToLocation;
 import org.jclouds.azurecompute.compute.functions.RoleSizeToHardware;
 import org.jclouds.azurecompute.compute.strategy.GetOrCreateStorageServiceAndVirtualNetworkThenCreateNodes;
 import org.jclouds.azurecompute.compute.strategy.UseNodeCredentialsButOverrideFromTemplate;
-import org.jclouds.azurecompute.domain.Deployment;
+import org.jclouds.azurecompute.domain.VirtualMachine;
+import org.jclouds.azurecompute.domain.RoleSize;
 import org.jclouds.azurecompute.domain.Location;
 import org.jclouds.azurecompute.domain.OSImage;
 import org.jclouds.azurecompute.domain.Operation;
-import org.jclouds.azurecompute.domain.RoleSize;
 import org.jclouds.azurecompute.options.AzureComputeTemplateOptions;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.config.ComputeServiceAdapterContextModule;
@@ -60,19 +60,19 @@ import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
 
 public class AzureComputeServiceContextModule
-        extends ComputeServiceAdapterContextModule<Deployment, RoleSize, OSImage, Location> {
+        extends ComputeServiceAdapterContextModule<VirtualMachine, RoleSize, OSImage, Location> {
 
    @Override
    protected void configure() {
       super.configure();
-      bind(new TypeLiteral<ComputeServiceAdapter<Deployment, RoleSize, OSImage, Location>>() {
-      }).to(AzureComputeServiceAdapter.class);
+      bind(new TypeLiteral<ComputeServiceAdapter<VirtualMachine, RoleSize, OSImage, Location>>() {
+      }).to(NewAzureComputeServiceAdapter.class);
       bind(new TypeLiteral<Function<OSImage, org.jclouds.compute.domain.Image>>() {
       }).to(OSImageToImage.class);
       bind(new TypeLiteral<Function<RoleSize, Hardware>>() {
       }).to(RoleSizeToHardware.class);
-      bind(new TypeLiteral<Function<Deployment, NodeMetadata>>() {
-      }).to(DeploymentToNodeMetadata.class);
+      bind(new TypeLiteral<Function<VirtualMachine, NodeMetadata>>() {
+      }).to(VirtualMachineToNodeMetadata.class);
 
       bind(PrioritizeCredentialsFromTemplate.class).to(UseNodeCredentialsButOverrideFromTemplate.class);
       bind(new TypeLiteral<Function<Location, org.jclouds.domain.Location>>() {
@@ -85,8 +85,9 @@ public class AzureComputeServiceContextModule
       bind(CreateNodesInGroupThenAddToSet.class).to(GetOrCreateStorageServiceAndVirtualNetworkThenCreateNodes.class);
 
       // to have the compute service adapter override default locations
-      install(new LocationsFromComputeServiceAdapterModule<Deployment, RoleSize, OSImage, Location>() {
+      install(new LocationsFromComputeServiceAdapterModule<VirtualMachine, RoleSize, OSImage, Location>() {
       });
+
    }
 
    @Override

@@ -25,7 +25,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.logging.Logger;
 
-import org.jclouds.azurecompute.compute.AzureComputeServiceAdapter;
+import org.jclouds.azurecompute.compute.NewAzureComputeServiceAdapter;
 import org.jclouds.azurecompute.domain.CloudService;
 import org.jclouds.azurecompute.domain.Deployment;
 import org.jclouds.azurecompute.domain.DeploymentParams;
@@ -98,7 +98,7 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
       String diskName = roleName + "osdisk" + (int) (Math.random() * 100);
       OSVirtualHardDiskParam osParam = OSVirtualHardDiskParam.builder()
             .sourceImageName(IMAGE_NAME)
-            .mediaLink(AzureComputeServiceAdapter.createMediaLink(storageService.serviceName(), DEPLOYMENT))
+            .mediaLink(NewAzureComputeServiceAdapter.createMediaLink(storageService.serviceName(), DEPLOYMENT))
             .os(org.jclouds.azurecompute.domain.OSImage.Type.LINUX)
             .diskName(diskName)
             .diskLabel(diskName)

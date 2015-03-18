@@ -18,7 +18,7 @@ package org.jclouds.azurecompute.compute.extensions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.jclouds.azurecompute.compute.AzureComputeServiceAdapter.generateIllegalStateExceptionMessage;
+import static org.jclouds.azurecompute.compute.NewAzureComputeServiceAdapter.generateIllegalStateExceptionMessage;
 import static org.jclouds.util.Predicates2.retry;
 
 import java.util.List;

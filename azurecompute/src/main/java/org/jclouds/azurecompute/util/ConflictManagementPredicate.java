@@ -16,7 +16,7 @@
  */
 package org.jclouds.azurecompute.util;
 
-import static org.jclouds.azurecompute.compute.AzureComputeServiceAdapter.generateIllegalStateExceptionMessage;
+import static org.jclouds.azurecompute.compute.NewAzureComputeServiceAdapter.generateIllegalStateExceptionMessage;
 
 import com.google.common.base.Predicate;
 import javax.annotation.Resource;
