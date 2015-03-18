@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jclouds.azurecompute.compute;
+/*package org.jclouds.azurecompute.compute;
 
 import static com.google.common.base.Predicates.notNull;
 import static java.lang.String.format;
@@ -68,7 +68,7 @@ import org.jclouds.azurecompute.util.ConflictManagementPredicate;
 /**
  * Defines the connection between the {@link AzureComputeApi} implementation and the jclouds
  * {@link org.jclouds.compute.ComputeService}.
- */
+ * /
 @Singleton
 public class AzureComputeServiceAdapter implements ComputeServiceAdapter<Deployment, RoleSize, OSImage, Location> {
 
@@ -529,3 +529,4 @@ public class AzureComputeServiceAdapter implements ComputeServiceAdapter<Deploym
         }
     }
 }
+*/

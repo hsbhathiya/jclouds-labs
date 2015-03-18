@@ -28,41 +28,42 @@ import java.util.Map;
 
 public class DeploymentToVirtualMachine implements Function<Deployment, List<VirtualMachine>> {
 
-   @Override
-   public List<VirtualMachine> apply(Deployment input) {
+    @Override
+    public List<VirtualMachine> apply(Deployment input) {
 
-      List<Deployment.RoleInstance> roleInstances = input.roleInstanceList();
-      List<Role> roles = input.roleList();
+        List<Deployment.RoleInstance> roleInstances = input.roleInstanceList();
+        List<Role> roles = input.roleList();
 
-      Map<String, Role> mappedRoles = Maps.uniqueIndex(roles, new Function<Role, String>() {
-               public String apply(Role from) {
-                  return from.roleName(); // or something else
-               }
-            }
-      );
+        Map<String, Role> mappedRoles = Maps.uniqueIndex(roles, new Function<Role, String>() {
+                    public String apply(Role from) {
+                        return from.roleName(); // or something else
+                    }
+                }
+        );
 
-      List<VirtualMachine> virtualMachines = Lists.newArrayList();
-      for (Deployment.RoleInstance instance : roleInstances) {
+        List<VirtualMachine> virtualMachines = Lists.newArrayList();
+        for (Deployment.RoleInstance instance : roleInstances) {
 
-         VirtualMachine vm = VirtualMachine.builder()
-               .serviceName(instance.hostname())
-               .deploymentName(input.name())
-               .slot(input.slot())
-               .deploymentStatus(input.status())
-               .deploymentLabel(input.label())
-               .roleName(instance.roleName())
-               .instanceSize(instance.instanceSize())
-               .instanceStatus(instance.instanceStatus())
-               .instanceName(instance.instanceName())
-               .instanceErrorCode(input.instanceErrorCode())
-               .instanceStateDetails(input.instanceStateDetails())
-               .instanceEndpoints(instance.instanceEndpoints())
-               .role(mappedRoles.get(instance.roleName()))
-               .virtualNetworkName(input.virtualNetworkName())
-               .build();
+            VirtualMachine vm = VirtualMachine.builder()
+                    .serviceName(input.name())
+                    .deploymentName(input.name())
+                    .slot(input.slot())
+                    .deploymentStatus(input.status())
+                    .deploymentLabel(input.label())
+                    .roleName(instance.roleName())
+                    .instanceSize(instance.instanceSize())
+                    .instanceStatus(instance.instanceStatus())
+                    .instanceName(instance.instanceName())
+                    .instanceErrorCode(input.instanceErrorCode())
+                    .instanceStateDetails(input.instanceStateDetails())
+                    .instanceEndpoints(instance.instanceEndpoints())
+                    .role(mappedRoles.get(instance.roleName()))
+                    .virtualNetworkName(input.virtualNetworkName())
+                    .virtualIps(input.virtualIPs())
+                    .build();
 
-         virtualMachines.add(vm);
-      }
-      return virtualMachines;
-   }
+            virtualMachines.add(vm);
+        }
+        return virtualMachines;
+    }
 }

@@ -17,6 +17,9 @@
 package org.jclouds.azurecompute.compute.extensions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.jclouds.azurecompute.compute.NewAzureComputeServiceAdapter.generateIllegalStateExceptionMessage;
+
+
 
 import java.util.List;
 import java.util.Set;
@@ -53,7 +56,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
-import static org.jclouds.azurecompute.compute.AzureComputeServiceAdapter.generateIllegalStateExceptionMessage;
 
 /**
  * An extension to compute service to allow for the manipulation of {@link org.jclouds.compute.domain.SecurityGroup}s.

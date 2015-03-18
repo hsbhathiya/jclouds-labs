@@ -23,6 +23,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -137,4 +138,14 @@ public interface VirtualMachineApi {
    @Path("/roleinstances/{name}/Operations")
    @ResponseParser(ParseRequestIdHeader.class) String capture(@PathParam("name") String name,
          @BinderParam(CaptureVMImageParamsToXML.class) CaptureVMImageParams params);
+
+    /**
+     * https://msdn.microsoft.com/en-us/library/azure/jj157193.aspx
+     */
+    @Named("DeleteRole")
+    @DELETE
+    @Path("/roles/{roleName}")
+    @Produces(MediaType.APPLICATION_XML)
+    @ResponseParser(ParseRequestIdHeader.class) String deleteRole(@PathParam("roleName") String roleName);
+
 }

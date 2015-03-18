@@ -27,7 +27,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 
 import com.google.common.collect.Iterables;
-import org.jclouds.azurecompute.compute.AzureComputeServiceAdapter;
+import org.jclouds.azurecompute.compute.NewAzureComputeServiceAdapter;
 import org.jclouds.azurecompute.domain.DeploymentParams;
 import org.jclouds.azurecompute.domain.RoleParam;
 import org.jclouds.azurecompute.domain.LinuxConfigurationSetParams;
@@ -94,7 +94,7 @@ public class VMImageApiLiveTest extends BaseAzureComputeApiLiveTest {
         diskName = roleName + "osdisk" + (int) (Math.random() * 100);
         OSVirtualHardDiskParam osParam = OSVirtualHardDiskParam.builder()
                 .sourceImageName(IMAGE_NAME)
-                .mediaLink(AzureComputeServiceAdapter.createMediaLink(storageService.serviceName(), DEPLOYMENT))
+                .mediaLink(NewAzureComputeServiceAdapter.createMediaLink(storageService.serviceName(), DEPLOYMENT))
                 .os(org.jclouds.azurecompute.domain.OSImage.Type.LINUX)
                 .diskName(diskName)
                 .diskLabel(diskName)

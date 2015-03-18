@@ -142,6 +142,7 @@ public interface CloudServiceApi {
    * */
 
    @Named("CloudServiceProperties")
+
    @GET
    @Path("/{name}")
    @QueryParams(keys = "embed-detail", values = "true")

@@ -255,6 +255,7 @@ public abstract class Deployment {
    /* Specifies the URL that is used to access the cloud service.
     For example, if the service name is MyService you could access the access the service by calling: http:// MyService.cloudapp.net*/
 
+   @Nullable
    public abstract URI url();
 
    /**

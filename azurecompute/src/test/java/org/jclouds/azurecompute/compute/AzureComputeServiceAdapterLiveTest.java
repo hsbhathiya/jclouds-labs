@@ -22,15 +22,16 @@ import static org.testng.Assert.assertNotNull;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Sets;
-import java.util.Properties;
-import java.util.Random;
-import java.util.Set;
+
+import java.util.*;
 
 import org.jclouds.azurecompute.AzureComputeApi;
-import org.jclouds.azurecompute.domain.Deployment;
+import org.jclouds.azurecompute.domain.Role;
 import org.jclouds.azurecompute.domain.RoleSize;
+import org.jclouds.azurecompute.domain.VirtualMachine;
 import org.jclouds.azurecompute.internal.BaseAzureComputeApiLiveTest;
 import org.jclouds.azurecompute.options.AzureComputeTemplateOptions;
+import org.jclouds.azurecompute.util.ConflictManagementPredicate;
 import org.jclouds.compute.ComputeServiceAdapter.NodeAndInitialCredentials;
 import org.jclouds.compute.domain.ExecResponse;
 import org.jclouds.compute.domain.Template;
@@ -48,14 +49,14 @@ import com.google.common.net.HostAndPort;
 import com.google.common.net.InetAddresses;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import java.util.Arrays;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jclouds.util.Predicates2.retry;
 
 @Test(groups = "live", singleThreaded = true, testName = "AzureComputeServiceAdapterLiveTest")
 public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveTest {
 
-   private AzureComputeServiceAdapter adapter;
+   private NewAzureComputeServiceAdapter adapter;
 
    private TemplateBuilder templateBuilder;
 
@@ -74,7 +75,7 @@ public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveT
    @Override
    protected AzureComputeApi create(final Properties props, final Iterable<Module> modules) {
       final Injector injector = newBuilder().modules(modules).overrides(props).buildInjector();
-      adapter = injector.getInstance(AzureComputeServiceAdapter.class);
+      adapter = injector.getInstance(NewAzureComputeServiceAdapter.class);
       templateBuilder = injector.getInstance(TemplateBuilder.class);
       sshFactory = injector.getInstance(SshClient.Factory.class);
       return injector.getInstance(AzureComputeApi.class);
@@ -116,8 +117,9 @@ public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveT
       options.subnetAddressPrefix(DEFAULT_SUBNET_ADDRESS_SPACE);
       options.nodeNames(Arrays.asList(name));
 
-      NodeAndInitialCredentials<Deployment> deployment = null;
+      NodeAndInitialCredentials<VirtualMachine> virtualMachine = null;
       try {
+/*<<<<<<< HEAD
          deployment = adapter.createNodeWithGroupEncodedIntoName(groupName, name, template);
          assertEquals(deployment.getNode().name(), name);
          assertEquals(deployment.getNodeId(), deployment.getNode().name());
@@ -143,12 +145,36 @@ public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveT
          final SshClient client = sshFactory.create(
                  HostAndPort.fromParts(node.virtualIPs().get(0).address(), 22),
                  deployment.getCredentials());
+======= */
+         virtualMachine = adapter.createNodeWithGroupEncodedIntoName(groupName, name, template);
+         assertEquals(virtualMachine.getNode().deploymentName(), name);
+         assertEquals(virtualMachine.getNodeId(), virtualMachine.getNode().deploymentName());
+         assert InetAddresses.isInetAddress(virtualMachine.getNode().virtualIPs().get(0).address()) : virtualMachine;
+
+         SshClient client = sshFactory.create(
+                 HostAndPort.fromParts(virtualMachine.getNode().virtualIPs().get(0).address(), 22),
+                 virtualMachine.getCredentials());
          client.connect();
          final ExecResponse hello = client.exec("echo hello");
          assertEquals(hello.getOutput().trim(), "hello");
       } finally {
+/*<<<<<<< HEAD
          if (deployment != null) {
             adapter.destroyNode(deployment.getNodeId());
+=======*/
+         if (virtualMachine != null) {
+            final List<Role> roles = api.getDeploymentApiForService(virtualMachine.getNodeId()).
+                    get(virtualMachine.getNodeId()).roleList();
+
+            adapter.destroyNode(virtualMachine.getNodeId());
+
+            for (Role role : roles) {
+               final Role.OSVirtualHardDisk disk = role.osVirtualHardDisk();
+               if (disk != null) {
+                 //  String requestId = api.getDiskApi().delete(disk.diskName());
+                  //operationSucceeded.apply(requestId);
+               }
+            }
          }
       }
    }
