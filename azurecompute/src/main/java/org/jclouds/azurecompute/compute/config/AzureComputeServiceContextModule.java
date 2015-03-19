@@ -49,6 +49,7 @@ import org.jclouds.collect.Memoized;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.config.ComputeServiceAdapterContextModule;
 import org.jclouds.compute.domain.Hardware;
+import org.jclouds.compute.domain.Image;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.compute.extensions.SecurityGroupExtension;
 import org.jclouds.compute.options.TemplateOptions;
@@ -151,6 +152,21 @@ public class AzureComputeServiceContextModule
       /*return Predicates2.retry(new OperationSucceededPredicate(api),
             azureComputeConstants.operationTimeout(), azureComputeConstants.operationPollInitialPeriod(),
             azureComputeConstants.operationPollMaxPeriod());*/
+       }
+
+       @Provides @Singleton @Memoized
+       Supplier<Map<String, Image>> ImageById(
+               @Memoized final Supplier<Set<? extends Image>> imageSupplier,
+               @Named(OPERATION_TIMEOUT) long seconds) {
+           return memoizeWithExpiration(new Supplier<Map<String, Image>>() {
+               @Override public Map<String, Image> get() {
+                   ImmutableMap.Builder<String, Image> result = ImmutableMap.builder();
+                   for (Image image : imageSupplier.get()) {
+                       result.put(image.getId(), image);
+                   }
+                   return result.build();
+               }
+           }, seconds, SECONDS);
        }
 
        @Provides @Singleton @Memoized

@@ -54,6 +54,16 @@ public class VirtualMachineToNodeMetadata implements Function<VirtualMachine, No
 			  .put(Deployment.Status.RUNNING, NodeMetadata.Status.RUNNING)
 			  .put(Deployment.Status.UNRECOGNIZED, NodeMetadata.Status.UNRECOGNIZED).build();
 
+    public static final Map<Deployment.InstanceStatus, NodeMetadata.Status> instanceStateToNodeStatus = ImmutableMap
+            .<Deployment.InstanceStatus, NodeMetadata.Status> builder()
+            .put(Deployment.InstanceStatus.READY_ROLE, NodeMetadata.Status.RUNNING)
+            .put(Deployment.InstanceStatus.BUSY_ROLE, NodeMetadata.Status.PENDING)
+            .put(Deployment.InstanceStatus.PREPARING, NodeMetadata.Status.PENDING)
+            .put(Deployment.InstanceStatus.STOPPED_VM, NodeMetadata.Status.TERMINATED)
+            .put(Deployment.InstanceStatus.FAILED_STARTING_ROLE, NodeMetadata.Status.ERROR)
+            .put(Deployment.InstanceStatus.UNRESPONSIVE_ROLE, NodeMetadata.Status.ERROR)
+            .put(Deployment.InstanceStatus.UNRECOGNIZED, NodeMetadata.Status.UNRECOGNIZED).build();
+
 	@Inject VirtualMachineToNodeMetadata(@Memoized Supplier<Set<? extends Location>> locations,
 			GroupNamingConvention.Factory namingConvention, OSImageToImage osImageToImage,
 			RoleSizeToHardware roleSizeToHardware, Map<String, Credentials> credentialStore) {
@@ -70,6 +80,7 @@ public class VirtualMachineToNodeMetadata implements Function<VirtualMachine, No
 		builder.ids(from.deploymentName());
 		builder.name(from.deploymentName());
 		builder.hostname(from.serviceName());
+        builder.imageId(from.role().osVirtualHardDisk().sourceImageName());
 		/* TODO
 		if (from.getDatacenter() != null) {
 			builder.location(from(locations.get()).firstMatch(
@@ -83,8 +94,13 @@ public class VirtualMachineToNodeMetadata implements Function<VirtualMachine, No
 			builder.operatingSystem(image.getOperatingSystem());
 		}
 		*/
-		if (from.deploymentStatus() != null) {
-			builder.status(serverStateToNodeStatus.get(from.deploymentStatus()));
+		if (from.instanceStatus() != null) {
+            NodeMetadata.Status status = instanceStateToNodeStatus.get(from.instanceStatus());
+            if(status != null){
+                builder.status(status);
+            }else{
+                builder.status(NodeMetadata.Status.UNRECOGNIZED);
+            }
 		}
 		Set<String> publicIpAddresses = Sets.newLinkedHashSet();
 		if (from.virtualIPs() != null) {

@@ -151,7 +151,10 @@ public class AzureComputeSecurityGroupExtension implements SecurityGroupExtensio
    public SecurityGroup createSecurityGroup(final String name, final Location location) {
       checkNotNull(name, "name");
       checkNotNull(location, "location");
-
+      NetworkSecurityGroup availableNsg = api.getNetworkSecurityGroupApi().getFullDetails(name);
+      if(availableNsg != null){
+          return  transformNetworkSecurityGroupToSecurityGroup(name);
+      }
       final NetworkSecurityGroup networkSecurityGroup = NetworkSecurityGroup.create(name, name, location.getId(), null);
       String createNSGRequestId = api.getNetworkSecurityGroupApi().create(networkSecurityGroup);
       if (!operationSucceededPredicate.apply(createNSGRequestId)) {
