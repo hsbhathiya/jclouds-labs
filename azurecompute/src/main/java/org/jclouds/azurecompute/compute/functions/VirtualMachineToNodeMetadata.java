@@ -80,7 +80,10 @@ public class VirtualMachineToNodeMetadata implements Function<VirtualMachine, No
 		builder.ids(from.deploymentName());
 		builder.name(from.deploymentName());
 		builder.hostname(from.serviceName());
-        builder.imageId(from.role().osVirtualHardDisk().sourceImageName());
+        if(from.role() !=null && from.role().osVirtualHardDisk() != null){
+            builder.imageId(from.role().osVirtualHardDisk().diskName());
+        }
+
 		/* TODO
 		if (from.getDatacenter() != null) {
 			builder.location(from(locations.get()).firstMatch(
