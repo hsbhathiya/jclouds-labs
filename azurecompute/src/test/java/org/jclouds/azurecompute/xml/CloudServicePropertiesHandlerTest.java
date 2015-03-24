@@ -80,6 +80,7 @@ public class CloudServicePropertiesHandlerTest extends BaseHandlerTest {
         return ImmutableList.of(
                 Deployment.create( //
                         "node1855162607153993262-b26", // name
+                        URI.create("http://node1855162607153993262-b26.cloudapp.net/"),
                         Slot.PRODUCTION, // slot
                         Status.RUNNING, // status
                         "node1855162607153993262-b26", // label
