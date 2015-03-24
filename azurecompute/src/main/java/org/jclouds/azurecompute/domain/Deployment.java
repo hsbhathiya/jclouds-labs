@@ -19,6 +19,7 @@ package org.jclouds.azurecompute.domain;
 import static com.google.common.collect.ImmutableList.copyOf;
 
 import java.util.List;
+import java.net.URI;
 
 import org.jclouds.javax.annotation.Nullable;
 
@@ -199,6 +200,11 @@ public abstract class Deployment {
     */
    public abstract String name();
 
+   /* Specifies the URL that is used to access the cloud service.
+    For example, if the service name is MyService you could access the access the service by calling: http:// MyService.cloudapp.net*/
+
+   public abstract URI url();
+
    /**
     * The environment to which the cloud service is deployed.
     */
@@ -250,12 +256,12 @@ public abstract class Deployment {
    @Nullable
    public abstract String virtualNetworkName();
 
-   public static Deployment create(final String name, final Slot slot, final Status status, final String label,
+   public static Deployment create(final String name, final URI url, final Slot slot, final Status status, final String label,
            final String instanceStateDetails, final String instanceErrorCode,
            final List<VirtualIP> virtualIPs, final List<RoleInstance> roleInstanceList,
            final List<Role> roles, final String virtualNetworkName) {
 
-      return new AutoValue_Deployment(name, slot, status, label, instanceStateDetails,
+      return new AutoValue_Deployment(name, url, slot, status, label, instanceStateDetails,
               instanceErrorCode, copyOf(virtualIPs), copyOf(roleInstanceList),
               roles == null ? null : copyOf(roles), virtualNetworkName);
    }

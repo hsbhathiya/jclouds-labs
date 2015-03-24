@@ -23,6 +23,7 @@ import static com.google.common.io.BaseEncoding.base64;
 import static org.jclouds.util.SaxUtils.currentOrNull;
 
 import java.util.List;
+import java.net.URI;
 
 import org.jclouds.azurecompute.domain.Deployment;
 import org.jclouds.azurecompute.domain.Deployment.Slot;
@@ -40,6 +41,8 @@ import com.google.inject.Inject;
 public final class DeploymentHandler extends ParseSax.HandlerForGeneratedRequestWithResult<Deployment> {
 
    private String name;
+
+   private URI url;
 
    private Slot slot;
 
@@ -82,7 +85,7 @@ public final class DeploymentHandler extends ParseSax.HandlerForGeneratedRequest
 
    @Override
    public Deployment getResult() { // Fields don't need to be reset as this isn't used in a loop.
-      return Deployment.create(name, slot, status, label, //
+      return Deployment.create(name, url, slot, status, label, //
               instanceStateDetails, instanceErrorCode, virtualIPs, roleInstanceList, roleList, virtualNetworkName);
    }
 
@@ -125,6 +128,11 @@ public final class DeploymentHandler extends ParseSax.HandlerForGeneratedRequest
          virtualIPHandler.endElement(ignoredUri, ignoredName, qName);
       } else if (qName.equals("Name") && name == null) {
          name = currentOrNull(currentText);
+      } else if (qName.equals("Url")) {
+          String urlText = currentOrNull(currentText);
+          if (urlText != null){
+              url = URI.create(urlText);
+          }
       } else if (qName.equals("DeploymentSlot")) {
          String slotText = currentOrNull(currentText);
          slot = Slot.fromString(UPPER_CAMEL.to(UPPER_UNDERSCORE, slotText));
