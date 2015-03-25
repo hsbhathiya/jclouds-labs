@@ -59,6 +59,8 @@ public class AzureComputeServiceContextLiveTest extends BaseComputeServiceContex
 
    private String storageServiceName = null;
 
+   private String deploymentName = null;
+
    protected String getStorageServiceName() {
       if (storageServiceName == null) {
          storageServiceName = String.format("%3.24s",
@@ -66,6 +68,14 @@ public class AzureComputeServiceContextLiveTest extends BaseComputeServiceContex
       }
       return storageServiceName;
    }
+
+   protected String getDeploymentName() {
+        if (deploymentName == null) {
+            deploymentName = String.format("%3.24s",
+                    System.getProperty("user.name") + RAND + this.getClass().getSimpleName()).toLowerCase();
+        }
+        return deploymentName;
+    }
 
    @BeforeClass
    public void setup() {
@@ -128,6 +138,7 @@ public class AzureComputeServiceContextLiveTest extends BaseComputeServiceContex
       final AzureComputeTemplateOptions options = tmp.getOptions().as(AzureComputeTemplateOptions.class);
       options.inboundPorts(22);
       options.storageAccountName(getStorageServiceName());
+      options.deploymentName(getDeploymentName());
       options.virtualNetworkName(BaseAzureComputeApiLiveTest.VIRTUAL_NETWORK_NAME);
       options.subnetName(BaseAzureComputeApiLiveTest.DEFAULT_SUBNET_NAME);
       options.addressSpaceAddressPrefix(BaseAzureComputeApiLiveTest.DEFAULT_ADDRESS_SPACE);
@@ -145,7 +156,7 @@ public class AzureComputeServiceContextLiveTest extends BaseComputeServiceContex
          assertThat(hello.getOutput().trim()).isEqualTo("hello");
       } finally {
          if (node != null) {
-            final List<Role> roles = api.getDeploymentApiForService(node.getId()).get(node.getId()).roles();
+            final List<Role> roles = api.getDeploymentApiForService(node.getUserMetadata().get("CloudService")).get(node.getUserMetadata().get("Deployment")).roles();
 
             view.getComputeService().destroyNode(node.getId());
 

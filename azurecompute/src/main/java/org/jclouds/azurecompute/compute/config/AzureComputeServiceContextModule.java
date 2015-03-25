@@ -27,7 +27,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.jclouds.azurecompute.AzureComputeApi;
-import org.jclouds.azurecompute.compute.NewAzureComputeServiceAdapter;
+import org.jclouds.azurecompute.compute.AzureComputeServiceAdapter;
 import org.jclouds.azurecompute.compute.extensions.AzureComputeSecurityGroupExtension;
 import org.jclouds.azurecompute.compute.functions.OSImageToImage;
 import org.jclouds.azurecompute.compute.functions.VirtualMachineToNodeMetadata;
@@ -66,7 +66,7 @@ public class AzureComputeServiceContextModule
    protected void configure() {
       super.configure();
       bind(new TypeLiteral<ComputeServiceAdapter<VirtualMachine, RoleSize, OSImage, Location>>() {
-      }).to(NewAzureComputeServiceAdapter.class);
+      }).to(AzureComputeServiceAdapter.class);
       bind(new TypeLiteral<Function<OSImage, org.jclouds.compute.domain.Image>>() {
       }).to(OSImageToImage.class);
       bind(new TypeLiteral<Function<RoleSize, Hardware>>() {

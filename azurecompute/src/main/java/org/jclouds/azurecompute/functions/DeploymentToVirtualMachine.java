@@ -45,7 +45,7 @@ public class DeploymentToVirtualMachine implements Function<Deployment, List<Vir
         for (Deployment.RoleInstance instance : roleInstances) {
 
             VirtualMachine vm = VirtualMachine.builder()
-                    .serviceName(input.name())
+                    .serviceName(input.url().getHost().split("\\.")[0])
                     .deploymentName(input.name())
                     .slot(input.slot())
                     .deploymentStatus(input.status())

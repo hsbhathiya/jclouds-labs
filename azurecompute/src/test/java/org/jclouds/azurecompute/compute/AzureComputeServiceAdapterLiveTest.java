@@ -55,7 +55,7 @@ import org.jclouds.azurecompute.util.ConflictManagementPredicate;
 @Test(groups = "live", singleThreaded = true, testName = "AzureComputeServiceAdapterLiveTest")
 public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveTest {
 
-   private NewAzureComputeServiceAdapter adapter;
+   private AzureComputeServiceAdapter adapter;
 
    private TemplateBuilder templateBuilder;
 
@@ -64,7 +64,7 @@ public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveT
    @Override
    protected AzureComputeApi create(final Properties props, final Iterable<Module> modules) {
       final Injector injector = newBuilder().modules(modules).overrides(props).buildInjector();
-      adapter = injector.getInstance(NewAzureComputeServiceAdapter.class);
+      adapter = injector.getInstance(AzureComputeServiceAdapter.class);
       templateBuilder = injector.getInstance(TemplateBuilder.class);
       sshFactory = injector.getInstance(SshClient.Factory.class);
       return injector.getInstance(AzureComputeApi.class);
@@ -89,7 +89,7 @@ public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveT
               System.getProperty("user.name"),
               new Random(999).nextLong());
 
-      final String name = String.format("%1.5s%dacsalt", System.getProperty("user.name"), new Random(999).nextInt());
+      final String name = String.format("%s%dacsalt", System.getProperty("user.name"), new Random(999).nextLong());
 
       templateBuilder.imageId(BaseAzureComputeApiLiveTest.IMAGE_NAME);
       templateBuilder.hardwareId("BASIC_A0");
@@ -100,33 +100,33 @@ public class AzureComputeServiceAdapterLiveTest extends BaseAzureComputeApiLiveT
       final AzureComputeTemplateOptions options = template.getOptions().as(AzureComputeTemplateOptions.class);
       options.inboundPorts(22);
       options.storageAccountName(getStorageServiceName());
+      options.deploymentName(getDeploymentName());
       options.virtualNetworkName(VIRTUAL_NETWORK_NAME);
       options.subnetName(DEFAULT_SUBNET_NAME);
       options.addressSpaceAddressPrefix(DEFAULT_ADDRESS_SPACE);
       options.subnetAddressPrefix(DEFAULT_SUBNET_ADDRESS_SPACE);
       options.nodeNames(Arrays.asList(name));
 
-      NodeAndInitialCredentials<VirtualMachine> virtualMachine = null;
+      NodeAndInitialCredentials<VirtualMachine> nodeAndInitialCredentials = null;
       try {
-         virtualMachine = adapter.createNodeWithGroupEncodedIntoName(groupName, name, template);
-         assertEquals(virtualMachine.getNode().deploymentName(), name);
-         assertEquals(virtualMachine.getNodeId(), virtualMachine.getNode().deploymentName());
-         assert InetAddresses.isInetAddress(virtualMachine.getNode().virtualIPs().get(0).address()) : virtualMachine;
+         nodeAndInitialCredentials = adapter.createNodeWithGroupEncodedIntoName(groupName, name, template);
+         assertEquals(nodeAndInitialCredentials.getNode().roleName(), name);
+         assertEquals(nodeAndInitialCredentials.getNodeId(), nodeAndInitialCredentials.getNode().roleName());
+         assert InetAddresses.isInetAddress(nodeAndInitialCredentials.getNode().virtualIPs().get(0).address()) : nodeAndInitialCredentials;
 
          SshClient client = sshFactory.create(
-                 HostAndPort.fromParts(virtualMachine.getNode().virtualIPs().get(0).address(), 22),
-                 virtualMachine.getCredentials());
+                 HostAndPort.fromParts(nodeAndInitialCredentials.getNode().virtualIPs().get(0).address(), 22),
+                 nodeAndInitialCredentials.getCredentials());
          client.connect();
          ExecResponse hello = client.exec("echo hello");
          assertEquals(hello.getOutput().trim(), "hello");
       } finally {
-         if (virtualMachine != null) {
-            final List<Role> roles = api.getDeploymentApiForService(virtualMachine.getNodeId()).
-                    get(virtualMachine.getNodeId()).roles();
-
-            adapter.destroyNode(virtualMachine.getNodeId());
+         if (nodeAndInitialCredentials != null) {
+            final List<Role> roles = api.getDeploymentApiForService(nodeAndInitialCredentials.getNode().serviceName()).
+                    get(nodeAndInitialCredentials.getNode().deploymentName()).roles();
 
             for (Role role : roles) {
+               adapter.destroyNode(role.roleName());
                final Role.OSVirtualHardDisk disk = role.osVirtualHardDisk();
                if (disk != null) {
                   retry(new ConflictManagementPredicate(operationSucceeded) {

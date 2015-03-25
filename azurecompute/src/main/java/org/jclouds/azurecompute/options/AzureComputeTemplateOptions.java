@@ -52,6 +52,8 @@ public class AzureComputeTemplateOptions extends TemplateOptions implements Clon
 
    private Optional<String> storageAccountName = Optional.absent();
 
+   private Optional<String> deploymentName = Optional.absent();
+
    private Optional<String> storageAccountType = Optional.absent();
 
    private Optional<String> networkSecurityGroupName = Optional.absent();
@@ -86,6 +88,9 @@ public class AzureComputeTemplateOptions extends TemplateOptions implements Clon
          if (storageAccountName.isPresent()) {
             eTo.storageAccountName(storageAccountName.get());
          }
+         if (deploymentName.isPresent()) {
+              eTo.deploymentName(deploymentName.get());
+          }
          if (storageAccountType.isPresent()) {
             eTo.storageAccountType(storageAccountType.get());
          }
@@ -118,9 +123,14 @@ public class AzureComputeTemplateOptions extends TemplateOptions implements Clon
    }
 
    public TemplateOptions storageAccountName(final String storageAccountName) {
-      this.storageAccountName = Optional.of(storageAccountName);
-      return this;
-   }
+        this.storageAccountName = Optional.of(storageAccountName);
+        return this;
+    }
+
+   public TemplateOptions deploymentName(final String deploymentName) {
+        this.deploymentName = Optional.of(deploymentName);
+        return this;
+    }
 
    public TemplateOptions storageAccountType(final String storageAccountType) {
       this.storageAccountType = Optional.of(storageAccountType);
@@ -146,6 +156,10 @@ public class AzureComputeTemplateOptions extends TemplateOptions implements Clon
    public Optional<String> getStorageAccountName() {
       return storageAccountName;
    }
+
+    public Optional<String> getDeploymentName() {
+        return deploymentName;
+    }
 
    public Optional<String> getStorageAccountType() {
       return storageAccountType;

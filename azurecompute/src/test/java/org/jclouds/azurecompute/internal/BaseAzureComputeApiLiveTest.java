@@ -77,6 +77,8 @@ public class BaseAzureComputeApiLiveTest extends BaseApiLiveTest<AzureComputeApi
 
    private String storageServiceName = null;
 
+   private String deploymentName = null;
+
    public BaseAzureComputeApiLiveTest() {
       provider = "azurecompute";
    }
@@ -89,6 +91,13 @@ public class BaseAzureComputeApiLiveTest extends BaseApiLiveTest<AzureComputeApi
       return storageServiceName;
    }
 
+    protected String getDeploymentName() {
+        if (deploymentName == null) {
+            deploymentName = String.format("%3.24s",
+                    System.getProperty("user.name") + RAND + this.getClass().getSimpleName()).toLowerCase();
+        }
+        return deploymentName;
+    }
    @BeforeClass
    @Override
    public void setup() {

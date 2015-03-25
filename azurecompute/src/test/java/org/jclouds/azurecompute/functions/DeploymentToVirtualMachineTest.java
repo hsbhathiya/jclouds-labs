@@ -36,6 +36,7 @@ public class DeploymentToVirtualMachineTest {
       for (VirtualMachine vm : transformed) {
          Deployment.RoleInstance instance = deployment.roleInstanceList().get(i);
          assertEquals(vm.deploymentName(), deployment.name());
+         assertEquals(vm.serviceName(), deployment.url().getHost().split("\\.")[0]);
          assertEquals(vm.deploymentLabel(), deployment.label());
          assertEquals(vm.deploymentStatus(), deployment.status());
          assertEquals(vm.roleName(), instance.roleName());
