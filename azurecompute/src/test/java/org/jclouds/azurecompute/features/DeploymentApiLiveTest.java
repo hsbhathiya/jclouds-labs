@@ -171,7 +171,7 @@ public class DeploymentApiLiveTest extends BaseAzureComputeApiLiveTest {
    private void checkDeployment(Deployment deployment) {
       assertNotNull(deployment);
       assertNotNull(deployment.name(), "Name cannot be Null for Deployment" + deployment);
-      assertTrue(deployment.roles().size() > 0, "There should be atleast 1 Virtual machine for a deployment  ");
+      assertTrue(deployment.roleList().size() > 0, "There should be atleast 1 Virtual machine for a deployment  ");
       assertNotNull(deployment.label(), "Label cannot be Null for Deployment" + deployment);
 
       Deployment.Slot slot = deployment.slot();

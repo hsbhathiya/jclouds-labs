@@ -91,6 +91,7 @@ public class CloudServicePropertiesHandlerTest extends BaseHandlerTest {
                                 "node1855162607153993262-b26", // roleName
                                 "node1855162607153993262-b26", // instanceName
                                 InstanceStatus.READY_ROLE, //instanceStatus
+                                null,
                                 0,
                                 0,
                                 RoleSize.Type.BASIC_A0,
