@@ -99,7 +99,7 @@ public class VMImageApiLiveTest extends BaseAzureComputeApiLiveTest {
         Deployment.RoleInstance roleInstance = getFirstRoleInstanceInDeployment(DEPLOYMENT);
         assertTrue(roleInstanceReady.apply(DEPLOYMENT), roleInstance.toString());
         roleName = roleInstance.roleName();
-        diskName = deployment.roles().get(0).osVirtualHardDisk().diskName();
+        diskName = deployment.roleList().get(0).osVirtualHardDisk().diskName();
     }
 
     @Test(dependsOnMethods = "testCaptureVMImage")
