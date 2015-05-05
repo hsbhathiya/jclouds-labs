@@ -47,14 +47,14 @@ public abstract class DeploymentParams {
 
       public abstract int localPort();
 
-      public static ExternalEndpoint inboundTcpToLocalPort(int port, int localPort) {
-         return new AutoValue_DeploymentParams_ExternalEndpoint(String.format("tcp%s_%s", port, localPort), "tcp", port,
-               localPort);
+      public static ExternalEndpoint inboundTcpToLocalPort(final int port, final int localPort) {
+         return new AutoValue_DeploymentParams_ExternalEndpoint(
+                  String.format("tcp%s_%s", port, localPort), "tcp", port,localPort);
       }
 
-      public static ExternalEndpoint inboundUdpToLocalPort(int port, int localPort) {
-         return new AutoValue_DeploymentParams_ExternalEndpoint(String.format("udp%s_%s", port, localPort), "udp", port,
-               localPort);
+      public static ExternalEndpoint inboundUdpToLocalPort(final int port, final int localPort) {
+         return new AutoValue_DeploymentParams_ExternalEndpoint(
+                 String.format("udp%s_%s", port, localPort), "udp", port, localPort);
       }
 
       ExternalEndpoint() { // For AutoValue only!
@@ -139,20 +139,27 @@ public abstract class DeploymentParams {
       }
 
       public DeploymentParams build() {
-         return DeploymentParams
-               .create(name, ImmutableList.copyOf(externalEndpoints), ImmutableList.copyOf(subnetNames),
-                     ImmutableList.copyOf(roleParams), virtualNetworkName, reservedIpName);
+         return DeploymentParams.create(
+               name,
+               ImmutableList.copyOf(externalEndpoints),
+               ImmutableList.copyOf(subnetNames),
+               ImmutableList.copyOf(roleParams),
+               virtualNetworkName, reservedIpName);
       }
 
       public Builder fromDeploymentParams(DeploymentParams in) {
-         return name(in.name()).externalEndpoints(in.externalEndpoints()).subnetNames(in.subnetNames())
-               .roleParams(in.roleParams()).virtualNetworkName(in.virtualNetworkName())
+         return name(in.name())
+               .externalEndpoints(in.externalEndpoints())
+               .subnetNames(in.subnetNames())
+               .roleParams(in.roleParams())
+               .virtualNetworkName(in.virtualNetworkName())
                .reservedIpName(in.reservedIpName());
       }
    }
 
    private static DeploymentParams create(String name, List<ExternalEndpoint> externalEndpoints,
          List<String> subnetNames, List<RoleParam> roleParams, String virtualNetworkName, String reservedIpName) {
+
       return new AutoValue_DeploymentParams(name, externalEndpoints, subnetNames, roleParams, virtualNetworkName,
             reservedIpName);
    }

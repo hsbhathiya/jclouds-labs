@@ -58,8 +58,8 @@ public class RoleToXML implements Binder {
                      subnetNames.e("SubnetName").t(subnetText).up();
                   }
                }
-               if (configurationSet.networkSecurityGroup() != null && !configurationSet.networkSecurityGroup()
-                     .isEmpty()) {
+               if (configurationSet.networkSecurityGroup() != null
+                       && !configurationSet.networkSecurityGroup().isEmpty()) {
                   configBuilder.e("NetworkSecurityGroup").t(configurationSet.networkSecurityGroup()).up();
                }
             }
