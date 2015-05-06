@@ -32,7 +32,7 @@ public class DeploymentToVirtualMachine implements Function<Deployment, List<Vir
    public List<VirtualMachine> apply(Deployment input) {
 
       List<Deployment.RoleInstance> roleInstances = input.roleInstanceList();
-      List<Role> roles = input.roles();
+      List<Role> roles = input.roleList();
 
       Map<String, Role> mappedRoles = Maps.uniqueIndex(roles, new Function<Role, String>() {
                public String apply(Role from) {
